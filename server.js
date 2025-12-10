@@ -104,6 +104,16 @@ app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
+        // SECURITY: Strict Username Validation (No XSS, no special chars)
+        // Allowed: a-z, A-Z, 0-9, underscore. Length: 3-20.
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                success: false,
+                message: "Jméno může obsahovat pouze písmena, čísla a podtržítko (bez mezer)."
+            });
+        }
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);

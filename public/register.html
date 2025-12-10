@@ -101,6 +101,13 @@
                 return;
             }
 
+            // Validation 2: Username Characters (Security)
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+            if (!usernameRegex.test(username)) {
+                alert("Uživatelské jméno obsahuje nepovolené znaky.\nPoužij pouze písmena, čísla a podtržítko.");
+                return;
+            }
+
             btn.innerText = "Kontroluji dostupnost...";
             btn.style.opacity = "0.7";
 
