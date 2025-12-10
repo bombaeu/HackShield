@@ -172,12 +172,8 @@
         // Initialize globally
         window.deleteUser = async function (id) {
             console.log("1. Tlačítko stisknuto. ID:", id);
-
-            if (!confirm("Opravdu smazat?")) {
-                console.log("2. Mazání zrušeno uživatelem.");
-                return;
-            }
-            console.log("2. Mazání potvrzeno. Odesílám požadavek na server...");
+            // Confirm removed to fix browser issue
+            console.log("2. Jdu mazat (bez potvrzení). Odesílám...");
 
             try {
                 const payload = JSON.stringify({ id: id });
