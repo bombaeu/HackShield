@@ -145,79 +145,105 @@
               <span id="typewriter-text"></span><span id="cursor1" class="cursor"></span>
             </div>
 
-            <div id="terminal-output" style="color: #94a3b8; margin-bottom: 1rem; display: none;">
-              Starting Nmap 7.92 ( https://nmap.org )<br>
-              Nmap scan report for 10.10.10.27<br>
-              Host is up (0.032s latency).<br>
-              PORT STATE SERVICE VERSION<br>
-              21/tcp open ftp vsftpd 3.0.3<br>
-              22/tcp open ssh OpenSSH 8.2<br>
-              80/tcp open http Apache httpd 2.4.41<br>
-              <span class="text-accent">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span>
+            <div id="output-container">
+              <div class="term-line" style="display:none;">Starting Nmap 7.92 ( https://nmap.org )</div>
+              <div class="term-line" style="display:none;">Nmap scan report for 10.10.10.27</div>
+              <div class="term-line" style="display:none;">Host is up (0.032s latency).</div>
+              <div class="term-line" style="display:none;">PORT STATE SERVICE VERSION</div>
+              <div class="term-line" style="display:none;">21/tcp open ftp vsftpd 3.0.3</div>
+              <div class="term-line" style="display:none;">22/tcp open ssh OpenSSH 8.2</div>
+              <div class="term-line" style="display:none;">80/tcp open http Apache httpd 2.4.41</div>
+              <div class="term-line" style="display:none;"><span class="text-accent">Service Info: OS: Linux; CPE:
+                  cpe:/o:linux:linux_kernel</span></div>
             </div>
 
-            <div id="next-prompt" class="cmd-line" style="display: none;">
+            <div id="next-prompt" class="cmd-line" style="display: none; margin-top: 1rem;">
               <span class="prompt">root@hackshield:~$</span>
-              <span>searchsploit vsftpd 3.0.3<span class="cursor"></span></span>
+              <span id="typewriter-text-2"></span><span id="cursor2" class="cursor"></span>
             </div>
           </div>
+
           <script>
-            // Terminal Animation Script
             document.addEventListener('DOMContentLoaded', () => {
-              const text = "nmap -sC -sV 10.10.10.27";
-              const typeEl = document.getElementById('typewriter-text');
-              const outEl = document.getElementById('terminal-output');
-              const nextEl = document.getElementById('next-prompt');
+
+              // --- 1. Terminal Animation ---
+              const cmd1 = "nmap -sC -sV 10.10.10.27";
+              const cmd2 = "searchsploit vsftpd 3.0.3";
+
+              const typeEl1 = document.getElementById('typewriter-text');
+              const typeEl2 = document.getElementById('typewriter-text-2');
+              const lines = document.querySelectorAll('.term-line');
+              const nextPrompt = document.getElementById('next-prompt');
               const cursor1 = document.getElementById('cursor1');
+
+              // Type Command 1
               let i = 0;
+              function typeCmd1() {
+                if (i < cmd1.length) {
+                  typeEl1.textContent += cmd1.charAt(i);
+                  i++;
+                  setTimeout(typeCmd1, 50 + Math.random() * 40);
+                } else {
+                  // Cmd 1 finished
+                  cursor1.style.display = 'none';
+                  revealOutput();
+                }
+              }
 
-              setTimeout(() => {
-                function type() {
-                  if (i < text.length) {
-                    typeEl.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, 50 + Math.random() * 50); // Human typing speed
-                  } else {
-                    // Typing done
-                    cursor1.style.display = 'none'; // Hide valid cursor
-                    setTimeout(() => {
-                      outEl.style.display = 'block'; // Show output
-                      nextEl.style.display = 'flex'; // Show next line
-                    }, 400); // Processing delay
+              // Reveal Output Lines
+              let lineIdx = 0;
+              function revealOutput() {
+                if (lineIdx < lines.length) {
+                  lines[lineIdx].style.display = 'block';
+                  lineIdx++;
+                  setTimeout(revealOutput, 150); // Line print speed
+                } else {
+                  // Output finished -> Show Next Prompt
+                  setTimeout(() => {
+                    nextPrompt.style.display = 'flex';
+                    setTimeout(typeCmd2, 500);
+                  }, 200);
+                }
+              }
+
+              // Type Command 2
+              let j = 0;
+              function typeCmd2() {
+                if (j < cmd2.length) {
+                  typeEl2.textContent += cmd2.charAt(j);
+                  j++;
+                  setTimeout(typeCmd2, 50 + Math.random() * 40);
+                } else {
+                  // Done. Cursor 2 keeps blinking.
+                }
+              }
+
+              // Start after 1s
+              setTimeout(typeCmd1, 800);
+
+
+              // --- 2. Scroll Animation (Observer) ---
+              const observerOptions = {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+              };
+
+              const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
                   }
-                }
-                type();
-              }, 800); // Initial delay
+                });
+              }, observerOptions);
+
+              // Observe Cards
+              document.querySelectorAll('.path-card').forEach(el => observer.observe(el));
+
+              // Observe Header
+              const header = document.querySelector('.section-header');
+              if (header) observer.observe(header);
             });
-
-            // Scroll Animation Observer
-            const observerOptions = {
-              threshold: 0.1, // Trigger when 10% visible
-              rootMargin: "0px 0px -50px 0px" // Shift trigger area slightly up
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('active');
-                  observer.unobserve(entry.target); // Play once
-                }
-              });
-            }, observerOptions);
-
-            // Target elements
-            document.querySelectorAll('.path-card').forEach(el => observer.observe(el));
-
-            // Also animate header text
-            const header = document.querySelector('.section-header');
-            if (header) {
-              header.style.opacity = '0';
-              header.style.transform = 'translateY(20px)';
-              header.style.transition = 'all 0.8s ease-out';
-              observer.observe(header);
-            }
-            // Add active class handling for generic elements too
-            // Reuse observer logic but verify class naming consistency in future
           </script>
         </div>
 

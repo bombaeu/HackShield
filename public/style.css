@@ -304,6 +304,10 @@ ul {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     font-family: var(--font-mono);
+    height: 420px;
+    /* FIXED HEIGHT preventing stretch */
+    display: flex;
+    flex-direction: column;
 }
 
 .terminal-header {
@@ -312,67 +316,35 @@ ul {
     display: flex;
     gap: 0.5rem;
     border-bottom: 1px solid var(--border-soft);
+    flex-shrink: 0;
 }
 
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.dot.red {
-    background: #ef4444;
-}
-
-.dot.yellow {
-    background: #f59e0b;
-}
-
-.dot.green {
-    background: #22c55e;
-}
+/* ... dots ... */
 
 .terminal-body {
     padding: 1.5rem;
     color: #e2e8f0;
     font-size: 0.9rem;
+    overflow-y: hidden;
+    /* No scrollbars needed if size matches */
 }
 
-.cmd-line {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.prompt {
-    color: var(--accent);
-    font-weight: bold;
-}
-
-.cursor {
-    display: inline-block;
-    width: 8px;
-    height: 16px;
-    background: var(--accent);
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0;
-    }
-}
+/* ... prompt/cursor ... */
 
 /* Learning Paths */
 .section-header {
     text-align: center;
     margin-bottom: 3rem;
+
+    /* Animation Init */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-header.active {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section-header h2 {
