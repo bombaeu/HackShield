@@ -169,123 +169,118 @@
     </div>
 
     <script>
-        // AUTH GUARD: Only Admins Allowed!
-        const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
-        if (!currentUser || !currentUser.badges.includes('Admin')) {
-            window.location.href = 'dashboard.html'; // Kick out non-admins
-        }
-
-        async function renderUsers() {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Načítám data...</td></tr>';
+        // Initialize globally
+        window.deleteUser = async function (id) {
+            console.log("Attempting delete for ID:", id);
+            if (!confirm("Opravdu smazat?")) return;
 
             try {
-                const response = await fetch('/api/users');
-                const users = await response.json();
-
-                tbody.innerHTML = '';
-                users.forEach((user) => {
-                    const tr = document.createElement('tr');
-
-                    const badgesHtml = user.badges.map(b => {
-                        const cls = b === 'Admin' ? 'badge-admin' : 'badge-user';
-                        return `<span class="badge-pill ${cls}">${b}</span>`;
-                    }).join('');
-
-                    const joinedDate = user.joined_date ? new Date(user.joined_date).toLocaleDateString('cs-CZ') : 'Neznámo';
-
-                    const isAdmin = user.badges.includes('Admin');
-                    const roleActionText = isAdmin ? 'Odebrat Admin' : 'Přidat Admin';
-                    const roleActionStyle = isAdmin ? 'border-color: #f1f5f9; color: #f1f5f9; margin-left: 5px;' : 'border-color: #facc15; color: #facc15; margin-left: 5px;';
-
-                    tr.innerHTML = `
-                        <td style="font-weight: bold; color: white;">${user.username}</td>
-                        <td style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-secondary);">${user.email}</td>
-                        <td><span style="color: var(--accent);">Lvl ${user.level}</span></td>
-                        <td>${badgesHtml}</td>
-                        <td style="color: var(--text-secondary); font-size: 0.9rem;">${joinedDate}</td>
-                        <td>
-                            ${user.username !== currentUser.username ?
-                            `<button onclick="deleteUser(${user.id})" class="action-btn delete">Smazat</button>
-                             <button onclick="toggleAdmin(${user.id}, ${isAdmin})" class="action-btn" style="${roleActionStyle}">${roleActionText}</button>` :
-                            '<span style="opacity:0.5; font-size:0.8rem;">(Ty)</span>'}
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Chyba načítání dat.</td></tr>';
-            }
-        }
-
-        async function deleteUser(id) {
-            console.log("Mažu uživatele s ID:", id);
-            if (confirm("Opravdu chceš smazat tohoto uživatele? Tato akce je nevratná.")) {
-                try {
-                    const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-                    const data = await response.json();
-
-                    if (data.success) {
-                        alert("Uživatel byl úspěšně smazán.");
-                        renderUsers();
-                    } else {
-                        alert("Chyba při mazání: " + (data.error || "Neznámá chyba"));
-                    }
-                } catch (err) {
-                    console.error("Delete error:", err);
-                    alert("Nepodařilo se spojit se serverem.");
+                const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                const json = await res.json();
+                if (json.success) {
+                    alert("Smazáno.");
+                    renderUsers();
+                } else {
+                    alert("Chyba: " + json.error);
                 }
+            } catch (e) {
+                console.error(e);
+                alert("Chyba spojení.");
             }
-        }
+        };
 
-        async function toggleAdmin(id, wasAdmin) {
-            await fetch('/api/users/toggle-role', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, isAdmin: wasAdmin })
-            });
-            renderUsers();
-        }
+        window.toggleAdmin = async function (id, wasAdmin) {
+            console.log("Toggling admin for ID:", id);
+            try {
+                await fetch('/api/users/toggle-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, isAdmin: wasAdmin })
+                });
+                renderUsers();
+            } catch (e) { console.error(e); }
+        };
 
-        async function adminCreateUser(e) {
+        window.adminCreateUser = async function (e) {
             e.preventDefault();
-
             const username = document.getElementById('newUsername').value;
             const email = document.getElementById('newEmail').value;
             const password = document.getElementById('newPassword').value;
-            // Role selection logic can be handled by just creating user then toggling, or updating register API.
-            // For simplicity, we just create a standard user here via Register API, then upgrade if needed?
-            // Actually, we can just use the standard Register API but ignore the response login token.
+            const role = document.getElementById('newRole').value; // Get role value correctly
 
             try {
-                const response = await fetch('/api/register', {
+                const res = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
                 });
+                const data = await res.json();
 
-                const data = await response.json();
                 if (data.success) {
-                    // Check if role selected was Admin
-                    const role = document.getElementById('newRole').value;
                     if (role === 'Admin') {
-                        // Upgrade immediately
-                        await fetch('/api/users/toggle-role', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: data.user.id, isAdmin: false }) // false means "was not admin", so upgrade
-                        });
+                        await window.toggleAdmin(data.user.id, false);
                     }
                     e.target.reset();
+                    alert("Uživatel vytvořen.");
                     renderUsers();
-                    alert(`Uživatel ${username} vytvořen!`);
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Chyba.");
                 }
             } catch (e) { console.error(e); }
+        };
+
+        async function renderUsers() {
+            console.log("Rendering users...");
+            const tbody = document.getElementById('userTableBody');
+
+            // Get Current User
+            const currentUserStr = localStorage.getItem('hackshield_user');
+            if (!currentUserStr) { window.location.href = 'index.html'; return; }
+            const currentUser = JSON.parse(currentUserStr);
+
+            if (!currentUser.badges.includes('Admin')) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="6">Načítám...</td></tr>';
+
+            try {
+                const res = await fetch('/api/users');
+                const users = await res.json();
+                tbody.innerHTML = '';
+
+                users.forEach(user => {
+                    const isAdmin = user.badges.includes('Admin');
+                    const isMe = user.username === currentUser.username;
+                    const dateStr = user.joined_date ? new Date(user.joined_date).toLocaleDateString() : '-';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+    <td style="font-weight:bold; color:white;">${user.username}</td>
+    <td style="font-family:monospace; color:#aaa;">${user.email}</td>
+    <td><span style="color:var(--accent);">Lvl ${user.level}</span></td>
+    <td>${user.badges.join(', ')}</td>
+    <td style="color:#aaa;">${dateStr}</td>
+    <td>
+        ${!isMe ?
+                            `<button onclick="window.deleteUser(${user.id})" class="action-btn delete">Smazat</button>
+        <button onclick="window.toggleAdmin(${user.id}, ${isAdmin})" class="action-btn">${isAdmin ? 'Odebrat Admin' :
+                                'Přidat Admin'}</button>`
+                            : '<span style="opacity:0.5">(Ty)</span>'}
+    </td>
+    `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="6" style="color:red">Chyba serveru.</td></tr>';
+            }
         }
 
-        renderUsers();
+        // Start
+        document.addEventListener('DOMContentLoaded', renderUsers);
     </script>
 </body>
 
