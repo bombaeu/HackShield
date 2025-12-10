@@ -219,9 +219,22 @@
         }
 
         async function deleteUser(id) {
+            console.log("Mažu uživatele s ID:", id);
             if (confirm("Opravdu chceš smazat tohoto uživatele? Tato akce je nevratná.")) {
-                await fetch(`/api/users/${id}`, { method: 'DELETE' });
-                renderUsers();
+                try {
+                    const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert("Uživatel byl úspěšně smazán.");
+                        renderUsers();
+                    } else {
+                        alert("Chyba při mazání: " + (data.error || "Neznámá chyba"));
+                    }
+                } catch (err) {
+                    console.error("Delete error:", err);
+                    alert("Nepodařilo se spojit se serverem.");
+                }
             }
         }
 
