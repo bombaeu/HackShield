@@ -142,9 +142,10 @@
           <div class="terminal-body font-mono">
             <div class="cmd-line">
               <span class="prompt">root@hackshield:~$</span>
-              <span>nmap -sC -sV 10.10.10.27</span>
+              <span id="typewriter-text"></span><span id="cursor1" class="cursor"></span>
             </div>
-            <div style="color: #94a3b8; margin-bottom: 1rem;">
+
+            <div id="terminal-output" style="color: #94a3b8; margin-bottom: 1rem; display: none;">
               Starting Nmap 7.92 ( https://nmap.org )<br>
               Nmap scan report for 10.10.10.27<br>
               Host is up (0.032s latency).<br>
@@ -154,11 +155,70 @@
               80/tcp open http Apache httpd 2.4.41<br>
               <span class="text-accent">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span>
             </div>
-            <div class="cmd-line">
+
+            <div id="next-prompt" class="cmd-line" style="display: none;">
               <span class="prompt">root@hackshield:~$</span>
               <span>searchsploit vsftpd 3.0.3<span class="cursor"></span></span>
             </div>
           </div>
+          <script>
+            // Terminal Animation Script
+            document.addEventListener('DOMContentLoaded', () => {
+              const text = "nmap -sC -sV 10.10.10.27";
+              const typeEl = document.getElementById('typewriter-text');
+              const outEl = document.getElementById('terminal-output');
+              const nextEl = document.getElementById('next-prompt');
+              const cursor1 = document.getElementById('cursor1');
+              let i = 0;
+
+              setTimeout(() => {
+                function type() {
+                  if (i < text.length) {
+                    typeEl.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 50 + Math.random() * 50); // Human typing speed
+                  } else {
+                    // Typing done
+                    cursor1.style.display = 'none'; // Hide valid cursor
+                    setTimeout(() => {
+                      outEl.style.display = 'block'; // Show output
+                      nextEl.style.display = 'flex'; // Show next line
+                    }, 400); // Processing delay
+                  }
+                }
+                type();
+              }, 800); // Initial delay
+            });
+
+            // Scroll Animation Observer
+            const observerOptions = {
+              threshold: 0.1, // Trigger when 10% visible
+              rootMargin: "0px 0px -50px 0px" // Shift trigger area slightly up
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('active');
+                  observer.unobserve(entry.target); // Play once
+                }
+              });
+            }, observerOptions);
+
+            // Target elements
+            document.querySelectorAll('.path-card').forEach(el => observer.observe(el));
+
+            // Also animate header text
+            const header = document.querySelector('.section-header');
+            if (header) {
+              header.style.opacity = '0';
+              header.style.transform = 'translateY(20px)';
+              header.style.transition = 'all 0.8s ease-out';
+              observer.observe(header);
+            }
+            // Add active class handling for generic elements too
+            // Reuse observer logic but verify class naming consistency in future
+          </script>
         </div>
 
       </div>

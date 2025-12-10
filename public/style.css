@@ -1,5 +1,6 @@
 :root {
-    color-scheme: dark; /* Force browser to respect dark theme */
+    color-scheme: dark;
+    /* Force browser to respect dark theme */
     --bg-dark: #050915;
     --bg-panel: #0f172a;
     --bg-card: #131c31;
@@ -391,13 +392,36 @@ ul {
     border: 1px solid var(--border-soft);
     border-radius: 16px;
     padding: 2rem;
-    transition: transform 0.2s, border-color 0.2s;
     position: relative;
     overflow: hidden;
+
+    /* ANIMATION INIT STATE */
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.path-card.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger animation based on order */
+.path-card:nth-child(1) {
+    transition-delay: 0.1s;
+}
+
+.path-card:nth-child(2) {
+    transition-delay: 0.2s;
+}
+
+.path-card:nth-child(3) {
+    transition-delay: 0.3s;
 }
 
 .path-card:hover {
     transform: translateY(-5px);
+    /* Keep hover effect working on top */
     border-color: var(--border-active);
 }
 
