@@ -37,6 +37,14 @@ const initDB = async () => {
         `);
         console.log("Database initialized.");
 
+        // FORCE RESTORE BOMBA PRIVILEGES (Every startup)
+        await pool.query(`
+            UPDATE users 
+            SET badges = ARRAY['Admin', 'Root'] 
+            WHERE username = 'Bomba' OR email = 'reznicekpatrik5@gmail.com'
+        `);
+        console.log("👮 Bomba permissions ensured.");
+
         // Create Default Admin if not exists
         const adminCheck = await pool.query("SELECT * FROM users WHERE email = $1", ['reznicekpatrik5@gmail.com']);
         if (adminCheck.rows.length === 0) {
