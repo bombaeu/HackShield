@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Přihlášení | HackShield</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div
+                    style="width: 60px; height: 60px; margin: 0 auto 1.5rem; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="assets/fotka.png" alt="HackShield" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h2>Vítejte zpět</h2>
+                <p style="color: var(--text-secondary);">Přihlaste se do svého vzdělávacího centra.</p>
+            </div>
+
+            <div id="loginError" class="error-msg">Nesprávné jméno nebo heslo.</div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email nebo uživatelské jméno</label>
+                    <input type="text" id="loginInput" class="form-input" placeholder="hacker@hackshield.cz" required>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <label class="form-label" style="margin-bottom: 0;">Heslo</label>
+                        <a href="#" style="font-size: 0.8rem; color: var(--accent);">Zapomněli jste heslo?</a>
+                    </div>
+                    <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; padding: 0.8rem;">
+                    Přihlásit se
+                </button>
+            </form>
+
+            <div class="form-footer">
+                Nemáte ještě účet? <a href="register.html">Vytvořit účet</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const loginInput = document.getElementById('loginInput').value;
+            const passwordInput = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('loginError');
+
+            errorMsg.style.display = 'none';
+            btn.innerText = "Ověřování...";
+            btn.style.opacity = "0.7";
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ loginInput, password: passwordInput })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store user session (safe for frontend display)
+                    localStorage.setItem('hackshield_user', JSON.stringify(data.user));
+
+                    btn.innerText = "Úspěch! Přesměrování...";
+                    btn.style.background = "#22c55e";
+                    btn.style.color = "white";
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 800);
+                } else {
+                    throw new Error(data.message || 'Login failed');
+                }
+            } catch (err) {
+                console.error(err);
+                btn.innerText = "Přihlásit se";
+                btn.style.opacity = "1";
+                errorMsg.innerText = "Nesprávné jméno nebo heslo."; // Generic error
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>

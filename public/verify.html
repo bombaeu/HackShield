@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ověření Emailu | HackShield</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .code-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .code-input {
+            width: 50px;
+            height: 60px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+
+    <!-- Notification Toast -->
+    <div id="emailToast"
+        style="position: fixed; top: 20px; right: 20px; background: #fff; color: #000; padding: 1.5rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 9999; transform: translateX(120%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 350px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <div
+                style="width: 40px; height: 40px; background: #ea4335; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+                M</div>
+            <div>
+                <div style="font-weight: bold; margin-bottom: 2px;">Nový e-mail</div>
+                <div style="font-size: 0.85rem; color: #555;">HackShield: Váš ověřovací kód je <strong id="toastCode"
+                        style="font-size: 1.1rem; color: #000;">------</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card" style="text-align: center;">
+            <div
+                style="width: 60px; height: 60px; margin: 0 auto 1.5rem; background: rgba(124, 242, 107, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                </svg>
+            </div>
+
+            <h2>Ověřte svůj email</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Zadali jsme kód na email <strong id="userEmail" class="text-accent">...</strong><br>
+                Zadejte jej pro dokončení registrace.
+            </p>
+
+            <div class="code-inputs" id="otpContainer">
+                <input type="text" maxlength="1" class="code-input" autofocus>
+                <input type="text" maxlength="1" class="code-input">
+                <input type="text" maxlength="1" class="code-input">
+                <input type="text" maxlength="1" class="code-input">
+                <input type="text" maxlength="1" class="code-input">
+                <input type="text" maxlength="1" class="code-input">
+            </div>
+
+            <button onclick="verifyCode()" class="btn btn-primary"
+                style="width: 100%; justify-content: center; margin-bottom: 1rem;">
+                Ověřit
+            </button>
+
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Nepřišel vám email? <a href="#" onclick="resendEmail()">Odeslat znovu</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Get temp user data
+        const tempUser = JSON.parse(localStorage.getItem('hackshield_temp_user'));
+
+        if (!tempUser) {
+            window.location.href = 'register.html';
+        }
+
+        document.getElementById('userEmail').textContent = tempUser.email;
+
+        // Auto-focus logic
+        const inputs = document.querySelectorAll('.code-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Check if real email was sent or if we should mock it
+        if (tempUser.emailSent === false || typeof tempUser.emailSent === 'undefined') {
+            // DEMO MODE: Simulate Email Arrival via Toast
+            setTimeout(() => {
+                const toast = document.getElementById('emailToast');
+                const code = tempUser.verificationCode;
+                document.getElementById('toastCode').textContent = code;
+                toast.style.transform = 'translateX(0)';
+            }, 2000);
+        } else {
+            // REAL MODE: Email was sent via EmailJS
+            const toast = document.getElementById('emailToast');
+            toast.style.display = 'none'; // Hide toast entirely
+
+            // Show feedback on screen
+            const h2 = document.querySelector('h2');
+            h2.innerText = "Zkontrolujte svůj e-mail";
+            document.querySelector('p').innerHTML += "<br><span style='color: #22c55e; font-size: 0.9em;'>(Odesláno na opravdový e-mail)</span>";
+        }
+
+        function verifyCode() {
+            const enteredCode = Array.from(inputs).map(i => i.value).join('');
+            if (enteredCode === tempUser.verificationCode) {
+                // Success! Save real user
+                const users = JSON.parse(localStorage.getItem('hackshield_users') || '[]');
+
+                // Finalize user object
+                const finalUser = {
+                    ...tempUser,
+                    verified: true
+                };
+                delete finalUser.verificationCode;
+                delete finalUser.emailSent; // Clean up
+
+                users.push(finalUser);
+                localStorage.setItem('hackshield_users', JSON.stringify(users));
+                localStorage.setItem('hackshield_user', JSON.stringify(finalUser));
+                localStorage.removeItem('hackshield_temp_user');
+
+                const btn = document.querySelector('.btn-primary');
+                btn.innerText = "Ověřeno! Vstupuji...";
+                btn.style.background = "#22c55e";
+
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            } else {
+                alert("Nesprávný kód! Zkuste to znovu.");
+                inputs.forEach(i => i.value = '');
+                inputs[0].focus();
+            }
+        }
+
+        function resendEmail() {
+            alert("Kód byl znovu odeslán (pokud jste v demo režimu, podívejte se do notifikace).");
+        }
+    </script>
+</body>
+
+</html>
