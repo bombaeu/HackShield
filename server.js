@@ -60,7 +60,7 @@ app.post('/api/login', async (req, res) => {
     try {
         const { loginInput, password } = req.body;
         const result = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $1", [loginInput]);
-        
+
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const validPass = await bcrypt.compare(password, user.password_hash);
@@ -77,11 +77,25 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Check User Exists (Public)
+app.post('/api/check-user', async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        const result = await pool.query("SELECT * FROM users WHERE email = $1 OR username = $2", [email, username]);
+        if (result.rows.length > 0) {
+            return res.json({ exists: true });
+        }
+        res.json({ exists: false });
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Register
 app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
@@ -124,17 +138,17 @@ app.post('/api/users/toggle-role', async (req, res) => {
     try {
         const { id, isAdmin } = req.body;
         let newBadges;
-        
+
         if (isAdmin) {
-             // Was admin, remove
-             await pool.query("UPDATE users SET badges = array_remove(badges, 'Admin') WHERE id = $1", [id]);
-             await pool.query("UPDATE users SET badges = array_remove(badges, 'Root') WHERE id = $1", [id]);
+            // Was admin, remove
+            await pool.query("UPDATE users SET badges = array_remove(badges, 'Admin') WHERE id = $1", [id]);
+            await pool.query("UPDATE users SET badges = array_remove(badges, 'Root') WHERE id = $1", [id]);
         } else {
-             // Make admin
-             await pool.query("UPDATE users SET badges = array_append(badges, 'Admin') WHERE id = $1", [id]);
-             await pool.query("UPDATE users SET badges = array_append(badges, 'Root') WHERE id = $1", [id]);
+            // Make admin
+            await pool.query("UPDATE users SET badges = array_append(badges, 'Admin') WHERE id = $1", [id]);
+            await pool.query("UPDATE users SET badges = array_append(badges, 'Root') WHERE id = $1", [id]);
         }
-        
+
         res.json({ success: true });
     } catch (err) {
         console.error(err);

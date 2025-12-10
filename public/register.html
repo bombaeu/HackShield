@@ -12,7 +12,7 @@
         (function () {
             // ZDE VLOŽ SVŮJ PUBLIC KEY Z EMAILJS (https://dashboard.emailjs.com/admin/account)
             // Příklad: emailjs.init("user_XyZ123...");
-            emailjs.init("gUPFo7FLqNfZ8FEDf");
+            emailjs.init("gUPFo7FLqNfZ8FEDf"); // Tvůj klíč
         })();
     </script>
     <style>
@@ -47,6 +47,7 @@
                 <div class="form-group">
                     <label class="form-label">Uživatelské jméno</label>
                     <input type="text" id="username" class="form-input" placeholder="HackerName" required minlength="3">
+                    <div id="userError" class="error-msg">Toto jméno je již obsazené.</div>
                 </div>
 
                 <div class="form-group">
@@ -88,44 +89,82 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const btn = e.target.querySelector('button');
+            const emailErr = document.getElementById('emailError');
+            const passErr = document.getElementById('passwordError');
 
+            // Reset errors
+            document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
 
-            // Basic Validation
+            // Validation 1: Passwords
             if (password !== confirmPassword) {
-                alert("Hesla se neshodují!");
+                passErr.style.display = 'block';
                 return;
             }
 
-            btn.innerText = "Zakládám účet...";
+            btn.innerText = "Kontroluji dostupnost...";
             btn.style.opacity = "0.7";
 
+            // Validation 2: Check Server for Duplicates
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch('/api/check-user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ username, email })
                 });
+                const checkData = await response.json();
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // Auto-login after register
-                    localStorage.setItem('hackshield_user', JSON.stringify(data.user));
-
-                    // Optional: Redirect to verify if we want to enforce it later
-                    // For now, go to dashboard
-                    window.location.href = 'dashboard.html';
-                } else {
-                    alert(data.message || "Registrace selhala.");
-                    btn.innerText = "Vytvořit účet";
+                if (checkData.exists) {
+                    emailErr.innerText = "Uživatel s tímto jménem nebo emailem již existuje.";
+                    emailErr.style.display = 'block';
+                    btn.innerText = "Registrovat se";
                     btn.style.opacity = "1";
+                    return;
                 }
+
+                // Validation passed -> Send Email
+                btn.innerText = "Odesílám ověřovací email...";
+
+                const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+                const tempUser = {
+                    username: username,
+                    email: email,
+                    password: password,
+                    verificationCode: verificationCode,
+                    emailSent: false
+                };
+
+                // EmailJS Logic
+                const templateParams = {
+                    to_email: email,
+                    to_name: username,
+                    code: verificationCode
+                };
+
+                emailjs.send('service_q5rgs6w', 'template_dqk6ayh', templateParams)
+                    .then(function (response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                        tempUser.emailSent = true;
+                        finishRegistration(tempUser);
+                    }, function (error) {
+                        console.log('FAILED...', error);
+                        // Fallback (Demo)
+                        tempUser.emailSent = false;
+                        finishRegistration(tempUser);
+                    });
+
             } catch (err) {
                 console.error(err);
-                alert("Chyba serveru.");
-                btn.innerText = "Vytvořit účet";
+                alert("Chyba při komunikaci se serverem.");
+                btn.innerText = "Registrovat se";
                 btn.style.opacity = "1";
             }
+        }
+
+        function finishRegistration(tempUser) {
+            // Save temp data for Verify Page to pick up
+            localStorage.setItem('hackshield_temp_user', JSON.stringify(tempUser));
+            window.location.href = 'verify.html';
         }
     </script>
 </body>
