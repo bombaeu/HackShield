@@ -113,6 +113,31 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// Reset Password
+app.post('/api/reset-password', async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+
+        // Hash NEW password
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(newPassword, salt);
+
+        const result = await pool.query(
+            "UPDATE users SET password_hash = $1 WHERE email = $2 RETURNING id",
+            [hash, email]
+        );
+
+        if (result.rowCount > 0) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: "User not found" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Get Users (Admin)
 app.get('/api/users', async (req, res) => {
     try {
