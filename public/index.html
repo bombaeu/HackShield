@@ -109,13 +109,16 @@
             <span>Uživatelů</span>
           </div>
           <script>
-            // Update user count from localStorage
-            try {
-              const users = JSON.parse(localStorage.getItem('hackshield_users') || '[]');
-              // Start at 12000 to look cool, or just use real count? User asked for REAL count.
-              // "realný počet uspěšně zaregistrovaných" -> Real count.
-              document.getElementById('userCountDisplay').textContent = users.length;
-            } catch (e) { console.error(e); }
+            // Fetch real user count from server
+            fetch('/api/stats')
+              .then(res => res.json())
+              .then(data => {
+                document.getElementById('userCountDisplay').textContent = data.userCount;
+              })
+              .catch(e => {
+                console.error(e);
+                document.getElementById('userCountDisplay').textContent = "120+"; // Fallback
+              });
           </script>
           <div class="stat-item">
             <strong>450+</strong>
@@ -158,17 +161,6 @@
           </div>
         </div>
 
-        <!-- Floating Badge -->
-        <div
-          style="position: absolute; right: -20px; bottom: 50px; background: #1e293b; padding: 1rem; border-radius: 12px; border: 1px solid var(--border-soft); box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 1rem;">
-          <div
-            style="width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black;">
-            #1</div>
-          <div>
-            <div style="font-weight: bold;">Top Hacker</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Weekly Leaderboard</div>
-          </div>
-        </div>
       </div>
     </div>
   </header>

@@ -153,20 +153,30 @@ app.post('/api/reset-password', async (req, res) => {
     try {
         const { email, newPassword } = req.body;
 
-        // Hash NEW password
+        // 1. Get current user info to check old password
+        const userRes = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        const user = userRes.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Uživatel nenalezen." });
+        }
+
+        // 2. CHECK: Is new password same as old password?
+        const isSame = await bcrypt.compare(newPassword, user.password_hash);
+        if (isSame) {
+            return res.status(400).json({ success: false, message: "Nové heslo se musí lišit od starého." });
+        }
+
+        // 3. Hash NEW password & Save
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
 
-        const result = await pool.query(
-            "UPDATE users SET password_hash = $1 WHERE email = $2 RETURNING id",
+        await pool.query(
+            "UPDATE users SET password_hash = $1 WHERE email = $2",
             [hash, email]
         );
 
-        if (result.rowCount > 0) {
-            res.json({ success: true });
-        } else {
-            res.status(404).json({ success: false, message: "User not found" });
-        }
+        res.json({ success: true });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
@@ -241,6 +251,18 @@ app.post('/api/users/toggle-role', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
+    }
+});
+
+// Public Stats (User Count)
+app.get('/api/stats', async (req, res) => {
+    try {
+        const result = await pool.query("SELECT COUNT(*) FROM users");
+        // Row count is returned as string in PG count(*)
+        res.json({ userCount: parseInt(result.rows[0].count, 10) });
+    } catch (err) {
+        console.error(err);
+        res.json({ userCount: 0 }); // Fallback on error
     }
 });
 
