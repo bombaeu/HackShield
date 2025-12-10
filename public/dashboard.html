@@ -352,19 +352,44 @@
 
     <script>
         // Auth Guard
-        const user = JSON.parse(localStorage.getItem('hackshield_user'));
+        // Auth Guard & Auto-Refresh
+        const localUser = JSON.parse(localStorage.getItem('hackshield_user'));
 
-        if (!user) {
+        if (!localUser) {
             window.location.href = 'login.html';
         } else {
+            // Optimistic render (show what we have)
+            renderDashboard(localUser);
+
+            // Fetch latest data from server (background refresh)
+            fetch('/api/refresh-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: localUser.id })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update localStorage with fresh data
+                        localStorage.setItem('hackshield_user', JSON.stringify(data.user));
+                        // Re-render with fresh data
+                        renderDashboard(data.user);
+                    }
+                })
+                .catch(err => console.error("Refresh failed", err));
+        }
+
+        function renderDashboard(user) {
             document.body.style.opacity = '1';
             document.getElementById('userNameDisplay').textContent = `Vítej zpět, ${user.username}`;
             document.getElementById('userProfileName').textContent = user.username;
 
             // Admin Check
+            const adminBtn = document.getElementById('adminSidebarLink');
             if (user.badges && user.badges.includes('Admin')) {
-                const adminBtn = document.getElementById('adminSidebarLink');
-                if (adminBtn) adminBtn.style.display = 'flex';
+                adminBtn.style.display = 'flex';
+            } else {
+                adminBtn.style.display = 'none';
             }
         }
 

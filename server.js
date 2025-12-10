@@ -113,6 +113,23 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// Refresh User Data (Get latest badges/roles)
+app.post('/api/refresh-user', async (req, res) => {
+    try {
+        const { id } = req.body;
+        const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+
+        if (result.rows.length > 0) {
+            res.json({ success: true, user: result.rows[0] });
+        } else {
+            res.json({ success: false });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Reset Password
 app.post('/api/reset-password', async (req, res) => {
     try {
