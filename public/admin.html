@@ -171,25 +171,40 @@
     <script>
         // Initialize globally
         window.deleteUser = async function (id) {
-            console.log("Attempting delete for ID:", id);
-            if (!confirm("Opravdu smazat?")) return;
+            console.log("1. Tlačítko stisknuto. ID:", id);
+
+            if (!confirm("Opravdu smazat?")) {
+                console.log("2. Mazání zrušeno uživatelem.");
+                return;
+            }
+            console.log("2. Mazání potvrzeno. Odesílám požadavek na server...");
 
             try {
+                const payload = JSON.stringify({ id: id });
+                console.log("3. Payload:", payload);
+
                 const res = await fetch('/api/users/delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
+                    body: payload
                 });
+
+                console.log("4. Odpověď serveru přijata. Status:", res.status);
+
                 const json = await res.json();
+                console.log("5. Data zpracována:", json);
+
                 if (json.success) {
+                    console.log("6. ÚSPĚCH! Obnovuji tabulku.");
                     alert("Smazáno.");
                     renderUsers();
                 } else {
+                    console.error("6. CHYBA SERVERU:", json.error);
                     alert("Chyba: " + json.error);
                 }
             } catch (e) {
-                console.error(e);
-                alert("Chyba spojení.");
+                console.error("!!! KRITICKÁ CHYBA !!!", e);
+                alert("Chyba spojení: " + e.message);
             }
         };
 
