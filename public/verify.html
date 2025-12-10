@@ -141,30 +141,45 @@
             document.querySelector('p').innerHTML += "<br><span style='color: #22c55e; font-size: 0.9em;'>(Odesláno na opravdový e-mail)</span>";
         }
 
-        function verifyCode() {
+        async function verifyCode() {
             const enteredCode = Array.from(inputs).map(i => i.value).join('');
             if (enteredCode === tempUser.verificationCode) {
-                // Success! Save real user
-                const users = JSON.parse(localStorage.getItem('hackshield_users') || '[]');
-
-                // Finalize user object
-                const finalUser = {
-                    ...tempUser,
-                    verified: true
-                };
-                delete finalUser.verificationCode;
-                delete finalUser.emailSent; // Clean up
-
-                users.push(finalUser);
-                localStorage.setItem('hackshield_users', JSON.stringify(users));
-                localStorage.setItem('hackshield_user', JSON.stringify(finalUser));
-                localStorage.removeItem('hackshield_temp_user');
-
                 const btn = document.querySelector('.btn-primary');
-                btn.innerText = "Ověřeno! Vstupuji...";
-                btn.style.background = "#22c55e";
+                btn.innerText = "Ověřování..."
 
-                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                // Success! Create user in DATABASE via Server API
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: tempUser.username,
+                            email: tempUser.email,
+                            password: tempUser.password // Sending raw pass, server handles hashing
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Store session (only non-sensitive data)
+                        localStorage.setItem('hackshield_user', JSON.stringify(data.user));
+                        localStorage.removeItem('hackshield_temp_user');
+
+                        btn.innerText = "Ověřeno! Vstupuji...";
+                        btn.style.background = "#22c55e";
+
+                        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                    } else {
+                        alert(data.message || "Chyba při vytváření účtu na serveru.");
+                        btn.innerText = "Ověřit";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Chyba spojení se serverem.");
+                    btn.innerText = "Ověřit";
+                }
+
             } else {
                 alert("Nesprávný kód! Zkuste to znovu.");
                 inputs.forEach(i => i.value = '');
