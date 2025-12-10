@@ -124,11 +124,13 @@ app.get('/api/users', async (req, res) => {
 });
 
 // Delete User (Admin)
-app.delete('/api/users/:id', async (req, res) => {
+app.post('/api/users/delete', async (req, res) => {
     try {
-        await pool.query("DELETE FROM users WHERE id = $1", [req.params.id]);
+        const { id } = req.body;
+        await pool.query("DELETE FROM users WHERE id = $1", [id]);
         res.json({ success: true });
     } catch (err) {
+        console.error("Delete error:", err);
         res.status(500).json({ error: "Server error" });
     }
 });

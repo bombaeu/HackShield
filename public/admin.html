@@ -175,7 +175,11 @@
             if (!confirm("Opravdu smazat?")) return;
 
             try {
-                const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                const res = await fetch('/api/users/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
                 const json = await res.json();
                 if (json.success) {
                     alert("Smazáno.");
