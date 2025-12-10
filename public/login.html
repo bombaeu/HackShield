@@ -24,6 +24,11 @@
 </head>
 
 <body>
+    <script>
+        if (localStorage.getItem('hackshield_user')) {
+            window.location.replace('dashboard.html');
+        }
+    </script>
     <div class="bg-grid"></div>
 
     <div class="auth-container">

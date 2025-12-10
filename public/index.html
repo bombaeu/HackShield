@@ -13,6 +13,16 @@
 </head>
 
 <body>
+  <script>
+    // Auth Persistence
+    // If user is already logged in, redirect to dashboard immediately
+    try {
+      const user = localStorage.getItem('hackshield_user');
+      if (user) {
+        window.location.replace('dashboard.html');
+      }
+    } catch (e) { }
+  </script>
   <div class="bg-grid"></div>
 
   <nav class="topbar">

@@ -186,6 +186,11 @@ app.post('/api/users/delete', async (req, res) => {
 
         if (!requester || !target) return res.status(404).json({ error: "User not found" });
 
+        // SECURITY CHECK: Is requester currently an Admin?
+        if (!requester.badges || !requester.badges.includes('Admin')) {
+            return res.status(403).json({ error: "Nemáš oprávnění (Admin access lost)." });
+        }
+
         if (target.badges.includes('Admin')) {
             if (requester.username !== 'Bomba') {
                 return res.status(403).json({ error: "Jen Bomba může smazat Admina." });
