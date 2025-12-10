@@ -168,7 +168,22 @@ app.get('/api/users', async (req, res) => {
 // Delete User (Admin)
 app.post('/api/users/delete', async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id, requesterId } = req.body;
+
+        // Get Permissions
+        const rRes = await pool.query("SELECT * FROM users WHERE id = $1", [requesterId]);
+        const requester = rRes.rows[0];
+        const tRes = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+        const target = tRes.rows[0];
+
+        if (!requester || !target) return res.status(404).json({ error: "User not found" });
+
+        if (target.badges.includes('Admin')) {
+            if (requester.username !== 'Bomba') {
+                return res.status(403).json({ error: "Jen Bomba může smazat Admina." });
+            }
+        }
+
         await pool.query("DELETE FROM users WHERE id = $1", [id]);
         res.json({ success: true });
     } catch (err) {
@@ -177,18 +192,24 @@ app.post('/api/users/delete', async (req, res) => {
     }
 });
 
-// Toggle Role (Admin)
+// Toggle Role (Root Only)
 app.post('/api/users/toggle-role', async (req, res) => {
     try {
-        const { id, isAdmin } = req.body;
-        let newBadges;
+        const { id, isAdmin, requesterId } = req.body;
+
+        const rRes = await pool.query("SELECT username FROM users WHERE id = $1", [requesterId]);
+        const requester = rRes.rows[0];
+
+        if (requester?.username !== 'Bomba') {
+            return res.status(403).json({ error: "Jen Bomba může spravovat Admin role." });
+        }
 
         if (isAdmin) {
-            // Was admin, remove
+            // Remove
             await pool.query("UPDATE users SET badges = array_remove(badges, 'Admin') WHERE id = $1", [id]);
             await pool.query("UPDATE users SET badges = array_remove(badges, 'Root') WHERE id = $1", [id]);
         } else {
-            // Make admin
+            // Add
             await pool.query("UPDATE users SET badges = array_append(badges, 'Admin') WHERE id = $1", [id]);
             await pool.query("UPDATE users SET badges = array_append(badges, 'Root') WHERE id = $1", [id]);
         }

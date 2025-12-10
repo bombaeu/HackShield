@@ -170,50 +170,58 @@
 
     <script>
         // Initialize globally
+        // Initialize globally
         window.deleteUser = async function (id) {
-            console.log("1. Tlačítko stisknuto. ID:", id);
-            // Confirm removed to fix browser issue
-            console.log("2. Jdu mazat (bez potvrzení). Odesílám...");
+            console.log("Mažu ID:", id);
+
+            // Získat ID aktuálního admina pro kontrolu oprávnění
+            const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
+            const requesterId = currentUser ? currentUser.id : null;
 
             try {
-                const payload = JSON.stringify({ id: id });
-                console.log("3. Payload:", payload);
-
+                const payload = JSON.stringify({ id: id, requesterId: requesterId });
                 const res = await fetch('/api/users/delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: payload
                 });
 
-                console.log("4. Odpověď serveru přijata. Status:", res.status);
-
                 const json = await res.json();
-                console.log("5. Data zpracována:", json);
-
                 if (json.success) {
-                    console.log("6. ÚSPĚCH! Obnovuji tabulku.");
                     alert("Smazáno.");
                     renderUsers();
                 } else {
-                    console.error("6. CHYBA SERVERU:", json.error);
                     alert("Chyba: " + json.error);
                 }
             } catch (e) {
-                console.error("!!! KRITICKÁ CHYBA !!!", e);
-                alert("Chyba spojení: " + e.message);
+                console.error(e);
+                alert("Chyba spojení.");
             }
         };
 
         window.toggleAdmin = async function (id, wasAdmin) {
             console.log("Toggling admin for ID:", id);
+
+            const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
+            const requesterId = currentUser ? currentUser.id : null;
+
             try {
-                await fetch('/api/users/toggle-role', {
+                const res = await fetch('/api/users/toggle-role', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, isAdmin: wasAdmin })
+                    body: JSON.stringify({ id, isAdmin: wasAdmin, requesterId: requesterId })
                 });
-                renderUsers();
-            } catch (e) { console.error(e); }
+
+                const json = await res.json();
+                if (json.success) {
+                    renderUsers();
+                } else {
+                    alert(json.error || "Chyba.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Chyba.");
+            }
         };
 
         window.adminCreateUser = async function (e) {
