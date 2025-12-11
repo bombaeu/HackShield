@@ -236,23 +236,20 @@
 
                   // Check if card is below the 'finish line'
                   if (diff > -50) {
-                    // Stagger logic: higher index moves slightly differently
-                    const sensitivity = 0.8 + (index * 0.3);
+                    // Less sensitivity = shorter travel distance = less overlap
+                    const sensitivity = 0.3 + (index * 0.15);
                     let moveX = diff * sensitivity * -1;
 
-                    // Clamp: Don't go further right than 0 (center)
+                    // Clamp at 0 (center)
                     let finalX = Math.min(0, moveX);
-
-                    // Opacity: Map -500px to 0 opacity
-                    let opacity = 1 - (Math.abs(finalX) / 500);
-                    opacity = Math.max(0.1, Math.min(1, opacity));
+                    // Limit max start (left) to 200px
+                    finalX = Math.max(-200, finalX);
 
                     card.style.transform = `translateX(${finalX}px)`;
-                    card.style.opacity = opacity;
+                    card.style.opacity = '1';
                   } else {
-                    // Card is above the trigger line -> lock strictly at center
                     card.style.transform = `translateX(0px)`;
-                    card.style.opacity = 1;
+                    card.style.opacity = '1';
                   }
                 });
 
