@@ -319,6 +319,11 @@ ul {
     font-weight: 500;
 }
 
+.term-port {
+    color: var(--accent);
+    font-weight: bold;
+}
+
 .terminal-header {
     background: #1e293b;
     padding: 0.8rem 1rem;

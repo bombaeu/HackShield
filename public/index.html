@@ -150,9 +150,9 @@
               <div class="term-line" style="display:none;">Nmap scan report for 10.10.10.27</div>
               <div class="term-line" style="display:none;">Host is up (0.032s latency).</div>
               <div class="term-line" style="display:none;">PORT STATE SERVICE VERSION</div>
-              <div class="term-line" style="display:none;">21/tcp open ftp vsftpd 3.0.3</div>
-              <div class="term-line" style="display:none;">22/tcp open ssh OpenSSH 8.2</div>
-              <div class="term-line" style="display:none;">80/tcp open http Apache httpd 2.4.41</div>
+              <div class="term-line term-port" style="display:none;">21/tcp open ftp vsftpd 3.0.3</div>
+              <div class="term-line term-port" style="display:none;">22/tcp open ssh OpenSSH 8.2</div>
+              <div class="term-line term-port" style="display:none;">80/tcp open http Apache httpd 2.4.41</div>
               <div class="term-line" style="display:none;"><span class="text-accent">Service Info: OS: Linux; CPE:
                   cpe:/o:linux:linux_kernel</span></div>
             </div>
@@ -226,33 +226,41 @@
               function updateParallax() {
                 const scrollY = window.scrollY;
                 const vH = window.innerHeight;
-                const centerScreen = scrollY + (vH * 0.5);
+                // Trigger animation when card is near bottom of viewport
+                const triggerLine = vH * 0.85;
 
-                // Parallax for Cards
+                // Fly-in from Left Effect
                 cards.forEach((card, index) => {
                   const rect = card.getBoundingClientRect();
-                  // Get absolute top position relative to document
-                  const cardTop = rect.top + scrollY;
-                  const cardCenter = cardTop + (rect.height / 2);
+                  const diff = rect.top - triggerLine;
 
-                  // Distance from center of screen
-                  const dist = (centerScreen - cardCenter);
+                  // Check if card is near or below the trigger line
+                  if (diff > -200) {
+                    // Calculate horizontal slide
+                    // High positive diff (card is lower) -> Large negative X (off-screen left)
+                    // Stagger logic: higher index moves slightly differently
+                    const sensitivity = 0.6 + (index * 0.2);
+                    let moveX = diff * sensitivity * -1;
 
-                  // Factor: how much it moves. 
-                  // Index adds variation (staggered effect).
-                  // -0.1 means it moves slightly UP as you scroll DOWN (flying effect)
-                  const speed = 0.05 + (index * 0.04);
+                    // Clamp: Don't go further right than 0 (center)
+                    // If moveX is positive (scrolled past), keep it at 0
+                    let finalX = Math.min(0, moveX);
 
-                  // Invert direction so pulling up means going negative
-                  const moveY = dist * speed * -1;
+                    // Opacity: fade in as it slides in
+                    // Map -300px to 0 opacity
+                    let opacity = 1 - (Math.abs(finalX) / 300);
+                    opacity = Math.max(0, Math.min(1, opacity));
 
-                  // Limit movement
-                  const clampedY = Math.max(-100, Math.min(100, moveY));
-
-                  card.style.transform = `translateY(${clampedY}px)`;
+                    card.style.transform = `translateX(${finalX}px)`;
+                    card.style.opacity = opacity;
+                  } else {
+                    // Card is fully scrolled into view -> lock at center
+                    card.style.transform = `translateX(0px)`;
+                    card.style.opacity = 1;
+                  }
                 });
 
-                // Reveal Header (Simple fade in)
+                // Reveal Header
                 if (header) {
                   const hRect = header.getBoundingClientRect();
                   if (hRect.top < vH - 100) {
