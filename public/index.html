@@ -219,41 +219,117 @@
               setTimeout(typeCmd1, 800);
 
 
-              // --- 2. Live Parallax Animation (Cards) ---
+              // --- 2. SMOOTH Parallax Animation (Lerp) ---
               const cards = document.querySelectorAll('.path-card');
               const header = document.querySelector('.section-header');
 
-              function updateParallax() {
-                const scrollY = window.scrollY;
+              // State for smoothing
+              let currentScroll = window.scrollY;
+              let targetScroll = window.scrollY;
+
+              // Ease factor: Lower = smoother/slower (0.05 - 0.1 is good)
+              const ease = 0.08;
+
+              // Update target on scroll
+              window.addEventListener('scroll', () => {
+                targetScroll = window.scrollY;
+              });
+
+              function lerp(start, end, factor) {
+                return start + (end - start) * factor;
+              }
+
+              function animate() {
+                // Smoothly interpolate current towards target
+                currentScroll = lerp(currentScroll, targetScroll, ease);
+
+                // Stop confusing micro-decimals when stopped
+                if (Math.abs(targetScroll - currentScroll) < 0.1) {
+                  currentScroll = targetScroll;
+                }
+
                 const vH = window.innerHeight;
-                // Target: Higher up (35%) so animation is visible longer
+                // Trigger line higher up (visible area)
                 const triggerLine = vH * 0.35;
 
-                // Fly-in from Left Effect
                 cards.forEach((card, index) => {
                   const rect = card.getBoundingClientRect();
-                  const diff = rect.top - triggerLine;
+                  // Important: rect.top changes with scroll. 
+                  // To get generic "offset" purely based on smoothed scroll, we calculate:
+                  // (We need the original absolute top, but rect is relative. 
+                  //  For 'live' feeling, using rect is okay if we accept some lag, 
+                  //  but strictly 'currentScroll' is better for stability.)
 
-                  // Check if card is below the 'finish line'
+                  // Let's rely on the relative rect but smoothed by the fact UI updates slowly?
+                  // Actually, using 'rect.top' inside a lerp loop when rect is updated by browser scroll 
+                  // AND our transform is tricky.
+
+                  // Better approach for stability: 
+                  // Calculate transform based on the DIFFERENCE between where it IS and where it SHOULD be.
+
+                  // SIMPLIFIED APPROACH:
+                  // Use the smoothed 'currentScroll' to calculate the "virtual" position 
+                  // relative to the "finish line".
+
+                  // We need the element's absolute position. 
+                  // Since we don't want to calculate it every frame (reflow), we rely on 
+                  // the fact that rect.top is (AbsoluteTop - WindowScrollY).
+                  // So AbsoluteTop = rect.top + window.scrollY.
+                  // But reading rect.top forces reflow. 
+
+                  // Instead, let's use the 'diff' logic but smoothed visually.
+                  // Using 'currentScroll' instead of 'window.scrollY' for calculations won't work 
+                  // because 'rect.top' is hardware-bound to window.scrollY.
+
+                  // So: We apply the transform based on the RAW scroll, but we put CSS transitions? 
+                  // NO, that conflicts.
+
+                  // CORRECT LERP STRATEGY:
+                  // We calculate the IDEAL target transform based on real scroll.
+                  // Then we lerp the TRANSFORM value itself.
+
+                  if (!card.dataset.currentX) card.dataset.currentX = -100;
+
+                  // 1. Calculate Target X
+                  const realTop = rect.top; // Current visual position
+                  const diff = realTop - triggerLine;
+
+                  let targetX = 0;
+                  let targetOpacity = 1;
+
                   if (diff > -50) {
-                    // Less sensitivity = shorter travel distance = less overlap
-                    const sensitivity = 0.3 + (index * 0.15);
-                    let moveX = diff * sensitivity * -1;
+                    // It is below the trigger point -> Slide in
+                    // Sensitivity
+                    const sensitivity = 0.4 + (index * 0.1);
+                    let move = diff * sensitivity * -1;
+                    move = Math.max(-150, Math.min(0, move));
 
-                    // Clamp at 0 (center)
-                    let finalX = Math.min(0, moveX);
-                    // Limit max start (left) to 200px
-                    finalX = Math.max(-200, finalX);
-
-                    card.style.transform = `translateX(${finalX}px)`;
-                    card.style.opacity = '1';
+                    targetX = move;
+                    // Opacity map
+                    targetOpacity = 1 - (Math.abs(move) / 200);
+                    targetOpacity = Math.max(0.2, Math.min(1, targetOpacity));
                   } else {
-                    card.style.transform = `translateX(0px)`;
-                    card.style.opacity = '1';
+                    // Locked
+                    targetX = 0;
+                    targetOpacity = 1;
                   }
+
+                  // 2. Lerp the Value
+                  let curX = parseFloat(card.dataset.currentX);
+                  curX = lerp(curX, targetX, 0.1); // Smooth the movement value itself
+                  card.dataset.currentX = curX; // Store for next frame
+
+                  // Apply
+                  card.style.transform = `translateX(${curX.toFixed(2)}px)`;
+
+                  // Lerp opacity too for ultra smooth feel
+                  let curOp = parseFloat(card.style.opacity || 0);
+                  if (isNaN(curOp)) curOp = 0;
+                  curOp = lerp(curOp, targetOpacity, 0.1);
+                  card.style.opacity = curOp.toFixed(3);
                 });
 
-                // Reveal Header
+                // Simple Header Reveal
                 if (header) {
                   const hRect = header.getBoundingClientRect();
                   if (hRect.top < vH - 100) {
@@ -261,15 +337,12 @@
                     header.style.transform = 'translateY(0)';
                   }
                 }
+
+                requestAnimationFrame(animate);
               }
 
-              // Listen to scroll
-              window.addEventListener('scroll', () => {
-                requestAnimationFrame(updateParallax);
-              });
-
-              // Init call
-              updateParallax();
+              // Start Loop
+              animate();
             });
           </script>
         </div>
