@@ -535,7 +535,7 @@ ul {
     font-weight: 600;
 }
 
-.badge-outline {
+.badge-outline { 
     display: inline-flex;
     padding: 0.25rem 0.75rem;
     border: 1px solid var(--border-soft);
