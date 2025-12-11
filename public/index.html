@@ -10,21 +10,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <script>
-    // Auth Persistence Check - Run early to prevent flash
-    try {
-      if (localStorage.getItem('hackshield_user')) {
-        window.location.replace('dashboard.html');
-      }
-    } catch (e) { }
 
-    // Bfcache handler
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted || localStorage.getItem('hackshield_user')) {
-        if (localStorage.getItem('hackshield_user')) window.location.replace('dashboard.html');
-      }
-    });
-  </script>
 </head>
 
 <body>
@@ -87,7 +73,7 @@
       <li class="nav-item">Komunita</li>
     </ul>
 
-    <div class="nav-actions" style="display: flex; gap: 1rem;">
+    <div id="navActions" class="nav-actions" style="display: flex; gap: 1rem;">
       <a href="login.html" class="btn btn-ghost">Přihlásit</a>
       <a href="register.html" class="btn btn-primary">Začít zdarma</a>
     </div>
@@ -170,6 +156,18 @@
 
           <script>
             document.addEventListener('DOMContentLoaded', () => {
+
+              // --- 0. Check Auth & Update Nav ---
+              if (localStorage.getItem('hackshield_user')) {
+                const nav = document.getElementById('navActions');
+                if (nav) {
+                  nav.innerHTML = `
+                          <a href="dashboard.html" class="btn btn-primary" style="background: var(--accent); color: #000; font-weight: bold; border: none; box-shadow: 0 0 15px rgba(124, 242, 107, 0.4);">
+                              Vstoupit do aplikace &rarr;
+                          </a>
+                      `;
+                }
+              }
 
               // --- 1. Terminal Animation ---
               const cmd1 = "nmap -sC -sV 10.10.10.27";
