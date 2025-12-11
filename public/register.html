@@ -27,6 +27,26 @@
             display: none;
         }
     </style>
+    </style>
+    <script>
+        function checkAuth() {
+            if (localStorage.getItem('hackshield_user')) {
+                window.location.replace('dashboard.html');
+            }
+        }
+        checkAuth();
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted || localStorage.getItem('hackshield_user')) {
+                checkAuth();
+            }
+            const btn = document.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerText = "Registrovat se";
+                btn.style.opacity = "1";
+            }
+        });
+    </script>
 </head>
 
 <body>

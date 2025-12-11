@@ -21,14 +21,31 @@
             margin-bottom: 1rem;
         }
     </style>
+    <script>
+        function checkAuth() {
+            if (localStorage.getItem('hackshield_user')) {
+                window.location.replace('dashboard.html');
+            }
+        }
+        checkAuth(); // Run immediately
+
+        // Handle Back Button (bfcache)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted || localStorage.getItem('hackshield_user')) {
+                checkAuth();
+            }
+            // Reset UI if we are here (e.g. user logged out in another tab or weird state)
+            const btn = document.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerText = "Přihlásit se";
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
+        });
+    </script>
 </head>
 
 <body>
-    <script>
-        if (localStorage.getItem('hackshield_user')) {
-            window.location.replace('dashboard.html');
-        }
-    </script>
     <div class="bg-grid"></div>
 
     <div class="auth-container">

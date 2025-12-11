@@ -10,19 +10,24 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-</head>
-
-<body>
   <script>
-    // Auth Persistence
-    // If user is already logged in, redirect to dashboard immediately
+    // Auth Persistence Check - Run early to prevent flash
     try {
-      const user = localStorage.getItem('hackshield_user');
-      if (user) {
+      if (localStorage.getItem('hackshield_user')) {
         window.location.replace('dashboard.html');
       }
     } catch (e) { }
+
+    // Bfcache handler
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted || localStorage.getItem('hackshield_user')) {
+        if (localStorage.getItem('hackshield_user')) window.location.replace('dashboard.html');
+      }
+    });
   </script>
+</head>
+
+<body>
   <div class="bg-grid"></div>
 
   <nav class="topbar">
