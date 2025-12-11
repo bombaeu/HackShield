@@ -226,35 +226,31 @@
               function updateParallax() {
                 const scrollY = window.scrollY;
                 const vH = window.innerHeight;
-                // Trigger animation when card is near bottom of viewport
-                const triggerLine = vH * 0.85;
+                // Target: Higher up (35%) so animation is visible longer
+                const triggerLine = vH * 0.35;
 
                 // Fly-in from Left Effect
                 cards.forEach((card, index) => {
                   const rect = card.getBoundingClientRect();
                   const diff = rect.top - triggerLine;
 
-                  // Check if card is near or below the trigger line
-                  if (diff > -200) {
-                    // Calculate horizontal slide
-                    // High positive diff (card is lower) -> Large negative X (off-screen left)
+                  // Check if card is below the 'finish line'
+                  if (diff > -50) {
                     // Stagger logic: higher index moves slightly differently
-                    const sensitivity = 0.6 + (index * 0.2);
+                    const sensitivity = 0.8 + (index * 0.3);
                     let moveX = diff * sensitivity * -1;
 
                     // Clamp: Don't go further right than 0 (center)
-                    // If moveX is positive (scrolled past), keep it at 0
                     let finalX = Math.min(0, moveX);
 
-                    // Opacity: fade in as it slides in
-                    // Map -300px to 0 opacity
-                    let opacity = 1 - (Math.abs(finalX) / 300);
-                    opacity = Math.max(0, Math.min(1, opacity));
+                    // Opacity: Map -500px to 0 opacity
+                    let opacity = 1 - (Math.abs(finalX) / 500);
+                    opacity = Math.max(0.1, Math.min(1, opacity));
 
                     card.style.transform = `translateX(${finalX}px)`;
                     card.style.opacity = opacity;
                   } else {
-                    // Card is fully scrolled into view -> lock at center
+                    // Card is above the trigger line -> lock strictly at center
                     card.style.transform = `translateX(0px)`;
                     card.style.opacity = 1;
                   }
