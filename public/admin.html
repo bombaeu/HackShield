@@ -206,7 +206,7 @@
             const requesterId = currentUser ? currentUser.id : null;
 
             try {
-                const res = await fetch('/api/users/toggle-role', {
+                const res = await fetch('/api/users/toggle-role', {                                                                                                       
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id, isAdmin: wasAdmin, requesterId: requesterId })

@@ -302,10 +302,10 @@
 
                   if (diff > -50) {
                     // It is below the trigger point -> Slide in
-                    // Sensitivity
-                    const sensitivity = 0.4 + (index * 0.1);
+                    // Sensitivity: UNIFORM (Clean look)
+                    const sensitivity = 0.5;
                     let move = diff * sensitivity * -1;
-                    move = Math.max(-150, Math.min(0, move));
+                    move = Math.max(-200, Math.min(0, move));
 
                     targetX = move;
                     // Opacity map
