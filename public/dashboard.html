@@ -267,11 +267,11 @@
                 <a href="#" class="sidebar-link active">
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="learn.html" class="sidebar-link">
                     <span>Learn</span>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <span>Compete</span>
+                <a href="leaderboard.html" class="sidebar-link">
+                    <span>Žebříček</span>
                 </a>
                 <a href="#" class="sidebar-link">
                     <span>Network</span>
@@ -464,7 +464,15 @@
                 const uName = data.username || "Hacker";
                 document.getElementById('userNameDisplay').innerText = `Vítej zpět, ${uName}`;
                 document.getElementById('userProfileName').innerText = uName;
-                document.getElementById('headerRole').innerText = `[${data.role}]`;
+                const roleEl = document.getElementById('headerRole');
+                roleEl.innerText = `[${data.role}]`;
+
+                if (data.role === 'Admin' || data.role === 'Root') {
+                    roleEl.style.color = '#ef4444';
+                    roleEl.style.textShadow = '0 0 8px rgba(239, 68, 68, 0.5)';
+                } else {
+                    roleEl.style.color = 'var(--accent)';
+                }
                 document.getElementById('headerAvatar').innerText = uName.charAt(0).toUpperCase();
 
                 document.getElementById('userLevel').innerText = data.level;

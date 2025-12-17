@@ -331,6 +331,39 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
+// Leaderboard API
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        // Top 50 users by Level
+        const result = await pool.query(`
+            SELECT username, level, badges, joined_date, streak 
+            FROM users 
+            ORDER BY level DESC, id ASC 
+            LIMIT 50
+        `);
+
+        // Process data for frontend
+        const leaderboard = result.rows.map(user => {
+            let role = "Student";
+            if (user.badges && user.badges.includes('Root')) role = "Root";
+            else if (user.badges && user.badges.includes('Admin')) role = "Admin";
+
+            return {
+                username: user.username,
+                level: user.level,
+                streak: user.streak || 0,
+                role: role,
+                badgesCount: user.badges ? user.badges.length : 0
+            };
+        });
+
+        res.json(leaderboard);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
