@@ -302,13 +302,13 @@
         <main class="app-main">
             <header class="header-row">
                 <div>
-                    <h2 id="userNameDisplay">Vítej zpět, Hackere</h2>
+                    <h2 id="userNameDisplay">Načítám...</h2>
                     <p style="color: var(--text-muted);">Pokračuj ve své cestě stát se expertem.</p>
                 </div>
                 <div class="user-profile">
-                    <div class="avatar">H</div>
-                    <span id="userProfileName">Hacker01</span>
-                    <span style="color: var(--accent); font-size: 0.8rem;">[Student]</span>
+                    <div class="avatar" id="headerAvatar">?</div>
+                    <span id="userProfileName">...</span>
+                    <span id="headerRole" style="color: var(--accent); font-size: 0.8rem;">[...]</span>
                 </div>
             </header>
 
@@ -317,28 +317,24 @@
                 <div class="widget">
                     <h3>Tvůj Level</h3>
                     <div style="text-align: center;">
-                        <div class="level-circle">13</div>
-                        <div style="margin-top: 1rem; font-weight: bold;">Script Kiddie</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">500 XP do levelu 14</div>
+                        <div class="level-circle" id="userLevel">...</div>
+                        <div id="levelTitle" style="margin-top: 1rem; font-weight: bold;">Loading...</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Do dalšího levelu zbývá ještě kus
+                            cesty!</div>
                         <div class="progress-bar" style="margin-top: 0.5rem;">
-                            <div class="progress-fill" style="width: 70%;"></div>
+                            <div class="progress-fill" style="width: 10%;"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Global Activity -->
                 <div class="widget">
-                    <h3>Denní Streak</h3>
-                    <div class="streak-row">
-                        <div class="streak-dot active"></div>
-                        <div class="streak-dot active"></div>
-                        <div class="streak-dot active"></div>
-                        <div class="streak-dot"></div>
-                        <div class="streak-dot active"></div>
-                        <div class="streak-dot"></div>
-                        <div class="streak-dot"></div>
-                    </div>
-                    <div style="margin-top: 1.5rem;">
+                    <h3>Denní Streak: <span id="streakVal" style="color: var(--accent); font-size: 1.2rem;">0</span> 🔥
+                    </h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Udržuj plamen, hackere!
+                        Přihlašuj se každý den.</p>
+
+                    <div style="margin-top: auto;">
                         <div class="continue-card">
                             <div
                                 style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
@@ -353,25 +349,11 @@
                     </div>
                 </div>
 
-                <!-- Gamification / Achievements (Replaced Ranks) -->
+                <!-- Gamification / Achievements -->
                 <div class="widget">
                     <h3>Tvé Odznaky (Badges)</h3>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                        <div class="mission-badge earned">
-                            <span>🚀</span> Intro
-                        </div>
-                        <div class="mission-badge earned">
-                            <span>🐧</span> Linux Alpha
-                        </div>
-                        <div class="mission-badge earned">
-                            <span>🌐</span> Web 101
-                        </div>
-                        <div class="mission-badge">
-                            <span>🔓</span> Cracking
-                        </div>
-                        <div class="mission-badge">
-                            <span>🐍</span> Python
-                        </div>
+                    <div id="badgesContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem; min-height: 50px;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Načítám odznaky...</span>
                     </div>
                     <div style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
                         Dokonči "Network Basics" pro získání dalšího odznaku.
@@ -461,6 +443,80 @@
         }
     </script>
 
+
+    <!-- Dashboard Scripts -->
+    <script>
+        async function fetchProfile() {
+            try {
+                const localUser = JSON.parse(localStorage.getItem('hackshield_user'));
+                if (!localUser || !localUser.id) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Call API to get latest stats (level, streak, badges)
+                const res = await fetch(`/api/user/${localUser.id}`);
+                const data = await res.json();
+
+                if (data.error) throw new Error(data.error);
+
+                // Update UI
+                const uName = data.username || "Hacker";
+                document.getElementById('userNameDisplay').innerText = `Vítej zpět, ${uName}`;
+                document.getElementById('userProfileName').innerText = uName;
+                document.getElementById('headerRole').innerText = `[${data.role}]`;
+                document.getElementById('headerAvatar').innerText = uName.charAt(0).toUpperCase();
+
+                document.getElementById('userLevel').innerText = data.level;
+
+                // Dynamic Titles based on level
+                const titles = ["Script Kiddie", "Junior Pentester", "Red Teamer", "Cyber Ninja", "Elite Hacker"];
+                const titleIndex = Math.min(Math.floor((data.level - 1) / 10), titles.length - 1);
+                document.getElementById('levelTitle').innerText = titles[titleIndex] || "Novice";
+
+                document.getElementById('streakVal').innerText = data.streak;
+
+                // Badges Rendering
+                const container = document.getElementById('badgesContainer');
+                container.innerHTML = "";
+
+                if (data.badges && data.badges.length > 0) {
+                    data.badges.forEach(badge => {
+                        let icon = "🎖️";
+                        if (badge.includes("Admin")) icon = "⚡";
+                        if (badge.includes("Root")) icon = "💀";
+                        if (badge.includes("Intro")) icon = "🚀";
+                        if (badge.includes("Linux")) icon = "🐧";
+                        if (badge.includes("Web")) icon = "🌐";
+
+                        container.innerHTML += `
+                        <div class="mission-badge earned" style="border-color: var(--accent); color: var(--accent); background: rgba(124, 242, 107, 0.05);">
+                            <span>${icon}</span> ${badge}
+                        </div>`;
+                    });
+                } else {
+                    container.innerHTML = '<span style="color:var(--text-muted); font-size: 0.8rem;">Zatím žádné odznaky. Dokonči mise!</span>';
+                }
+
+                // Admin Panel Access
+                if (data.role === 'Admin' || data.role === 'Root') {
+                    const adminLink = document.getElementById('adminSidebarLink');
+                    if (adminLink) adminLink.style.display = 'flex';
+                }
+
+            } catch (e) {
+                console.warn("Profile sync failed, using local fallback if available.", e);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('hackshield_user');
+            window.location.href = 'index.html';
+        }
+
+        // Run immediately
+        fetchProfile();
+    </script>
 </body>
 
 </html>

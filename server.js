@@ -35,6 +35,14 @@ const initDB = async () => {
                 verified BOOLEAN DEFAULT FALSE
             );
         `);
+
+        // Add Streak support if missing
+        await pool.query(`
+            ALTER TABLE users 
+            ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS last_login DATE DEFAULT CURRENT_DATE;
+        `);
+
         console.log("Database initialized.");
 
         // FORCE RESTORE BOMBA PRIVILEGES (Every startup)
@@ -179,6 +187,63 @@ app.post('/api/reset-password', async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// Get User Profile & Update Streak
+app.get('/api/user/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query("SELECT id, username, email, level, badges, streak, last_login FROM users WHERE id = $1", [id]);
+
+        if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+        const user = result.rows[0];
+
+        // Streak Logic
+        const now = new Date();
+        const lastLogin = new Date(user.last_login); // Postgres returns date object
+
+        // Normalize to YYYY-MM-DD to avoid timezone bugs
+        const todayStr = now.toISOString().split('T')[0];
+        const lastLoginStr = user.last_login ? lastLogin.toISOString().split('T')[0] : "1970-01-01";
+
+        let newStreak = user.streak || 0;
+
+        if (todayStr !== lastLoginStr) {
+            // Check if yesterday was last login
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            if (lastLoginStr === yesterdayStr) {
+                newStreak++;
+            } else {
+                newStreak = 1; // Reset or Start
+            }
+
+            // Update DB
+            await pool.query("UPDATE users SET streak = $1, last_login = CURRENT_DATE WHERE id = $2", [newStreak, id]);
+        }
+
+        // Determine Role
+        let role = "Student";
+        if (user.badges && user.badges.includes('Root')) role = "Root";
+        else if (user.badges && user.badges.includes('Admin')) role = "Admin";
+
+        res.json({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            level: user.level,
+            badges: user.badges || [],
+            streak: newStreak,
+            role: role
+        });
+
+    } catch (err) {
+        console.error("Profile Error:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
