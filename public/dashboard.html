@@ -491,6 +491,14 @@
                 if (data.badges && data.badges.length > 0) {
                     data.badges.forEach(badge => {
                         let icon = "🎖️";
+                        // Default Style (Green)
+                        let badgeStyle = "border-color: var(--accent); color: var(--accent); background: rgba(124, 242, 107, 0.05);";
+
+                        // Special Style for Admin/Root (Red)
+                        if (badge.includes("Admin") || badge.includes("Root")) {
+                            badgeStyle = "border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);";
+                        }
+
                         if (badge.includes("Admin")) icon = "⚡";
                         if (badge.includes("Root")) icon = "💀";
                         if (badge.includes("Intro")) icon = "🚀";
@@ -498,7 +506,7 @@
                         if (badge.includes("Web")) icon = "🌐";
 
                         container.innerHTML += `
-                        <div class="mission-badge earned" style="border-color: var(--accent); color: var(--accent); background: rgba(124, 242, 107, 0.05);">
+                        <div class="mission-badge earned" style="${badgeStyle}">
                             <span>${icon}</span> ${badge}
                         </div>`;
                     });
