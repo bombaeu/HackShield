@@ -188,6 +188,65 @@
             color: var(--accent);
             background: rgba(124, 242, 107, 0.05);
         }
+
+        /* Dashboard Responsive Overrides */
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .sidebar {
+                display: flex !important;
+                /* Force show */
+                flex-direction: column;
+                padding: 1rem;
+                border-right: none;
+                border-bottom: 1px solid var(--border-soft);
+            }
+
+            .sidebar-brand {
+                margin-bottom: 1rem;
+                justify-content: center;
+            }
+
+            /* Make Nav Horizontal Scroll */
+            .sidebar nav {
+                display: flex;
+                gap: 1rem;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .nav-group {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 0;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            /* Hide labels to save space */
+
+            .sidebar-link {
+                white-space: nowrap;
+                font-size: 0.85rem;
+                padding: 0.6rem;
+                background: var(--bg-card);
+                border: 1px solid var(--border-soft);
+            }
+
+            .sidebar-user {
+                display: none;
+                /* Hide user profile in sidebar on mobile to save space */
+            }
+
+            main {
+                padding: 1.5rem !important;
+            }
+        }
     </style>
 </head>
 
