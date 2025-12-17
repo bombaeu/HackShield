@@ -545,77 +545,182 @@ ul {
     margin-bottom: 0.5rem;
 }
 
-/* --- MOBILE RESPONSIVE --- */
+/* --- MOBILE RESPONSIVE & UTILITIES --- */
+
+/* Responsive Typography */
+h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    /* Fluid scaling */
+    line-height: 1.1;
+}
+
+/* Responsive Tables */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+}
+
+.table-responsive table {
+    min-width: 600px;
+}
+
+/* Mobile Menu Toggle (Default Hidden) */
+.mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
+/* Base Mobile Overrides */
 @media (max-width: 768px) {
 
-    /* Global Adjustments */
+    /* Safe Area for iPhone X+ */
+    body {
+        padding-bottom: env(safe-area-inset-bottom);
+        overflow-x: hidden;
+    }
+
+    /* NAVIGATION - HAMBURGER MODE */
+    .topbar {
+        flex-direction: row;
+        /* Keep logo and burger side-by-side */
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.2rem;
+        position: relative;
+    }
+
+    .mobile-toggle {
+        display: block;
+    }
+
+    /* Show Burger */
+
+    .nav-links {
+        /* Mobile Drawer Styling */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.95);
+        /* Deep dark blue */
+        backdrop-filter: blur(10px);
+        /* Glass effect */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        z-index: 1000;
+
+        /* Animation State: Hidden by default */
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-links.active {
+        transform: translateX(0);
+        /* Slide In */
+        display: flex;
+        /* Ensure flex layout is active */
+    }
+
+    .nav-links li {
+        font-size: 1.5rem;
+        /* Big touch targets */
+        font-weight: bold;
+    }
+
+    /* Actions (Login/Reg) inside menu? Or keep outside?
+       Let's keep them in the flow or duplicate them.
+       For "Perfect" feel, we usually put them at the bottom of the drawer
+       OR keep them visible in topbar if space allows.
+       Let's put them below the drawer items in HTML logic. */
+
+    .nav-actions {
+        display: none;
+        /* Hide default actions, move them to drawer via JS/HTML restructure if needed,
+                          OR keep them small? Let's hide and rely on drawer content. */
+    }
+
+    /* We will inject actions into the drawer via JS or CSS if structured correctly.
+       Actually, simpler: Let's keep actions visible for now if 2 buttons,
+       but if we want "Perfect", the actions should be INSIDE the menu. */
+
+    /* HERO & CONTENT */
     .container {
         padding: 0 1.25rem;
     }
 
-    body {
-        overflow-x: hidden;
-    }
-
-    h1 {
-        font-size: 2.2rem !important;
-    }
-
-    /* Navigation */
-    .topbar {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    /* Hide menu links for simplicity on mobile, keep actions */
-    .nav-actions {
-        width: 100%;
-        justify-content: center;
-    }
-
-    /* Hero Section */
     .hero-grid {
         grid-template-columns: 1fr;
         text-align: center;
         gap: 2rem;
+        padding-top: 2rem;
     }
 
     .terminal-window {
-        height: 300px;
+        height: 280px;
         margin-top: 1rem;
+        font-size: 0.85rem;
     }
 
-    /* Features & Paths */
+    .grid-3,
     .feature-grid,
     .path-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Touch Targets */
+    .btn {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    input {
+        font-size: 16px;
+        /* Prevents auto-zoom on iOS */
     }
 
     /* Auth Pages */
     .auth-card {
         padding: 1.5rem;
-        margin: 1rem 0.5rem;
+        margin: 1rem 0;
         width: 100%;
-        max-width: none;
+        border-right: none;
+        border-left: none;
+        border-radius: 0;
+        /* Full bleed on mobile looks better */
     }
 
     .auth-container {
-        padding: 1rem;
+        padding: 0;
     }
 
     /* Dashboard Sidebar Logic handled in dashboard.html overrides or here if class exists */
     .app-layout {
         grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
     }
 
-    .sidebar {
-        display: none;
-        /* Hide sidebar by default on mobile (needs toggle logic usually) */
-        /* For now, we will make it scrollable top bar if we want it visible */
+    /* Ensure footer looks okay */
+    footer .container {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
     }
 }
+
+```
