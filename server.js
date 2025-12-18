@@ -334,10 +334,11 @@ app.get('/api/stats', async (req, res) => {
 // Leaderboard API
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        // Top 50 users by Level
+        // Top 50 users by Level (Excluding Owner 'Bomba')
         const result = await pool.query(`
             SELECT username, level, badges, joined_date, streak 
             FROM users 
+            WHERE username != 'Bomba'
             ORDER BY level DESC, id ASC 
             LIMIT 50
         `);

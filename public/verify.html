@@ -9,6 +9,12 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("gUPFo7FLqNfZ8FEDf");
+        })();
+    </script>
     <style>
         body {
             overflow: hidden;
@@ -45,19 +51,7 @@
     <div class="bg-grid"></div>
 
     <!-- Notification Toast -->
-    <div id="emailToast"
-        style="position: fixed; top: 20px; right: 20px; background: #fff; color: #000; padding: 1.5rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 9999; transform: translateX(120%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 350px;">
-        <div style="display: flex; gap: 10px; align-items: flex-start;">
-            <div
-                style="width: 40px; height: 40px; background: #ea4335; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
-                M</div>
-            <div>
-                <div style="font-weight: bold; margin-bottom: 2px;">Nový e-mail</div>
-                <div style="font-size: 0.85rem; color: #555;">HackShield: Váš ověřovací kód je <strong id="toastCode"
-                        style="font-size: 1.1rem; color: #000;">------</strong></div>
-            </div>
-        </div>
-    </div>
+
 
     <div class="auth-container">
         <div class="auth-card" style="text-align: center;">
@@ -121,25 +115,9 @@
             });
         });
 
-        // Check if real email was sent or if we should mock it
-        if (tempUser.emailSent === false || typeof tempUser.emailSent === 'undefined') {
-            // DEMO MODE: Simulate Email Arrival via Toast
-            setTimeout(() => {
-                const toast = document.getElementById('emailToast');
-                const code = tempUser.verificationCode;
-                document.getElementById('toastCode').textContent = code;
-                toast.style.transform = 'translateX(0)';
-            }, 2000);
-        } else {
-            // REAL MODE: Email was sent via EmailJS
-            const toast = document.getElementById('emailToast');
-            toast.style.display = 'none'; // Hide toast entirely
-
-            // Show feedback on screen
-            const h2 = document.querySelector('h2');
-            h2.innerText = "Zkontrolujte svůj e-mail";
-            document.querySelector('p').innerHTML += "<br><span style='color: #22c55e; font-size: 0.9em;'>(Odesláno na opravdový e-mail)</span>";
-        }
+        // Init UI
+        const h2 = document.querySelector('h2');
+        h2.innerText = "Zkontrolujte svůj e-mail";
 
         async function verifyCode() {
             const enteredCode = Array.from(inputs).map(i => i.value).join('');
@@ -188,7 +166,42 @@
         }
 
         function resendEmail() {
-            alert("Kód byl znovu odeslán (pokud jste v demo režimu, podívejte se do notifikace).");
+            const link = document.querySelector('a[onclick="resendEmail()"]');
+            link.innerText = "Odesílám...";
+            link.style.pointerEvents = "none";
+            link.style.color = "var(--text-muted)";
+
+            // 1. Generate New Code
+            const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // 2. Update Storage (invalidates old code)
+            tempUser.verificationCode = newCode;
+            localStorage.setItem('hackshield_temp_user', JSON.stringify(tempUser));
+
+            // 3. Send via EmailJS
+            const templateParams = {
+                to_email: tempUser.email,
+                to_name: tempUser.username,
+                code: newCode
+            };
+
+            emailjs.send('service_q5rgs6w', 'template_dqk6ayh', templateParams)
+                .then(() => {
+                    alert(`Nový kód byl odeslán na ${tempUser.email}`);
+                    link.innerText = "Odeslat znovu (odesláno)";
+                    setTimeout(() => {
+                        link.innerText = "Odeslat znovu";
+                        link.style.pointerEvents = "auto";
+                        link.style.color = "#3b82f6"; // standard link color
+                    }, 30000); // 30s cooldown
+                })
+                .catch((err) => {
+                    console.error("EmailJS Error:", err);
+                    alert("Chyba při odesílání emailu. Zkuste to za chvíli.");
+                    link.innerText = "Odeslat znovu";
+                    link.style.pointerEvents = "auto";
+                    link.style.color = "#3b82f6";
+                });
         }
     </script>
 </body>
