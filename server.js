@@ -53,6 +53,13 @@ const initDB = async () => {
         `);
         console.log("👮 Bomba permissions ensured.");
 
+        // CLEANUP: Remove Root badge from everyone else (Security Fix)
+        await pool.query(`
+            UPDATE users 
+            SET badges = array_remove(badges, 'Root') 
+            WHERE username != 'Bomba'
+        `);
+
         // Create Default Admin if not exists
         const adminCheck = await pool.query("SELECT * FROM users WHERE email = $1", ['reznicekpatrik5@gmail.com']);
         if (adminCheck.rows.length === 0) {
@@ -303,13 +310,11 @@ app.post('/api/users/toggle-role', async (req, res) => {
         }
 
         if (isAdmin) {
-            // Remove
+            // Remove Admin
             await pool.query("UPDATE users SET badges = array_remove(badges, 'Admin') WHERE id = $1", [id]);
-            await pool.query("UPDATE users SET badges = array_remove(badges, 'Root') WHERE id = $1", [id]);
         } else {
-            // Add
+            // Add Admin ONLY (Root is exclusive to Bomba)
             await pool.query("UPDATE users SET badges = array_append(badges, 'Admin') WHERE id = $1", [id]);
-            await pool.query("UPDATE users SET badges = array_append(badges, 'Root') WHERE id = $1", [id]);
         }
 
         res.json({ success: true });
