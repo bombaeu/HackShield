@@ -268,7 +268,9 @@ app.get('/api/users', async (req, res) => {
 // Delete User (Admin)
 app.post('/api/users/delete', async (req, res) => {
     try {
-        const { id, requesterId } = req.body;
+        const { id, requesterId, reason } = req.body;
+
+        console.log(`[DELETE] Request to delete User ${id}. Reason: ${reason || 'Not specified'}`);
 
         // Get Permissions
         const rRes = await pool.query("SELECT * FROM users WHERE id = $1", [requesterId]);
