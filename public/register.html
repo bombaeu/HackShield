@@ -204,6 +204,22 @@
             localStorage.setItem('hackshield_temp_user', JSON.stringify(tempUser));
             window.location.href = 'verify.html';
         }
+
+        // --- FORM PERSISTENCE ---
+        (function () {
+            const uInput = document.getElementById('username');
+            const eInput = document.getElementById('email');
+
+            if (uInput && eInput) {
+                // Restore
+                if (sessionStorage.getItem('pers_username')) uInput.value = sessionStorage.getItem('pers_username');
+                if (sessionStorage.getItem('pers_email')) eInput.value = sessionStorage.getItem('pers_email');
+
+                // Save
+                uInput.addEventListener('input', () => sessionStorage.setItem('pers_username', uInput.value));
+                eInput.addEventListener('input', () => sessionStorage.setItem('pers_email', eInput.value));
+            }
+        })();
     </script>
 </body>
 

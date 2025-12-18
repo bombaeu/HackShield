@@ -6,14 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Panel | HackShield</title>
     <link rel="stylesheet" href="style.css" />
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function () {
-            emailjs.init("gUPFo7FLqNfZ8FEDf"); // Using existing public key
-        })();
-    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         .admin-header {
             display: flex;
@@ -187,24 +182,7 @@
                 return;
             }
 
-            // 2. Send Notification Email
-            try {
-                // Using 'code' param as message carrier since it exists in the template
-                await emailjs.send('service_q5rgs6w', 'template_dqk6ayh', {
-                    to_email: email,
-                    to_name: "Uživatel",
-                    code: `Váš účet byl smazán. Důvod: ${reason}`,
-                    message: reason
-                });
-                console.log("Email notification sent.");
-            } catch (err) {
-                console.error("Email send failed:", err);
-                if (!confirm("Nepodařilo se odeslat email s upozorněním. Chcete přesto smazat účet?")) {
-                    return;
-                }
-            }
-
-            // 3. Delete from Server
+            // 2. Delete from Server
             const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
             const requesterId = currentUser ? currentUser.id : null;
 
@@ -218,7 +196,7 @@
 
                 const json = await res.json();
                 if (json.success) {
-                    alert("Uživatel smazán a informován.");
+                    alert("Uživatel smazán.");
                     renderUsers();
                 } else {
                     alert("Chyba: " + json.error);

@@ -463,15 +463,29 @@ ul {
 /* Forms - Appended */
 .auth-container {
     min-height: 100vh;
+    min-height: 100dvh;
+    /* Better for mobile addr bars */
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     padding: 1rem;
+    overflow-y: auto;
+    /* Allow scrolling */
+
     background: radial-gradient(circle at top right, rgba(124, 242, 107, 0.05), transparent 40%),
         radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 40%);
 }
 
+/* Ensure content is centered but scrollable */
+.auth-container::before,
+.auth-container::after {
+    content: '';
+    flex: 1;
+    min-height: 1rem;
+}
+
 .auth-card {
+    margin: 0 auto;
+    z-index: 1;
     background: var(--bg-panel);
     border: 1px solid var(--border-soft);
     border-radius: 20px;
