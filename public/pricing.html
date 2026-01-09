@@ -60,12 +60,29 @@
                 </p>
             </div>
 
+            <!-- Toggle -->
+            <div class="pricing-controls">
+                <span class="toggle-label active" id="label-monthly" onclick="setBilling(false)">Měsíčně</span>
+                <label class="switch">
+                    <input type="checkbox" id="billingToggle" onchange="toggleBilling()">
+                    <span class="slider"></span>
+                </label>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span class="toggle-label" id="label-yearly" onclick="setBilling(true)">Ročně</span>
+                    <span class="save-badge">2 měsíce zdarma</span>
+                </div>
+            </div>
+
             <div class="pricing-grid">
                 <!-- Free -->
                 <div class="pricing-card">
                     <h3>Free – Explorer</h3>
                     <p class="subtitle">Pro začátečníky</p>
-                    <div class="price">0 €</div>
+                    <div class="price">
+                        <span class="amount">0 €</span>
+                    </div>
+                    <!-- Spacer for alignment -->
+                    <div class="billing-note" style="height: 1.2em; margin-bottom: 1rem;">&nbsp;</div>
                     <ul class="features">
                         <li>Základy Linux & Networking</li>
                         <li>3–5 labů / měsíc</li>
@@ -77,13 +94,19 @@
                 </div>
 
                 <!-- Pro -->
-                <div class="pricing-card" style="border-color: var(--accent); position: relative;">
+                <div class="pricing-card active-card"
+                    style="border-color: var(--accent); position: relative; box-shadow: 0 0 30px rgba(124, 242, 107, 0.1);">
                     <div
                         style="position: absolute; top: -12px; background: var(--accent); color: black; padding: 2px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
                         DOPORUČENO</div>
                     <h3>Pro – Hacker Path</h3>
                     <p class="subtitle">Pro pokročilé</p>
-                    <div class="price text-accent">12 € <span class="period">/ měsíc</span></div>
+                    <div class="price text-accent" data-monthly="12" data-yearly="10">
+                        <span class="amount">12 €</span> <span class="period">/ měsíc</span>
+                    </div>
+                    <div class="billing-note"
+                        style="font-size: 0.8rem; color: #94a3b8; height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
+                        Účtováno 120 € ročně</div>
                     <ul class="features">
                         <li>Neomezené laby</li>
                         <li>Learning paths</li>
@@ -97,7 +120,12 @@
                 <div class="pricing-card">
                     <h3>Elite – Advanced Ops</h3>
                     <p class="subtitle">Pro experty</p>
-                    <div class="price text-accent">25 € <span class="period">/ měsíc</span></div>
+                    <div class="price text-accent" data-monthly="25" data-yearly="20">
+                        <span class="amount">25 €</span> <span class="period">/ měsíc</span>
+                    </div>
+                    <div class="billing-note"
+                        style="font-size: 0.8rem; color: #94a3b8; height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
+                        Účtováno 240 € ročně</div>
                     <ul class="features">
                         <li>Red vs Blue scénáře</li>
                         <li>Active Directory & Cloud</li>
@@ -107,6 +135,46 @@
                     <button class="btn btn-primary" style="width: 100%; justify-content: center;">Vybrat Elite</button>
                 </div>
             </div>
+
+            <script>
+                function toggleBilling() {
+                    const isYearly = document.getElementById('billingToggle').checked;
+                    updatePrices(isYearly);
+                }
+
+                function setBilling(isYearly) {
+                    document.getElementById('billingToggle').checked = isYearly;
+                    toggleBilling();
+                }
+
+                function updatePrices(isYearly) {
+                    // Update Labels
+                    document.getElementById('label-monthly').classList.toggle('active', !isYearly);
+                    document.getElementById('label-yearly').classList.toggle('active', isYearly);
+
+                    // Update Cards
+                    document.querySelectorAll('.pricing-card .price').forEach(el => {
+                        if (!el.dataset.monthly) return; // Skip free
+
+                        const amountEl = el.querySelector('.amount');
+                        const noteEl = el.closest('.pricing-card').querySelector('.billing-note');
+
+                        const price = isYearly ? el.dataset.yearly : el.dataset.monthly;
+
+                        // Simple animation
+                        amountEl.style.opacity = 0;
+                        setTimeout(() => {
+                            amountEl.innerText = price + " €";
+                            amountEl.style.opacity = 1;
+                        }, 150);
+
+                        // Show/Hide Note
+                        if (noteEl) {
+                            noteEl.style.opacity = isYearly ? 1 : 0;
+                        }
+                    });
+                }
+            </script>
 
             <div
                 style="margin-top: 4rem; text-align: center; color: var(--text-muted); padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
