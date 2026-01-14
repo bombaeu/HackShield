@@ -319,10 +319,9 @@
                     <div style="text-align: center;">
                         <div class="level-circle" id="userLevel">...</div>
                         <div id="levelTitle" style="margin-top: 1rem; font-weight: bold;">Loading...</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Do dalšího levelu zbývá ještě kus
-                            cesty!</div>
+                        <div id="userXPText" style="font-size: 0.8rem; color: var(--text-muted);">Načítám XP...</div>
                         <div class="progress-bar" style="margin-top: 0.5rem;">
-                            <div class="progress-fill" style="width: 10%;"></div>
+                            <div id="userXPBar" class="progress-fill" style="width: 0%;"></div>
                         </div>
                     </div>
                 </div>
@@ -517,6 +516,12 @@
                 document.getElementById('headerAvatar').innerText = uName.charAt(0).toUpperCase();
 
                 document.getElementById('userLevel').innerText = data.level;
+
+                // XP Logic (100 XP per level)
+                const currentXP = data.xp || 0;
+                const progressPercent = currentXP % 100;
+                document.getElementById('userXPText').innerText = `${progressPercent} / 100 XP`;
+                document.getElementById('userXPBar').style.width = `${progressPercent}%`;
 
                 // Dynamic Titles based on level
                 const titles = ["Script Kiddie", "Junior Pentester", "Red Teamer", "Cyber Ninja", "Elite Hacker"];

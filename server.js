@@ -30,6 +30,7 @@ const initDB = async () => {
                 email VARCHAR(100) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
                 level INTEGER DEFAULT 1,
+                xp INTEGER DEFAULT 0,
                 badges TEXT[] DEFAULT ARRAY['Intro'],
                 joined_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 verified BOOLEAN DEFAULT FALSE
@@ -40,6 +41,7 @@ const initDB = async () => {
         await pool.query(`
             ALTER TABLE users 
             ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0,
             ADD COLUMN IF NOT EXISTS last_login DATE DEFAULT CURRENT_DATE;
         `);
 
@@ -265,6 +267,39 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
+// Update Progress (XP & Level)
+app.post('/api/progress', async (req, res) => {
+    try {
+        const { userId, xpGain } = req.body;
+
+        // 1. Get current stats
+        const userRes = await pool.query("SELECT xp, level FROM users WHERE id = $1", [userId]);
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+        let { xp, level } = userRes.rows[0];
+
+        // 2. Calculate New Stats
+        const newXp = (xp || 0) + xpGain;
+        const newLevel = Math.floor(newXp / 100) + 1; // Simple Leveling Formula: 100 XP per level
+
+        let leveledUp = newLevel > level;
+
+        // 3. Update DB
+        await pool.query("UPDATE users SET xp = $1, level = $2 WHERE id = $3", [newXp, newLevel, userId]);
+
+        res.json({
+            success: true,
+            newXp: newXp,
+            newLevel: newLevel,
+            leveledUp: leveledUp
+        });
+
+    } catch (err) {
+        console.error("Progress Update Error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Delete User (Admin)
 app.post('/api/users/delete', async (req, res) => {
     try {
@@ -342,11 +377,12 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/leaderboard', async (req, res) => {
     try {
         // Top 50 users by Level (Excluding Owner 'Bomba')
+        // Top 50 users by Level (Excluding Owner 'Bomba')
         const result = await pool.query(`
-            SELECT username, level, badges, joined_date, streak 
+            SELECT username, level, xp, badges, joined_date, streak 
             FROM users 
             WHERE username != 'Bomba'
-            ORDER BY level DESC, id ASC 
+            ORDER BY level DESC, xp DESC, id ASC 
             LIMIT 50
         `);
 
@@ -359,6 +395,7 @@ app.get('/api/leaderboard', async (req, res) => {
             return {
                 username: user.username,
                 level: user.level,
+                xp: user.xp || 0,
                 streak: user.streak || 0,
                 role: role,
                 badgesCount: user.badges ? user.badges.length : 0

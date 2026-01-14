@@ -306,6 +306,8 @@
                 const res = await fetch('/api/leaderboard');
                 const data = await res.json();
 
+                const localUser = JSON.parse(localStorage.getItem('hackshield_user')) || {};
+
                 const tbody = document.getElementById('leaderboardBody');
                 tbody.innerHTML = "";
 
@@ -321,7 +323,7 @@
                     if (u.role === 'Admin') roleClass = "role-admin";
 
                     /* Highlight current user */
-                    const isMe = (u.username === user.username) ? "background: rgba(255,255,255,0.05);" : "";
+                    const isMe = (u.username === localUser.username) ? "background: rgba(255,255,255,0.05);" : "";
 
                     tbody.innerHTML += `
                         <tr style="border-bottom: 1px solid var(--border-soft); ${isMe}">
@@ -333,7 +335,10 @@
                             <td style="padding: 1rem;">
                                 <span class="role-badge ${roleClass}">${u.role}</span>
                             </td>
-                            <td style="padding: 1rem; font-weight: bold; color: var(--accent);">${u.level}</td>
+                            <td style="padding: 1rem; font-weight: bold; color: var(--accent);">
+                                ${u.level}
+                                <span style="font-size:0.8em; color:var(--text-muted); margin-left:5px;">(${u.xp} XP)</span>
+                            </td>
                             <td style="padding: 1rem;">${u.streak} 🔥</td>
                         </tr>
                     `;
