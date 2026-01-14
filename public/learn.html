@@ -225,14 +225,55 @@
         </aside>
 
         <!-- MAIN CONTENT -->
+        <!-- MAIN CONTENT -->
         <main class="app-main">
             <header style="margin-bottom: 2rem;">
-                <h2>Katalog Kurzů</h2>
-                <p style="color: var(--text-muted);">Pre-Security Path: Tvůj start v kyberbezpečnosti.</p>
+                <h2>Pre-Security Path</h2>
+                <p style="color: var(--text-muted);">Master the fundamentals before you hack.</p>
             </header>
 
-            <div class="courses-grid" id="coursesContainer">
-                <!-- Javascript populates this -->
+            <div class="path-layout">
+
+                <!-- LEFT SIDEBAR WIDGETS -->
+                <aside class="path-sidebar">
+                    <!-- Progress Widget -->
+                    <div class="sidebar-widget">
+                        <div class="widget-title">Path Progress</div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <span style="font-size: 2rem; font-weight: 700; color: white;" id="progressText">0%</span>
+                            <span style="color: var(--text-muted);">0/18 Modules</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Certificate Widget -->
+                    <div class="sidebar-widget">
+                        <div class="widget-title">Certificate</div>
+                        <div style="text-align: center; padding: 1rem 0;">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                Complete all modules to earn your Pre-Security Certificate.
+                            </p>
+                            <button class="btn btn-primary" style="width: 100%;" disabled>View Certificate</button>
+                        </div>
+                    </div>
+
+                    <!-- Scheduler Widget (Mock) -->
+                    <div class="sidebar-widget">
+                        <div class="widget-title">Target</div>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                            Finish by <strong style="color:white;">Feb 28</strong> at current pace.
+                        </p>
+                    </div>
+                </aside>
+
+                <!-- RIGHT MAIN PATH TREE -->
+                <div class="path-tree" id="pathTree">
+                    <!-- Javascript populates this with Nodes and Lines -->
+                </div>
+
             </div>
         </main>
     </div>
@@ -295,7 +336,7 @@
                 desc: "Pochopte myšlení útočníka (Red Team).",
                 content: `
                     <h2>Co je Offensive Security?</h2>
-                    <p>Offensive Security (útočná bezpečnost) je proces testování bezpečnosti systémů jejich prolamováním. Je to jediný způsob, jak zjistit, zda obrana skutečně funguje.</p>
+                    <p>Offensive Security (útočná bezpečnost) je proaktivní přístup k zabezpečení systémů. Místo čekání na útok se snažíme systémy "nabourat" sami, abychom našli slabiny dříve než zločinci.</p>
                     
                     <div style="background:rgba(255,255,255,0.05); padding:1rem; border-left:4px solid var(--accent); margin:1rem 0;">
                         <strong>Hacker's Note:</strong> "Defenders have to be right 100% of the time. Attackers only have to be right once."
@@ -629,43 +670,51 @@ cd ~       # Domů (Home Directory)</code>
 
         // --- RENDER LOGIC ---
         function renderCourses() {
-            const container = document.getElementById('coursesContainer');
+            const container = document.getElementById('pathTree');
             container.innerHTML = ''; // Clean
 
-            categories.forEach(cat => {
+            let totalCourses = courses.length;
+            let completedCount = 0; // In real app, load from User Data
+
+            categories.forEach((cat, index) => {
                 // Find courses for this category
                 const catCourses = courses.filter(c => cat.filter.includes(c.id));
-
                 if (catCourses.length === 0) return;
 
-                // Create Section Header
-                const sectionHtml = `
-                    <div style="grid-column: 1/-1; margin-top: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-soft); padding-bottom: 0.5rem;">
-                        <h3 style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">${cat.title}</h3>
+                // 1. Render Phase Label (The "Island" connection)
+                container.innerHTML += `
+                    <div class="path-phase-label">
+                        ${cat.title}
                     </div>
                 `;
-                container.innerHTML += sectionHtml;
 
-                // Create Cards
+                // 2. Render Nodes
                 catCourses.forEach(c => {
+                    // Check if completed (mock)
+                    // const isDone = userProgress.includes(c.id);
+                    const isDone = false;
+
                     container.innerHTML += `
-                        <div class="course-card">
-                            <div class="course-header" style="font-size: 3rem; position:relative; overflow:hidden;">
-                                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%); z-index:1;"></div>
-                                <span style="position:relative; z-index:2;">${c.icon}</span>
-                            </div>
-                            <div class="course-body">
-                                <div class="course-tags">
-                                    <span class="tag">${c.tag}</span>
+                        <div class="path-node" onclick="openCourse('${c.id}')">
+                            <div class="node-card ${isDone ? 'completed' : ''}">
+                                <div class="node-icon">${c.icon}</div>
+                                <div class="node-content">
+                                    <div class="node-title">${c.title}</div>
+                                    <div class="node-desc">${c.desc}</div>
                                 </div>
-                                <h4 style="margin-bottom: 0.5rem; color: white;">${c.title}</h4>
-                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; flex:1;">${c.desc}</p>
-                                <button onclick="openCourse('${c.id}')" class="btn btn-primary" style="width: 100%;">START <span style="font-size:0.8em; margin-left:4px;">▶</span></button>
+                                ${isDone ? '<div class="node-status">✅</div>' : ''}
                             </div>
                         </div>
                     `;
                 });
             });
+
+            // Update Progress UI
+            const percentage = Math.round((completedCount / totalCourses) * 100);
+            if (document.getElementById('progressFill')) {
+                document.getElementById('progressFill').style.width = percentage + '%';
+                document.getElementById('progressText').innerText = `${percentage}% Complete`;
+            }
         }
 
         // --- PLAYER LOGIC ---

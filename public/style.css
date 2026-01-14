@@ -976,6 +976,217 @@ input:checked+.slider:before {
     background-color: black;
 }
 
+/* --- LEARNING PATH LAYOUT (TryHackMe Style) --- */
+.path-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Sidebar Widgets */
+.path-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebar-widget {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.widget-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #4ade80);
+    width: 0%;
+    /* Dynamic */
+    transition: width 1s ease;
+}
+
+/* Path Tree / Timeline */
+.path-tree {
+    position: relative;
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
+
+/* Central Line */
+.path-tree::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            var(--accent) 10%,
+            var(--accent) 90%,
+            transparent 100%);
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+/* Section/Phase Headers in Tree */
+.path-phase-label {
+    background: var(--bg-dark);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    z-index: 2;
+    margin-top: 1rem;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+}
+
+/* Course Nodes */
+.path-node {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.path-node:hover {
+    transform: translateY(-5px);
+}
+
+/* Connector Line (Horizontal) - Pending implementation for alternating layout */
+/* .path-node::before {} */
+
+.node-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.node-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15);
+}
+
+.node-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.node-content {
+    flex: 1;
+    z-index: 2;
+}
+
+.node-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: white;
+}
+
+.node-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Status Indicator (Completed/Locked) */
+.node-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+}
+
+.node-card.completed {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(34, 197, 94, 0.05) 100%);
+}
+
+.node-card.completed .node-icon {
+    background: var(--accent);
+    color: black;
+}
+
+/* Floating 3D elements decoration */
+.node-card::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+    .path-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .path-sidebar {
+        position: relative;
+        top: 0;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+
+    .sidebar-widget {
+        min-width: 250px;
+    }
+}
+
 .save-badge {
     background: rgba(124, 242, 107, 0.1);
     color: var(--accent);
