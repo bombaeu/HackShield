@@ -1038,7 +1038,7 @@ input:checked+.slider:before {
     gap: 3rem;
 }
 
-/* Central Line */
+/* Central Line - FIXED Z-INDEX */
 .path-tree::before {
     content: '';
     position: absolute;
@@ -1048,11 +1048,12 @@ input:checked+.slider:before {
     width: 2px;
     background: linear-gradient(180deg,
             transparent 0%,
-            var(--accent) 10%,
-            var(--accent) 90%,
+            var(--border-soft) 10%,
+            var(--border-soft) 90%,
             transparent 100%);
     transform: translateX(-50%);
     z-index: 0;
+    /* Behind everything */
 }
 
 /* Section/Phase Headers in Tree */
@@ -1065,21 +1066,26 @@ input:checked+.slider:before {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     z-index: 2;
-    margin-top: 1rem;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    /* Content above line */
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+    position: relative;
 }
 
 /* Course Nodes */
 .path-node {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    z-index: 1;
+    max-width: 700px;
+    z-index: 2;
+    /* Content above line */
     transition: transform 0.3s ease;
+    margin-bottom: 1rem;
 }
 
 .path-node:hover {
-    transform: translateY(-5px);
+    transform: scale(1.02);
 }
 
 /* Connector Line (Horizontal) - Pending implementation for alternating layout */
@@ -1087,6 +1093,7 @@ input:checked+.slider:before {
 
 .node-card {
     background: var(--surface);
+    /* Solid background hides the line behind */
     border: 1px solid var(--border-soft);
     border-radius: 12px;
     padding: 1.5rem;
@@ -1094,7 +1101,7 @@ input:checked+.slider:before {
     gap: 1.5rem;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -1102,7 +1109,7 @@ input:checked+.slider:before {
 
 .node-card:hover {
     border-color: var(--accent);
-    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.1);
 }
 
 .node-icon {
@@ -1153,6 +1160,34 @@ input:checked+.slider:before {
 .node-card.completed .node-icon {
     background: var(--accent);
     color: black;
+}
+
+/* Status Box (The Green Square) */
+.status-box {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--text-muted);
+    border-radius: 4px;
+    margin-left: auto;
+    /* Push to right */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.node-card.completed .status-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+.node-card.completed .status-box::after {
+    content: '✓';
+    color: black;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 /* Floating 3D elements decoration */

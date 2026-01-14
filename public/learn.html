@@ -673,8 +673,10 @@ cd ~       # Domů (Home Directory)</code>
             const container = document.getElementById('pathTree');
             container.innerHTML = ''; // Clean
 
+            // Load Progress
+            const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
             let totalCourses = courses.length;
-            let completedCount = 0; // In real app, load from User Data
+            let completedCount = savedProgress.length;
 
             categories.forEach((cat, index) => {
                 // Find courses for this category
@@ -690,9 +692,7 @@ cd ~       # Domů (Home Directory)</code>
 
                 // 2. Render Nodes
                 catCourses.forEach(c => {
-                    // Check if completed (mock)
-                    // const isDone = userProgress.includes(c.id);
-                    const isDone = false;
+                    const isDone = savedProgress.includes(c.id);
 
                     container.innerHTML += `
                         <div class="path-node" onclick="openCourse('${c.id}')">
@@ -702,7 +702,7 @@ cd ~       # Domů (Home Directory)</code>
                                     <div class="node-title">${c.title}</div>
                                     <div class="node-desc">${c.desc}</div>
                                 </div>
-                                ${isDone ? '<div class="node-status">✅</div>' : ''}
+                                <div class="status-box"></div> <!-- CSS handles the checkmark -->
                             </div>
                         </div>
                     `;
@@ -713,7 +713,7 @@ cd ~       # Domů (Home Directory)</code>
             const percentage = Math.round((completedCount / totalCourses) * 100);
             if (document.getElementById('progressFill')) {
                 document.getElementById('progressFill').style.width = percentage + '%';
-                document.getElementById('progressText').innerText = `${percentage}% Complete`;
+                document.getElementById('progressText').innerText = `${percentage}%`;
             }
         }
 
@@ -760,8 +760,23 @@ cd ~       # Domů (Home Directory)</code>
 
             if (idx === currentCourse.quiz.correct) {
                 el.classList.add('correct');
-                // Optional: Save progress
-                // alert("Správně! +10 XP");
+
+                // SAVE PROGRESS
+                let savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+                if (!savedProgress.includes(currentCourse.id)) {
+                    savedProgress.push(currentCourse.id);
+                    localStorage.setItem('hackshield_progress', JSON.stringify(savedProgress));
+
+                    // Re-render UI to update green square
+                    renderCourses();
+                }
+
+                // Optional delay to close or celebrate
+                setTimeout(() => {
+                    // alert("Splněno!");
+                    // closeCourse();
+                }, 1000);
+
             } else {
                 el.classList.add('wrong');
             }
