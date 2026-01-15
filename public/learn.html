@@ -246,7 +246,7 @@
                         <div class="widget-title">Path Progress</div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                             <span style="font-size: 2rem; font-weight: 700; color: white;" id="progressText">0%</span>
-                            <span style="color: var(--text-muted);">0/18 Modules</span>
+                            <span style="color: var(--text-muted);" id="progressCount">0/18 Modules</span>
                         </div>
                         <div class="progress-bar-container">
                             <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
@@ -288,7 +288,8 @@
         <div class="course-container">
             <div class="course-header">
                 <h3 id="modalTitle">Course Title</h3>
-                <button onclick="closeCourse()" class="btn btn-ghost" style="padding: 0.4rem;">✕</button>
+                <button onclick="closeCourse()" class="btn"
+                    style="position: absolute; top: 1rem; right: 1rem; background: var(--danger); color: white; border-radius: 50%; width: 36px; height: 36px; padding: 0; display:flex; align-items:center; justify-content:center; border: 2px solid rgba(255,255,255,0.2);">✕</button>
             </div>
             <div class="course-body" id="modalBody">
                 <!-- Content injected here -->
@@ -912,10 +913,14 @@ done</code>
             const container = document.getElementById('pathTree');
             container.innerHTML = ''; // Clean
 
-            // Load Progress
-            const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
-            let totalCourses = courses.length;
-            let completedCount = savedProgress.length;
+            // Load Progress & Validate
+            const savedProgressRaw = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+            // Normalize to strings to prevent type mismatch (1 vs "1")
+            const savedProgress = savedProgressRaw.map(id => String(id));
+
+            const totalCourses = courses.length;
+            // Count unique valid completed courses
+            const completedCount = courses.filter(c => savedProgress.includes(String(c.id))).length;
 
             // Premium Definition
             // Every 3rd course or manually selected Hard ones
@@ -934,7 +939,7 @@ done</code>
                 `;
 
                 catCourses.forEach(c => {
-                    const isDone = savedProgress.includes(c.id);
+                    const isDone = savedProgress.includes(String(c.id));
                     const isPremiumCourse = premiumIds.includes(c.id);
                     const isLocked = isPremiumCourse && !userIsPremium;
 
@@ -972,6 +977,9 @@ done</code>
             if (document.getElementById('progressFill')) {
                 document.getElementById('progressFill').style.width = percentage + '%';
                 document.getElementById('progressText').innerText = `${percentage}%`;
+
+                const countEl = document.getElementById('progressCount');
+                if (countEl) countEl.innerText = `${completedCount}/${totalCourses} Modules`;
             }
         }
 
