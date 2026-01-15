@@ -23,6 +23,11 @@
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
+            /* Sticky Navigation */
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .sidebar-brand {
@@ -329,7 +334,7 @@
             { title: "Phase 5: Windows Internals", filter: ['16', '17', '18'] },
         ];
 
-        const courses = [
+        const _unused_courses = [
             // --- PHASE 1: MINDSET & TEORIE ---
             {
                 id: '1', title: "Offensive Security Intro", icon: "⚔️", tag: "Mindset",
@@ -688,8 +693,222 @@ done</code>
             }
         ];
 
+        // NEW COURSES DATA (Hardcore Mode)
+        const courses = [
+            // --- PHASE 1: MINDSET & TEORIE ---
+            {
+                id: '1', title: "Offensive Security Intro", icon: "⚔️", tag: "Mindset",
+                desc: "Pochopte myšlení útočníka (Red Team). Cyber Kill Chain a metodologie.",
+                content: `
+                    <h2>Co je Offensive Security?</h2>
+                    <p>Útočná bezpečnost netkví v bezhlavém bušení do klávesnice. Je to strukturovaný proces hledání chyb.</p>
+                    <h3>Cyber Kill Chain</h3>
+                    <ol>
+                        <li><strong>Reconnaissance (Průzkum):</strong> Sbírání emailů, IP adres (OSINT).</li>
+                        <li><strong>Weaponization:</strong> Vytvoření viru/exploidu.</li>
+                        <li><strong>Delivery:</strong> Odeslání oběti.</li>
+                        <li><strong>Exploitation:</strong> Spuštění kódu.</li>
+                        <li><strong>Installation:</strong> Persistence.</li>
+                        <li><strong>C2:</strong> Komunikace.</li>
+                        <li><strong>Actions:</strong> Cíl.</li>
+                    </ol>
+                `,
+                quiz: { q: "Jak se jmenuje první fáze Kill Chainu (sběr informací)?", answer: "reconnaissance" }
+            },
+            {
+                id: '2', title: "Defensive Security Intro", icon: "🛡️", tag: "Mindset",
+                desc: "Blue Team operace: SOC, SIEM, EDR a Pyramid of Pain.",
+                content: `
+                    <h2>Blue Team Operations</h2>
+                    <h3>Pyramid of Pain</h3>
+                    <ul>
+                        <li>Hash</li>
+                        <li>IP</li>
+                        <li>Domain</li>
+                        <li>Network/Host Artifacts</li>
+                        <li>Tools</li>
+                        <li><strong>TTPs</strong> (Nejtěžší změnit)</li>
+                    </ul>
+                `,
+                quiz: { q: "Co je zkratka pro Taktiky, Techniky a Procedury (vrchol pyramidy)?", answer: "ttps" }
+            },
+            {
+                id: '3', title: "Careers In Cyber", icon: "💼", tag: "Kariéra",
+                desc: "Pentester, Analyst, Engineer. Certifikace.",
+                content: `
+                    <h2>Kariéra a Certifikace</h2>
+                    <ul>
+                        <li><strong>Security+:</strong> Základ.</li>
+                        <li><strong>OSCP:</strong> Praktický hacking (24h zkouška).</li>
+                        <li><strong>CISSP:</strong> Management.</li>
+                    </ul>
+                `,
+                quiz: { q: "Jaká je zkratka pro certifikaci 'OffSec Certified Professional'?", answer: "oscp" }
+            },
+
+            // --- PHASE 2: SÍTĚ ---
+            {
+                id: '4', title: "What is Networking?", icon: "🌐", tag: "Sítě",
+                desc: "WAN vs LAN.",
+                content: `
+                    <h2>Dva světy sítí</h2>
+                    <p><strong>LAN:</strong> Lokální síť (doma, firma).</p>
+                    <p><strong>WAN:</strong> Wide Area Network (Internet, propojení měst).</p>
+                `,
+                quiz: { q: "Jaký typ sítě (zkratka) spojuje počítače na velké vzdálenosti?", answer: "wan" }
+            },
+            {
+                id: '5', title: "Intro To LAN", icon: "🏠", tag: "Sítě",
+                desc: "MAC, ARP, Subnet.",
+                content: `
+                    <h2>LAN Protokoly</h2>
+                    <p><strong>ARP:</strong> Překládá IP adresu na MAC adresu.</p>
+                    <p><strong>MAC:</strong> Fyzická adresa karty.</p>
+                `,
+                quiz: { q: "Zkratka protokolu, který překládá IP adresu na MAC adresu?", answer: "arp" }
+            },
+            {
+                id: '6', title: "OSI Model", icon: "📚", tag: "Teorie",
+                desc: "7 vrstev.",
+                content: `
+                    <h2>OSI Model</h2>
+                    <ol reversed>
+                        <li>Aplikační</li>
+                        <li>Prezentační</li>
+                        <li>Relační</li>
+                        <li>Transportní</li>
+                        <li>Síťová</li>
+                        <li>Linková</li>
+                        <li>Fyzická (Kabely)</li>
+                    </ol>
+                `,
+                quiz: { q: "Jak se jmenuje 1. vrstva OSI modelu (kabely, napětí)?", answer: "fyzická" }
+            },
+            {
+                id: '7', title: "Packets & Frames", icon: "📦", tag: "Sítě",
+                desc: "TCP vs UDP.",
+                content: `
+                    <h2>Transportní vrstva</h2>
+                    <p><strong>TCP:</strong> Spolehlivé, pomalejší (Web, Email).</p>
+                    <p><strong>UDP:</strong> Nespolehlivé, rychlé (Stream, Hry, DNS).</p>
+                `,
+                quiz: { q: "Který protokol (TCP/UDP) je rychlejší a používá se pro streamování?", answer: "udp" }
+            },
+            {
+                id: '8', title: "Extending Your Network", icon: "🌍", tag: "Sítě",
+                desc: "Firewall & DMZ.",
+                content: `
+                    <h2>Síťová bezpečnost</h2>
+                    <p><strong>DMZ (Demilitarized Zone):</strong> Oddělená část sítě pro veřejně dostupné servery.</p>
+                `,
+                quiz: { q: "Jak se nazývá oddělená zóna pro veřejné servery (zkratka)?", answer: "dmz" }
+            },
+
+            // --- PHASE 3: WEB ---
+            {
+                id: '9', title: "DNS in Detail", icon: "📒", tag: "Web",
+                desc: "Hosts file etc.",
+                content: `
+                    <h2>DNS a Hosts</h2>
+                    <p>Před dotazem na DNS se PC dívá do souboru <code>hosts</code>.</p>
+                `,
+                quiz: { q: "Jak se jmenuje lokální soubor, který má přednost před DNS serverem?", answer: "hosts" }
+            },
+            {
+                id: '10', title: "HTTP in Detail", icon: "📄", tag: "Web",
+                desc: "Metody (GET, POST).",
+                content: `
+                    <h2>HTTP Metody</h2>
+                    <ul>
+                        <li>GET: Získat data.</li>
+                        <li>POST: Odeslat data (přihlášení).</li>
+                    </ul>
+                `,
+                quiz: { q: "Jakou HTTP metodu odešle prohlížeč při odeslání přihlašovacího formuláře?", answer: "post" }
+            },
+            {
+                id: '11', title: "Basic Web Attacks", icon: "🏗️", tag: "Web",
+                desc: "SQL Injection.",
+                content: `
+                    <h2>SQL Injection</h2>
+                    <p>Vložení SQL příkazu do vstupu formuláře pro oklamání databáze.</p>
+                    <p><code>admin' OR 1=1 --</code></p>
+                `,
+                quiz: { q: "Jak se jmenuje útok, při kterém vložíte SQL kód do vstupu?", answer: "sql injection" }
+            },
+            {
+                id: '12', title: "Developer Tools", icon: "🧩", tag: "Web",
+                desc: "Network tab.",
+                content: `
+                    <h2>F12 Developer Tools</h2>
+                    <p><strong>Network:</strong> Sledování síťového provozu (requesty).</p>
+                `,
+                quiz: { q: "Která záložka v Developer Tools slouží ke sledování sítě?", answer: "network" }
+            },
+
+            // --- PHASE 4: LINUX ---
+            {
+                id: '13', title: "Linux Fundamentals pt1", icon: "🐧", tag: "Linux",
+                desc: "Grep.",
+                content: `
+                    <h2>Grep</h2>
+                    <p>Příkaz pro hledání textu uvnitř souborů.</p>
+                    <code>grep "heslo" soubor.txt</code>
+                `,
+                quiz: { q: "Jaký příkaz slouží k hledání textového řetězce v souborech?", answer: "grep" }
+            },
+            {
+                id: '14', title: "Linux Permissions", icon: "🐧", tag: "Linux",
+                desc: "Chmod 7.",
+                content: `
+                    <h2>Oprávnění</h2>
+                    <p>R=4, W=2, X=1.</p>
+                    <p>Součet 4+2+1 = <strong>7</strong> (Všechna práva).</p>
+                `,
+                quiz: { q: "Jaké číslo představuje součet práv Read+Write+Execute (4+2+1)?", answer: "7" }
+            },
+            {
+                id: '15', title: "Bash Scripting", icon: "🐧", tag: "Linux",
+                desc: "Shebang.",
+                content: `
+                    <h2>Bash Skripty</h2>
+                    <p>Musí začínat tzv. shebangem: <code>#!/bin/bash</code>.</p>
+                `,
+                quiz: { q: "Napište přesný první řádek (shebang) pro bash skript.", answer: "#!/bin/bash" }
+            },
+
+            // --- PHASE 5: WINDOWS ---
+            {
+                id: '16', title: "Windows Fundamentals pt1", icon: "🪟", tag: "Windows",
+                desc: "SAM soubor.",
+                content: `
+                    <h2>SAM (Security Account Manager)</h2>
+                    <p>Soubor, kde Windows ukládá hashe lokálních hesel.</p>
+                `,
+                quiz: { q: "Jak se jmenuje soubor (zkratka), kde Windows ukládá hashe hesel?", answer: "sam" }
+            },
+            {
+                id: '17', title: "Active Directory", icon: "🪟", tag: "Windows",
+                desc: "Kerberos.",
+                content: `
+                    <h2>Kerberos</h2>
+                    <p>Ověřovací protokol v Active Directory. Používá lístky (Tickets).</p>
+                `,
+                quiz: { q: "Jak se jmenuje ověřovací protokol v AD, který používá lístky?", answer: "kerberos" }
+            },
+            {
+                id: '18', title: "Sysinternals & Logs", icon: "🪟", tag: "Windows",
+                desc: "ProcMon.",
+                content: `
+                    <h2>Process Monitor (ProcMon)</h2>
+                    <p>Nástroj pro sledování souborového systému a registrů v reálném čase.</p>
+                `,
+                quiz: { q: "Zkratka nástroje z Sysinternals, který monitoruje soubory/registry v reálném čase?", answer: "procmon" }
+            }
+        ];
+
         // --- RENDER LOGIC ---
-        function renderCourses() {
+        function renderCourses(user) {
             const container = document.getElementById('pathTree');
             container.innerHTML = ''; // Clean
 
@@ -698,31 +917,50 @@ done</code>
             let totalCourses = courses.length;
             let completedCount = savedProgress.length;
 
+            // Premium Definition
+            // Every 3rd course or manually selected Hard ones
+            const premiumIds = ['2', '5', '8', '11', '14', '17'];
+            const userIsPremium = user && user.isPremium;
+
             categories.forEach((cat, index) => {
                 // Find courses for this category
                 const catCourses = courses.filter(c => cat.filter.includes(c.id));
                 if (catCourses.length === 0) return;
 
-                // 1. Render Phase Label (The "Island" connection)
                 container.innerHTML += `
                     <div class="path-phase-label">
                         ${cat.title}
                     </div>
                 `;
 
-                // 2. Render Nodes
                 catCourses.forEach(c => {
                     const isDone = savedProgress.includes(c.id);
+                    const isPremiumCourse = premiumIds.includes(c.id);
+                    const isLocked = isPremiumCourse && !userIsPremium;
+
+                    let onClickAction = `openCourse('${c.id}')`;
+                    if (isLocked) onClickAction = `showPremiumWall('${c.title}')`;
+
+                    let statusHtml = '<div class="status-box"></div>';
+                    if (isLocked) statusHtml = '<div class="status-box" style="border:none; font-size:1.2rem;">🔒</div>';
+
+                    // Visual style for premium/locked
+                    let cardStyle = "";
+                    if (isLocked) cardStyle = "opacity: 0.6; filter: grayscale(0.8); border-color: var(--border-soft);";
+                    if (isPremiumCourse && !isLocked) cardStyle = "border-color: #fbbf24;";
 
                     container.innerHTML += `
-                        <div class="path-node" onclick="openCourse('${c.id}')">
-                            <div class="node-card ${isDone ? 'completed' : ''}">
+                        <div class="path-node" onclick="${onClickAction}">
+                            <div class="node-card ${isDone ? 'completed' : ''}" style="${cardStyle}">
                                 <div class="node-icon">${c.icon}</div>
                                 <div class="node-content">
-                                    <div class="node-title">${c.title}</div>
+                                    <div class="node-title">
+                                        ${c.title} 
+                                        ${isPremiumCourse ? '<span style="color:#fbbf24; font-size:0.7em; margin-left:5px;">★ PRO</span>' : ''}
+                                    </div>
                                     <div class="node-desc">${c.desc}</div>
                                 </div>
-                                <div class="status-box"></div> <!-- CSS handles the checkmark -->
+                                ${statusHtml}
                             </div>
                         </div>
                     `;
@@ -734,6 +972,12 @@ done</code>
             if (document.getElementById('progressFill')) {
                 document.getElementById('progressFill').style.width = percentage + '%';
                 document.getElementById('progressText').innerText = `${percentage}%`;
+            }
+        }
+
+        function showPremiumWall(title) {
+            if (confirm(`Kurz "${title}" je přístupný pouze pro Premium hackery.\n\nChceš se podívat na nabídku předplatného?`)) {
+                window.location.href = 'pricing.html';
             }
         }
 
@@ -749,38 +993,48 @@ done</code>
             // Build Content
             let html = currentCourse.content;
 
-            // Append Quiz
+            // Append Quiz (Input Mode)
             if (currentCourse.quiz) {
                 html += `
                     <div class="quiz-container">
                         <h3 style="color:white; margin-top:0;">⚡ Rychlý Kvíz</h3>
                         <p style="font-size:1.1rem; margin-bottom:1rem;">${currentCourse.quiz.q}</p>
-                        <div id="quizOptions">
-                            ${currentCourse.quiz.options.map((opt, idx) => `
-                                <div class="quiz-option" onclick="checkQuiz(${idx}, this)">${opt}</div>
-                            `).join('')}
+                        
+                        <div class="quiz-input-group">
+                            <input type="text" id="quizAnswerInput" class="quiz-input" autocomplete="off" placeholder="Tvoje odpověď..." onkeydown="if(event.key==='Enter') window.submitQuiz()">
+                            <button class="btn btn-primary" onclick="window.submitQuiz()">Odeslat</button>
                         </div>
+                        <div id="quizFeedback" style="margin-top:1rem; font-weight:bold;"></div>
                     </div>
                 `;
             }
 
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('courseModal').classList.add('active');
+
+            // Focus input
+            setTimeout(() => {
+                const inp = document.getElementById('quizAnswerInput');
+                if (inp) inp.focus();
+            }, 100);
         }
 
         function closeCourse() {
             document.getElementById('courseModal').classList.remove('active');
         }
 
-        function checkQuiz(idx, el) {
-            // Remove previous classes
-            const parent = document.getElementById('quizOptions');
-            const options = parent.querySelectorAll('.quiz-option');
-            options.forEach(o => o.classList.remove('correct', 'wrong'));
+        window.submitQuiz = function () {
+            const inputEl = document.getElementById('quizAnswerInput');
+            const feedbackEl = document.getElementById('quizFeedback');
+            const userVal = inputEl.value.trim().toLowerCase();
+            const correctVal = currentCourse.quiz.answer.toLowerCase();
 
-            if (idx === currentCourse.quiz.correct) {
-                el.classList.add('correct');
+            if (userVal === correctVal) {
+                inputEl.classList.add('correct');
+                inputEl.classList.remove('wrong');
+                feedbackEl.innerHTML = '<span style="color:var(--accent)">Správně! Přístup povolen.</span>';
 
+                // Success Logic
                 // 1. SAVE LOCAL PROGRESS (Client Side)
                 let savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
                 if (!savedProgress.includes(currentCourse.id)) {
@@ -793,7 +1047,7 @@ done</code>
                         fetch('/api/progress', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: user.id, xpGain: 50 }) // 50 XP per course
+                            body: JSON.stringify({ userId: user.id, xpGain: 50 })
                         })
                             .then(res => res.json())
                             .then(data => {
@@ -801,25 +1055,28 @@ done</code>
                                     setTimeout(() => {
                                         closeCourse();
                                         showReward(data.newXp, data.leveledUp, data.newLevel);
-                                    }, 800);
+                                    }, 1000);
                                 }
                             })
                             .catch(err => console.error("XP Save failed:", err));
                     }
 
-                    // Re-render UI to update green square
-                    renderCourses();
+                    // Re-render UI
+                    renderCourses(user);
                 } else {
-                    // Already done, no reward
+                    // Already done
                     setTimeout(() => {
                         closeCourse();
                     }, 1000);
                 }
 
             } else {
-                el.classList.add('wrong');
+                inputEl.classList.add('wrong');
+                feedbackEl.innerHTML = '<span style="color:var(--danger)">Chyba. Zkus to znovu.</span>';
+                inputEl.value = '';
+                inputEl.focus();
             }
-        }
+        };
 
         // --- REWARD SYSTEM ---
         function showReward(xp, leveledUp, level) {
@@ -843,22 +1100,126 @@ done</code>
 
         function closeXpModal() {
             document.getElementById('xpModal').classList.remove('active');
-            // Refresh to update Sidebar stats immediately (optional, but good)
-            location.reload();
+        }
+
+        // --- FINAL EXAM LOGIC ---
+        let examQuestions = [];
+
+        function startExam() {
+            // Check Progress
+            const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+            // Count unique valid IDs in savedProgress that exist in current courses
+            const validCompleted = courses.filter(c => savedProgress.includes(c.id)).length;
+
+            if (validCompleted < courses.length) {
+                alert(`Nejdříve musíte dokončit všechny kurzy! (${validCompleted}/${courses.length})`);
+                return;
+            }
+
+            // Shuffle and pick 10
+            const shuffled = [...courses].sort(() => 0.5 - Math.random());
+            examQuestions = shuffled.slice(0, 10);
+
+            const container = document.getElementById('examQuestionsContainer');
+            container.innerHTML = '';
+
+            examQuestions.forEach((q, idx) => {
+                container.innerHTML += `
+                    <div class="exam-question-card">
+                        <h3>Otázka ${idx + 1}</h3>
+                        <p>${q.quiz.q}</p>
+                        <input type="text" id="exam_q_${idx}" class="quiz-input" placeholder="Odpověď..." autocomplete="off">
+                    </div>
+                `;
+            });
+
+            document.getElementById('examOverlay').classList.add('active');
+        }
+
+        function closeExam() {
+            document.getElementById('examOverlay').classList.remove('active');
+        }
+
+        async function submitExam() {
+            let score = 0;
+            let total = examQuestions.length;
+
+            examQuestions.forEach((q, idx) => {
+                const inp = document.getElementById(`exam_q_${idx}`);
+                const val = inp.value.trim().toLowerCase();
+                if (val === q.quiz.answer.toLowerCase()) {
+                    score++;
+                    inp.classList.add('correct');
+                    inp.classList.remove('wrong');
+                } else {
+                    inp.classList.add('wrong');
+                    inp.classList.remove('correct');
+                }
+            });
+
+            if (score >= 8) { // 80% threshold
+                alert(`GRATULACE! Skóre: ${score}/${total}.\nJste nyní HACKSHIELD CERTIFIED.`);
+
+                const user = JSON.parse(localStorage.getItem('hackshield_user'));
+                if (user && user.id) {
+                    try {
+                        await fetch('/api/certify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: user.id })
+                        });
+                        // Force refresh
+                        window.location.reload();
+                    } catch (e) { console.error(e); }
+                }
+                closeExam();
+            } else {
+                alert(`Skóre: ${score}/${total}. Potřebujete alespoň 8 bodů (80%).\nZkuste to znovu, nevzdávejte to!`);
+            }
         }
 
         // Auth & Init
         async function init() {
-            // Auth Check
-            const user = JSON.parse(localStorage.getItem('hackshield_user'));
-            if (!user) {
-                // check if we are in dev/preview without full auth flow
-                // window.location.href = 'login.html';
-                // return;
+            let user = JSON.parse(localStorage.getItem('hackshield_user'));
+
+            if (user && user.id) {
+                try {
+                    const res = await fetch(`/api/user/${user.id}`);
+                    if (res.ok) {
+                        const freshUser = await res.json();
+                        localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
+                        user = freshUser;
+                    }
+                } catch (e) { console.error("Sync failed", e); }
             }
 
-            // Render
-            renderCourses();
+            // Render with fresh data
+            renderCourses(user);
+
+            // Add Exam Button at the end of Path Tree
+            const container = document.getElementById('pathTree');
+            const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+            const allDone = courses.every(c => savedProgress.includes(c.id));
+            const isCertified = user && user.badges && user.badges.includes('Certified');
+
+            let btnStyle = allDone ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
+            let btnText = "🔒 ZÁVĚREČNÁ ZKOUŠKA";
+            if (allDone) btnText = "📝 SPUSTIT ZÁVĚREČNÝ TEST";
+            if (isCertified) {
+                btnStyle = "background: gold; color: black; border: 2px solid white; box-shadow: 0 0 15px gold;";
+                btnText = "🏆 JSI CERTIFIKOVANÝ HACKER";
+            }
+
+            container.innerHTML += `
+                <div style="margin-top: 4rem; text-align: center; padding-bottom: 4rem;">
+                    <div onclick="${allDone ? 'startExam()' : ''}" 
+                         style="display:inline-block; padding: 1.5rem 3rem; border-radius: 12px; font-weight:bold; font-size: 1.2rem; transition: transform 0.2s; ${btnStyle}">
+                        ${btnText}
+                    </div>
+                    ${!allDone ? '<div style="margin-top:0.5rem; color:#aaa; font-size:0.9rem;">Dokonči všechny kurzy pro odemčení</div>' : ''}
+                </div>
+            `;
+
             document.body.style.opacity = '1';
         }
 
@@ -870,6 +1231,22 @@ done</code>
         init();
 
     </script>
+    <!-- FINAL EXAM OVERLAY -->
+    <div id="examOverlay" class="exam-overlay">
+        <div class="exam-header">
+            <h1 style="color:var(--accent);">ZÁVĚREČNÁ ZKOUŠKA</h1>
+            <p>Odpověz správně alespoň na 8 otázek (80%) pro získání certifikace.</p>
+        </div>
+        <div id="examQuestionsContainer">
+            <!-- Questions injected here -->
+        </div>
+        <div style="text-align:center; padding-bottom:5rem;">
+            <button class="btn btn-primary" onclick="submitExam()" style="padding: 1rem 3rem; font-size:1.2rem;">ODESLAT
+                TEST</button>
+            <button class="btn btn-outline" onclick="closeExam()" style="margin-top:1rem;">Vzdát to</button>
+        </div>
+    </div>
+
     <!-- XP Reward Modal -->
     <div id="xpModal" class="xp-modal">
         <div class="xp-card">

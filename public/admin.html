@@ -158,6 +158,7 @@
                         <th>Level</th>
                         <th>Role / Odznaky</th>
                         <th>Datum registrace</th>
+                        <th>Předplatné</th>
                         <th>Akce</th>
                     </tr>
                 </thead>
@@ -286,6 +287,17 @@
                     const isMe = user.username === currentUser.username;
                     const dateStr = user.joined_date ? new Date(user.joined_date).toLocaleDateString() : '-';
 
+                    // Subscription Status
+                    let subStatus = '<span style="color:#aaa;">Free</span>';
+                    if (user.subscription_expires_at) {
+                        const subDate = new Date(user.subscription_expires_at);
+                        if (subDate > new Date()) {
+                            subStatus = `<span style="color:var(--accent); font-weight:bold;">Do: ${subDate.toLocaleDateString()}</span>`;
+                        } else {
+                            subStatus = `<span style="color:var(--danger);">Vypršelo</span>`;
+                        }
+                    }
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
     <td style="font-weight:bold; color:white;">${user.username}</td>
@@ -293,11 +305,15 @@
     <td><span style="color:var(--accent);">Lvl ${user.level}</span></td>
     <td>${user.badges.join(', ')}</td>
     <td style="color:#aaa;">${dateStr}</td>
+    <td>${subStatus}</td>
     <td>
         ${!isMe ?
-                            `<button onclick="window.deleteUser(${user.id}, '${user.email}')" class="action-btn delete">Smazat</button>
-        <button onclick="window.toggleAdmin(${user.id}, ${isAdmin})" class="action-btn">${isAdmin ? 'Odebrat Admin' :
-                                'Přidat Admin'}</button>`
+                            `<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <button onclick="window.manageSubscription('${user.email}', 'add')" class="action-btn" style="color:var(--accent); border-color:var(--accent);">+Sub</button>
+                                <button onclick="window.manageSubscription('${user.email}', 'remove')" class="action-btn" style="color:orange; border-color:orange;">-Sub</button>
+                                <button onclick="window.deleteUser(${user.id}, '${user.email}')" class="action-btn delete">Smazat</button>
+                                <button onclick="window.toggleAdmin(${user.id}, ${isAdmin})" class="action-btn">${isAdmin ? 'UnAdmin' : 'Admin'}</button>
+                             </div>`
                             : '<span style="opacity:0.5">(Ty)</span>'}
     </td>
     `;
@@ -306,9 +322,38 @@
 
             } catch (e) {
                 console.error(e);
-                tbody.innerHTML = '<tr><td colspan="6" style="color:red">Chyba serveru.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="color:red">Chyba serveru.</td></tr>';
             }
         }
+
+        // Subscription Manager
+        window.manageSubscription = async (email, action) => {
+            let days = 0;
+            if (action === 'add') {
+                const input = prompt("Zadej počet dní pro předplatné (např. 30 pro měsíc):", "30");
+                if (!input) return;
+                days = parseInt(input);
+                if (isNaN(days) || days <= 0) { alert("Neplatné číslo."); return; }
+            } else {
+                if (!confirm(`Opravdu odebrat předplatné uživateli ${email}?`)) return;
+                days = 0; // 0 means remove in API
+            }
+
+            try {
+                const res = await fetch('/api/admin/subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetEmail: email, days: days })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    renderUsers();
+                } else {
+                    alert("Chyba: " + (data.error || "Neznámá"));
+                }
+            } catch (e) { console.error(e); alert("Chyba připojení."); }
+        };
 
         // Start
         document.addEventListener('DOMContentLoaded', renderUsers);

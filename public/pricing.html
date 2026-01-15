@@ -179,8 +179,10 @@
             <div
                 style="margin-top: 4rem; text-align: center; color: var(--text-muted); padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
                 <p>Potřebuješ řešení pro celou firmu nebo školu?</p>
-                <a href="mailto:darcerohliku@gmail.com" class="text-accent"
-                    style="text-decoration: underline;">Kontaktuj nás pro enterprise nabídku</a>
+                <button onclick="showContactModal()" class="btn btn-ghost"
+                    style="color: var(--accent); text-decoration: underline; background:none; border:none; cursor:pointer; padding:0; font-size:1rem;">
+                    Kontaktuj nás pro enterprise nabídku
+                </button>
             </div>
         </section>
     </main>
@@ -198,7 +200,32 @@
         </div>
     </footer>
 
+    <!-- Contact Modal -->
+    <div id="contactModal" class="xp-modal">
+        <div class="xp-card" style="border-color: #3b82f6; box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);">
+            <div class="xp-icon" style="animation: none;">🏢</div>
+            <h2 style="font-size: 1.5rem; margin-bottom:0.5rem; color: #fff;">Enterprise Kontakt</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Pro firemní licence a školní balíčky nás prosím kontaktujte přímo.
+            </p>
+            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div style="font-size: 0.9rem; color: var(--text-muted);">Email:</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; user-select: all;">
+                    darcerohliku@gmail.com</div>
+            </div>
+            <button class="btn btn-primary" onclick="closeContactModal()"
+                style="width:100%; justify-content:center; background: #3b82f6; color:white;">Rozumím</button>
+        </div>
+    </div>
+
     <script>
+        function showContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+        }
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+
         // Auth Check for Nav Buttons
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('hackshield_user')) {

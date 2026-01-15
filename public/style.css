@@ -1449,3 +1449,79 @@ input:checked+.slider:before {
     50% { transform: translateY(-10px); }
 }
 
+
+/* Quiz Input Styles */
+.quiz-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.quiz-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-soft);
+    color: var(--text-primary);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.quiz-input:focus {
+    border-color: var(--accent);
+}
+
+.quiz-input.wrong {
+    border-color: var(--danger);
+    animation: shake 0.4s ease;
+}
+
+.quiz-input.correct {
+    border-color: var(--accent);
+    background: rgba(124, 242, 107, 0.1);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Final Exam Modal */
+.exam-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-dark);
+    z-index: 2000;
+    display: none; /* hidden by default */
+    flex-direction: column;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.exam-overlay.active {
+    display: flex;
+}
+
+.exam-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 1rem;
+}
+
+.exam-question-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-soft);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+

@@ -42,6 +42,7 @@ const initDB = async () => {
             ALTER TABLE users 
             ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0,
             ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMP DEFAULT NULL,
             ADD COLUMN IF NOT EXISTS last_login DATE DEFAULT CURRENT_DATE;
         `);
 
@@ -204,7 +205,7 @@ app.post('/api/reset-password', async (req, res) => {
 app.get('/api/user/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query("SELECT id, username, email, level, xp, badges, streak, last_login FROM users WHERE id = $1", [id]);
+        const result = await pool.query("SELECT id, username, email, level, xp, badges, streak, last_login, subscription_expires_at FROM users WHERE id = $1", [id]);
 
         if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
 
@@ -241,14 +242,23 @@ app.get('/api/user/:id', async (req, res) => {
         if (user.badges && user.badges.includes('Root')) role = "Root";
         else if (user.badges && user.badges.includes('Admin')) role = "Admin";
 
+        let isPremium = false;
+        if (user.subscription_expires_at && new Date(user.subscription_expires_at) > now) {
+            isPremium = true;
+        }
+        if (role === 'Admin' || role === 'Root') isPremium = true;
+
         res.json({
             id: user.id,
             username: user.username,
             email: user.email,
             level: user.level,
+            xp: user.xp || 0,
             badges: user.badges || [],
             streak: newStreak,
-            role: role
+            role: role,
+            isPremium: isPremium,
+            subscription_expires_at: user.subscription_expires_at
         });
 
     } catch (err) {
@@ -260,14 +270,53 @@ app.get('/api/user/:id', async (req, res) => {
 // Get Users (Admin)
 app.get('/api/users', async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, username, email, level, badges, joined_date, verified FROM users ORDER BY id ASC");
+        const result = await pool.query("SELECT id, username, email, level, badges, joined_date, verified, subscription_expires_at FROM users ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
 });
 
-// Update Progress (XP & Level)
+// Manage Subscription (Admin)
+app.post('/api/admin/subscription', async (req, res) => {
+    try {
+        const { targetEmail, days } = req.body;
+
+        // Check if removing
+        if (days === 0) {
+            await pool.query("UPDATE users SET subscription_expires_at = NULL WHERE email = $1", [targetEmail]);
+            return res.json({ success: true, message: "Předplatné odebráno." });
+        }
+
+        // Calculate new date
+        const userRes = await pool.query("SELECT subscription_expires_at FROM users WHERE email = $1", [targetEmail]);
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+        let currentExpiry = userRes.rows[0].subscription_expires_at ? new Date(userRes.rows[0].subscription_expires_at) : new Date();
+        if (currentExpiry < new Date()) currentExpiry = new Date(); // If expired, start from now
+
+        const newExpiry = new Date(currentExpiry.getTime() + (days * 24 * 60 * 60 * 1000));
+
+        await pool.query("UPDATE users SET subscription_expires_at = $1 WHERE email = $2", [newExpiry, targetEmail]);
+
+        res.json({ success: true, message: `Předplatné nastaveno do ${newExpiry.toLocaleDateString()}` });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// Grant Certification
+app.post('/api/certify', async (req, res) => {
+    try {
+        const { userId } = req.body;
+        await pool.query("UPDATE users SET badges = array_append(badges, 'Certified') WHERE id = $1 AND NOT ('Certified' = ANY(badges))", [userId]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
 app.post('/api/progress', async (req, res) => {
     try {
         const { userId, xpGain } = req.body;
