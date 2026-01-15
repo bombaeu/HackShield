@@ -798,11 +798,10 @@ done</code>
                             .then(res => res.json())
                             .then(data => {
                                 if (data.success) {
-                                    let msg = `Splněno! Získal jsi +50 XP. (Celkem: ${data.newXp})`;
-                                    if (data.leveledUp) {
-                                        msg += `\n🎉 LEVEL UP! Nyní jsi Level ${data.newLevel}! 🎉`;
-                                    }
-                                    alert(msg);
+                                    setTimeout(() => {
+                                        closeCourse();
+                                        showReward(data.newXp, data.leveledUp, data.newLevel);
+                                    }, 800);
                                 }
                             })
                             .catch(err => console.error("XP Save failed:", err));
@@ -811,17 +810,41 @@ done</code>
                     // Re-render UI to update green square
                     renderCourses();
                 } else {
-                    alert("Tento kurz už máš hotový. (Žádné nové XP)");
+                    // Already done, no reward
+                    setTimeout(() => {
+                        closeCourse();
+                    }, 1000);
                 }
-
-                // Close modal after delay
-                setTimeout(() => {
-                    closeCourse();
-                }, 1500);
 
             } else {
                 el.classList.add('wrong');
             }
+        }
+
+        // --- REWARD SYSTEM ---
+        function showReward(xp, leveledUp, level) {
+            const modal = document.getElementById('xpModal');
+            const msgEl = document.getElementById('xpMessage');
+            const iconEl = document.querySelector('.xp-icon');
+
+            if (leveledUp) {
+                iconEl.innerText = "🎉";
+                msgEl.innerHTML = `Gratulace! Dosáhl jsi <strong style="color:var(--accent)">Levelu ${level}</strong>.<br>Jen tak dál!`;
+
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else {
+                iconEl.innerText = "⚡";
+                msgEl.innerText = "Vědomosti jsou síla. Pokračuj v hackování.";
+
+                confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+            }
+            modal.classList.add('active');
+        }
+
+        function closeXpModal() {
+            document.getElementById('xpModal').classList.remove('active');
+            // Refresh to update Sidebar stats immediately (optional, but good)
+            location.reload();
         }
 
         // Auth & Init
@@ -847,6 +870,20 @@ done</code>
         init();
 
     </script>
+    <!-- XP Reward Modal -->
+    <div id="xpModal" class="xp-modal">
+        <div class="xp-card">
+            <div class="xp-icon">⚡</div>
+            <h2 style="font-size: 1.5rem; margin-bottom:0.5rem;">MISSION COMPLETE</h2>
+            <div class="xp-value">+50 XP</div>
+            <p id="xpMessage" class="xp-message">Dobrá práce, pokračuj dál!</p>
+            <button class="btn btn-primary" onclick="closeXpModal()"
+                style="width:100%; justify-content:center; padding:1rem;">Pokračovat v Cestě</button>
+        </div>
+    </div>
+
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </body>
 
 </html>
