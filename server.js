@@ -270,6 +270,14 @@ app.get('/api/user/:id', async (req, res) => {
 // Get Users (Admin)
 app.get('/api/users', async (req, res) => {
     try {
+        const { requesterId } = req.query;
+        if (!requesterId) return res.status(401).json({ error: "Unauthorized" });
+
+        const adminCheck = await pool.query("SELECT badges FROM users WHERE id = $1", [requesterId]);
+        if (adminCheck.rows.length === 0 || !adminCheck.rows[0].badges.includes('Admin')) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
+
         const result = await pool.query("SELECT id, username, email, level, badges, joined_date, verified, subscription_expires_at FROM users ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
@@ -280,7 +288,13 @@ app.get('/api/users', async (req, res) => {
 // Manage Subscription (Admin)
 app.post('/api/admin/subscription', async (req, res) => {
     try {
-        const { targetEmail, days } = req.body;
+        const { targetEmail, days, requesterId } = req.body;
+
+        if (!requesterId) return res.status(401).json({ error: "Unauthorized" });
+        const adminCheck = await pool.query("SELECT badges FROM users WHERE id = $1", [requesterId]);
+        if (adminCheck.rows.length === 0 || !adminCheck.rows[0].badges.includes('Admin')) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
 
         // Check if removing
         if (days === 0) {

@@ -298,7 +298,7 @@
             </div>
 
             <div style="margin-top: auto;">
-                <a href="#" onclick="logout()" class="sidebar-link" style="color: var(--danger);">
+                <a href="#" onclick="logout(event)" class="sidebar-link" style="color: var(--danger);">
                     <span>Odhlásit se</span>
                 </a>
             </div>
@@ -472,7 +472,7 @@
             </svg>
             <span>Žebříček</span>
         </a>
-        <a href="#" onclick="logout()" class="nav-item">
+        <a href="#" onclick="logout(event)" class="nav-item">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -576,7 +576,8 @@
             }
         }
 
-        function logout() {
+        function logout(e) {
+            if (e) e.preventDefault();
             localStorage.removeItem('hackshield_user');
             window.location.href = 'index.html';
         }

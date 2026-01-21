@@ -223,7 +223,7 @@
             </div>
 
             <div style="margin-top: auto;">
-                <a href="#" onclick="logout()" class="sidebar-link" style="color: var(--danger);">
+                <a href="#" onclick="logout(event)" class="sidebar-link" style="color: var(--danger);">
                     <span>Odhlásit se</span>
                 </a>
             </div>
@@ -319,7 +319,7 @@
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg><span>Žebříček</span></a>
-        <a href="#" onclick="logout()" class="nav-item"><svg viewBox="0 0 24 24" stroke-linecap="round"
+        <a href="#" onclick="logout(event)" class="nav-item"><svg viewBox="0 0 24 24" stroke-linecap="round"
                 stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -1010,7 +1010,7 @@ done</code>
                         
                         <div class="quiz-input-group">
                             <input type="text" id="quizAnswerInput" class="quiz-input" autocomplete="off" placeholder="Tvoje odpověď..." onkeydown="if(event.key==='Enter') window.submitQuiz()">
-                            <button class="btn btn-primary" onclick="window.submitQuiz()">Odeslat</button>
+                            <button type="button" class="btn btn-primary" onclick="window.submitQuiz()">Odeslat</button>
                         </div>
                         <div id="quizFeedback" style="margin-top:1rem; font-weight:bold;"></div>
                     </div>
@@ -1067,6 +1067,11 @@ done</code>
                                 }
                             })
                             .catch(err => console.error("XP Save failed:", err));
+                    } else {
+                        console.error("User session missing during quiz submit.");
+                        alert("Chyba relace. Přihlas se prosím znovu.");
+                        window.location.href = 'login.html';
+                        return;
                     }
 
                     // Re-render UI
@@ -1169,18 +1174,37 @@ done</code>
                 alert(`GRATULACE! Skóre: ${score}/${total}.\nJste nyní HACKSHIELD CERTIFIED.`);
 
                 const user = JSON.parse(localStorage.getItem('hackshield_user'));
-                if (user && user.id) {
-                    try {
-                        await fetch('/api/certify', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: user.id })
-                        });
-                        // Force refresh
-                        window.location.reload();
-                    } catch (e) { console.error(e); }
+                if (!user || !user.id) {
+                    alert("Chyba relace. Přihlas se prosím znovu.");
+                    window.location.href = 'login.html';
+                    return;
                 }
-                closeExam();
+
+                try {
+                    // 1. Grant Certification
+                    await fetch('/api/certify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user.id })
+                    });
+
+                    // 2. Refresh User Data (to get Badge)
+                    const res = await fetch(`/api/user/${user.id}`);
+                    if (res.ok) {
+                        const freshUser = await res.json();
+                        localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
+
+                        // 3. Update UI without Reload
+                        closeExam();
+                        init(); // Re-render courses and button
+                    } else {
+                        throw new Error("User sync failed");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    // Fallback if sync fails
+                    window.location.reload();
+                }
             } else {
                 alert(`Skóre: ${score}/${total}. Potřebujete alespoň 8 bodů (80%).\nZkuste to znovu, nevzdávejte to!`);
             }
@@ -1189,6 +1213,11 @@ done</code>
         // Auth & Init
         async function init() {
             let user = JSON.parse(localStorage.getItem('hackshield_user'));
+
+            if (!user || !user.id) {
+                window.location.href = 'index.html';
+                return;
+            }
 
             if (user && user.id) {
                 try {
@@ -1231,7 +1260,8 @@ done</code>
             document.body.style.opacity = '1';
         }
 
-        function logout() {
+        function logout(e) {
+            if (e) e.preventDefault();
             localStorage.removeItem('hackshield_user');
             window.location.href = 'index.html';
         }
@@ -1262,7 +1292,7 @@ done</code>
             <h2 style="font-size: 1.5rem; margin-bottom:0.5rem;">MISSION COMPLETE</h2>
             <div class="xp-value">+50 XP</div>
             <p id="xpMessage" class="xp-message">Dobrá práce, pokračuj dál!</p>
-            <button class="btn btn-primary" onclick="closeXpModal()"
+            <button type="button" class="btn btn-primary" onclick="closeXpModal()"
                 style="width:100%; justify-content:center; padding:1rem;">Pokračovat v Cestě</button>
         </div>
     </div>

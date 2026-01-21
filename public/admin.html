@@ -93,7 +93,7 @@
     </style>
 </head>
 
-<body>
+<body style="display: none;">
     <div class="bg-grid"></div>
 
     <div class="admin-header">
@@ -278,7 +278,7 @@
             tbody.innerHTML = '<tr><td colspan="6">Načítám...</td></tr>';
 
             try {
-                const res = await fetch('/api/users');
+                const res = await fetch(`/api/users?requesterId=${currentUser.id}`);
                 const users = await res.json();
                 tbody.innerHTML = '';
 
@@ -339,11 +339,14 @@
                 days = 0; // 0 means remove in API
             }
 
+            const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
+            const requesterId = currentUser ? currentUser.id : null;
+
             try {
                 const res = await fetch('/api/admin/subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetEmail: email, days: days })
+                    body: JSON.stringify({ targetEmail: email, days: days, requesterId: requesterId })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -356,7 +359,47 @@
         };
 
         // Start
-        document.addEventListener('DOMContentLoaded', renderUsers);
+        // --- AUTH CHECK ---
+        async function verifyAdminAccess() {
+            const currentUserStr = localStorage.getItem('hackshield_user');
+            if (!currentUserStr) { window.location.href = 'index.html'; return false; }
+            const user = JSON.parse(currentUserStr);
+
+            try {
+                const res = await fetch(`/api/user/${user.id}?t=${Date.now()}`);
+                if (res.ok) {
+                    const freshUser = await res.json();
+                    localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
+
+                    if (!freshUser.badges || !freshUser.badges.includes('Admin')) {
+                        alert("Přístup odepřen: Ztráta administrátorských práv.");
+                        window.location.href = 'dashboard.html';
+                        return false;
+                    }
+                    return true;
+                } else {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+            } catch (e) {
+                console.error("Auth check failed", e);
+                // Fallback to LS
+                if (!user.badges.includes('Admin')) {
+                    window.location.href = 'dashboard.html';
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        // Start
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAdmin = await verifyAdminAccess();
+            if (isAdmin) {
+                document.body.style.display = 'block';
+                renderUsers();
+            }
+        });
     </script>
 </body>
 
