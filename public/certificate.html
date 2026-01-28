@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackShield Certificate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        :root {
+            --bg-dark: #050915;
+            --text-primary: #ecf3ff;
+            --accent: #22c55e;
+            /* Green */
+            --accent-glow: rgba(34, 197, 94, 0.4);
+            --font-main: "Space Grotesk", sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .no-print {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* CERTIFICATE CONTAINER */
+        .certificate-frame {
+            width: 1000px;
+            height: 700px;
+            position: relative;
+            background: #0f172a;
+            border: 2px solid #334155;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* Decorative Borders */
+        .corner {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 4px solid var(--accent);
+            opacity: 0.8;
+        }
+
+        .tl {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .tr {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .bl {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .br {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .content {
+            text-align: center;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            width: 80px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px var(--accent-glow));
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 3rem;
+        }
+
+        .recipient-name {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 1rem 0 3rem 0;
+            text-shadow: 0 0 20px var(--accent-glow);
+            border-bottom: 2px solid #334155;
+            padding-bottom: 1rem;
+            min-width: 400px;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            max-width: 700px;
+            line-height: 1.8;
+            margin-bottom: 4rem;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 4rem;
+            margin-top: auto;
+        }
+
+        .signature-block {
+            text-align: center;
+            border-top: 1px solid #64748b;
+            padding-top: 1rem;
+            width: 200px;
+        }
+
+        .signature-block p {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .signature-img {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .id-stamp {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: #334155;
+            letter-spacing: 1px;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            font-size: 10rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            white-space: nowrap;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .certificate-frame {
+                border: 5px solid #000;
+                background: white;
+                box-shadow: none;
+                width: 100%;
+                height: 100vh;
+                color: black;
+            }
+
+            h1 {
+                background: none;
+                -webkit-text-fill-color: black;
+                color: black;
+            }
+
+            .subtitle,
+            .description,
+            .signature-block p {
+                color: #333;
+            }
+
+            .recipient-name {
+                color: #000;
+                text-shadow: none;
+                border-bottom: 2px solid #000;
+            }
+
+            .corner {
+                border-color: #000;
+            }
+
+            .watermark {
+                color: rgba(0, 0, 0, 0.05);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="no-print">
+        <button class="btn" onclick="history.back()">← Zpět</button>
+        <button class="btn" onclick="window.print()">🖨️ Stáhnout PDF / Tisk</button>
+    </div>
+
+    <div class="certificate-frame" id="certFrame">
+        <!-- Corners -->
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <div class="watermark">HACKSHIELD</div>
+
+        <div class="content">
+            <img src="images/logo.png" alt="" class="logo" onerror="this.style.display='none'">
+            <div class="subtitle">HackShield Academy</div>
+            <h1>Certifikát o Dokončení</h1>
+
+            <p style="margin-bottom: 0.5rem; font-family: var(--font-mono); color: #64748b;">Tento dokument potvrzuje,
+                že</p>
+            <div class="recipient-name" id="userName">...</div>
+
+            <p class="description">
+                Úspěšně completoval(a) finální certifikační zkoušku HackShield Academy.<br>
+                Prokázal(a) hluboké znalosti v oblastech <strong>Offensive Security, Network Defense, Linux
+                    Administration & Windows Internals</strong>.
+            </p>
+
+            <div class="footer">
+                <div class="signature-block">
+                    <div class="signature-img" id="currentDate">Datum</div>
+                    <p>Datum Vydání</p>
+                </div>
+
+                <div class="signature-block">
+                    <div class="signature-img">Bomba</div>
+                    <p>Hlavní Instruktor</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="id-stamp">ID: <span id="certId">LOADING...</span></div>
+    </div>
+
+    <script>
+        async function init() {
+            // 1. Get User
+            const storedUser = JSON.parse(localStorage.getItem('hackshield_user'));
+            if (!storedUser || !storedUser.id) {
+                alert("Nejsi přihlášen!");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 2. Fetch fresh data to Verify Badge
+            try {
+                const res = await fetch(`/api/user/${storedUser.id}`);
+                const user = await res.json();
+
+                if (!user.badges.includes('Certified')) {
+                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>Přístup zamítnut</h1><p style='text-align:center'>Tento certifikát je pouze pro verifikované absolventy.</p><button onclick='history.back()' style='display:block; margin:20px auto; padding:10px;'>Zpět</button>";
+                    return;
+                }
+
+                // 3. Render
+                document.getElementById('userName').innerText = user.username;
+
+                // Date
+                const date = new Date();
+                document.getElementById('currentDate').innerText = date.toLocaleDateString('cs-CZ');
+
+                // Generate pseudo-unique Cert ID based on UserID + Date
+                const certHash = btoa(user.id + user.email + "CERT").substring(0, 16).toUpperCase();
+                document.getElementById('certId').innerText = `HS-${certHash}-${new Date().getFullYear()}`;
+
+            } catch (e) {
+                console.error(e);
+                alert("Chyba při načítání dat.");
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

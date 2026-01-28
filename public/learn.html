@@ -1502,13 +1502,13 @@ done
         // --- FINAL EXAM LOGIC ---
         let examQuestions = [];
 
-        function startExam() {
+        function startExam(override = false) {
             // Check Progress
             const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
             // Count unique valid IDs in savedProgress that exist in current courses
             const validCompleted = courses.filter(c => savedProgress.includes(c.id)).length;
 
-            if (validCompleted < courses.length) {
+            if (!override && validCompleted < courses.length) {
                 alert(`Nejdříve musíte dokončit všechny kurzy! (${validCompleted}/${courses.length})`);
                 return;
             }
@@ -1578,9 +1578,13 @@ done
                         const freshUser = await res.json();
                         localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
 
-                        // 3. Update UI without Reload
+                        // 3. Update UI and Redirect to Certificate
                         closeExam();
-                        init(); // Re-render courses and button
+                        if (confirm("GRATULACE! Jsi certifikován. Chceš si zobrazit a stáhnout certifikát?")) {
+                            window.location.href = 'certificate.html';
+                        } else {
+                            init();
+                        }
                     } else {
                         throw new Error("User sync failed");
                     }
@@ -1625,15 +1629,19 @@ done
 
             let btnStyle = allDone ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
             let btnText = "🔒 ZÁVĚREČNÁ ZKOUŠKA";
+            let btnAction = allDone ? 'startExam()' : '';
+
             if (allDone) btnText = "📝 SPUSTIT ZÁVĚREČNÝ TEST";
+
             if (isCertified) {
-                btnStyle = "background: gold; color: black; border: 2px solid white; box-shadow: 0 0 15px gold;";
-                btnText = "🏆 JSI CERTIFIKOVANÝ HACKER";
+                btnStyle = "background: gold; color: black; border: 2px solid white; box-shadow: 0 0 15px gold; cursor:pointer;";
+                btnText = "📜 STÁHNOUT CERTIFIKÁT";
+                btnAction = "window.location.href='certificate.html'";
             }
 
             container.innerHTML += `
                 <div style="margin-top: 4rem; text-align: center; padding-bottom: 4rem;">
-                    <div onclick="${allDone ? 'startExam()' : ''}" 
+                    <div onclick="${btnAction}" 
                          style="display:inline-block; padding: 1.5rem 3rem; border-radius: 12px; font-weight:bold; font-size: 1.2rem; transition: transform 0.2s; ${btnStyle}">
                         ${btnText}
                     </div>
@@ -1642,6 +1650,20 @@ done
             `;
 
             document.body.style.opacity = '1';
+
+            // Checking specific debug param
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('debug') === 'true') {
+                console.log("Debug Mode: Starting Exam...");
+                setTimeout(() => startExam(true), 500);
+            }
+
+            // Auto-open specific course if requested
+            const courseId = urlParams.get('courseId');
+            if (courseId) {
+                console.log("Opening Course ID:", courseId);
+                setTimeout(() => openCourse(courseId), 500);
+            }
         }
 
         function logout(e) {

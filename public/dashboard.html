@@ -332,7 +332,7 @@
                 </div>
 
                 <!-- Global Activity -->
-                <div class="widget">
+                <div class="widget" id="streakWidget">
                     <h3>Denní Streak: <span id="streakVal" style="color: var(--accent); font-size: 1.2rem;">0</span> 🔥
                     </h3>
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Udržuj plamen, hackere!
@@ -344,8 +344,8 @@
                                 style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
                                 #</div>
                             <div>
-                                <div style="font-weight: 500;">Linux Fundamentals 2</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Rozpracováno: 60%</div>
+                                <div style="font-weight: 500;">Načítám...</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">...</div>
                             </div>
                             <button class="btn btn-primary"
                                 style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-left: auto;">Pokračovat</button>
@@ -366,32 +366,12 @@
             </div>
 
             <section>
-                <h3 style="margin-bottom: 1rem;">Doporučené laboratoře</h3>
-                <div class="paths-grid"
+                <h3 style="margin-bottom: 1rem;">Doporučené Learning Pathy</h3>
+                <div class="paths-grid" id="recommendedContainer"
                     style="padding: 0; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+                    <!-- Dynamic Content -->
                     <article class="path-card" style="padding: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span
-                                style="font-size: 0.8rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.2rem 0.5rem; border-radius: 4px;">Easy</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Linux</span>
-                        </div>
-                        <h4>Basic Pentesting</h4>
-                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Úvod do webového hackingu a eskalace práv.
-                        </p>
-                        <button class="btn btn-ghost" style="width: 100%; justify-content: center;">Spustit
-                            Machine</button>
-                    </article>
-
-                    <article class="path-card" style="padding: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span
-                                style="font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 0.2rem 0.5rem; border-radius: 4px;">Hard</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Windows</span>
-                        </div>
-                        <h4>Active Directory 101</h4>
-                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Základy útoku na AD, Kerberos a LDAP.</p>
-                        <button class="btn btn-ghost" style="width: 100%; justify-content: center;">Spustit
-                            Machine</button>
+                        <p>Načítám doporučení...</p>
                     </article>
                 </div>
             </section>
@@ -484,6 +464,28 @@
 
     <!-- Dashboard Scripts -->
     <script>
+        // Define Courses Metadata locally for Dashboard usage (Must match learn.html IDs)
+        const coursesMeta = [
+            { id: '1', title: "Offensive Security Intro", tag: "Mindset" },
+            { id: '2', title: "Cyber Kill Chain", tag: "Mindset" },
+            { id: '3', title: "Red vs Blue Teaming", tag: "Mindset" },
+            { id: '4', title: "OSI Model", tag: "Network" },
+            { id: '5', title: "TCP/IP Protocol", tag: "Network" },
+            { id: '6', title: "Subnetting", tag: "Network" },
+            { id: '7', title: "Firewalls & DMZ", tag: "Network" },
+            { id: '8', title: "Network Scanning", tag: "Network" },
+            { id: '9', title: "DNS Deep Dive", tag: "Web" },
+            { id: '10', title: "HTTP & HTTPS", tag: "Web" },
+            { id: '11', title: "Web Attacks 101", tag: "Web" },
+            { id: '12', title: "Browser DevTools", tag: "Web" },
+            { id: '13', title: "Linux Basics", tag: "Linux" },
+            { id: '14', title: "Linux Permissions", tag: "Linux" },
+            { id: '15', title: "Bash Scripting", tag: "Linux" },
+            { id: '16', title: "Windows Internals", tag: "Windows" },
+            { id: '17', title: "Active Directory", tag: "Windows" },
+            { id: '18', title: "Sysinternals Tools", tag: "Windows" }
+        ];
+
         async function fetchProfile() {
             try {
                 const localUser = JSON.parse(localStorage.getItem('hackshield_user'));
@@ -502,10 +504,11 @@
                 }
 
                 const data = await res.json();
-
                 if (data.error) throw new Error(data.error);
 
-                // Update UI
+                // --- UI UPDATE START ---
+
+                // 1. HEADER INFO
                 const uName = data.username || "Hacker";
                 document.getElementById('userNameDisplay').innerText = `Vítej zpět, ${uName}`;
                 document.getElementById('userProfileName').innerText = uName;
@@ -520,41 +523,36 @@
                 }
                 document.getElementById('headerAvatar').innerText = uName.charAt(0).toUpperCase();
 
+                // 2. LEVEL & XP
                 document.getElementById('userLevel').innerText = data.level;
-
-                // XP Logic (100 XP per level)
                 const currentXP = data.xp || 0;
                 const progressPercent = currentXP % 100;
                 document.getElementById('userXPText').innerText = `${progressPercent} / 100 XP`;
                 document.getElementById('userXPBar').style.width = `${progressPercent}%`;
 
-                // Dynamic Titles based on level
                 const titles = ["Script Kiddie", "Junior Pentester", "Red Teamer", "Cyber Ninja", "Elite Hacker"];
                 const titleIndex = Math.min(Math.floor((data.level - 1) / 10), titles.length - 1);
                 document.getElementById('levelTitle').innerText = titles[titleIndex] || "Novice";
 
-                document.getElementById('streakVal').innerText = data.streak;
+                // 3. STREAK
+                document.getElementById('streakVal').innerText = data.streak || 0;
 
-                // Badges Rendering
+                // 4. BADGES
                 const container = document.getElementById('badgesContainer');
                 container.innerHTML = "";
-
                 if (data.badges && data.badges.length > 0) {
                     data.badges.forEach(badge => {
                         let icon = "🎖️";
-                        // Default Style (Green)
                         let badgeStyle = "border-color: var(--accent); color: var(--accent); background: rgba(124, 242, 107, 0.05);";
-
-                        // Special Style for Admin/Root (Red)
                         if (badge.includes("Admin") || badge.includes("Root")) {
                             badgeStyle = "border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);";
+                            if (badge.includes("Admin")) icon = "⚡";
+                            if (badge.includes("Root")) icon = "💀";
                         }
-
-                        if (badge.includes("Admin")) icon = "⚡";
-                        if (badge.includes("Root")) icon = "💀";
                         if (badge.includes("Intro")) icon = "🚀";
                         if (badge.includes("Linux")) icon = "🐧";
                         if (badge.includes("Web")) icon = "🌐";
+                        if (badge.includes("Certified")) icon = "🏆";
 
                         container.innerHTML += `
                         <div class="mission-badge earned" style="${badgeStyle}">
@@ -565,6 +563,83 @@
                     container.innerHTML = '<span style="color:var(--text-muted); font-size: 0.8rem;">Zatím žádné odznaky. Dokonči mise!</span>';
                 }
 
+                // 5. CONTINUE LOGIC (Local Progress)
+                const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+                const nextCourseIndex = coursesMeta.findIndex(c => !savedProgress.includes(c.id));
+                const continueCard = document.getElementById('continueCard'); // We need to add ID to HTML first or select by class
+
+                if (nextCourseIndex !== -1) {
+                    const nextCourse = coursesMeta[nextCourseIndex];
+                    const completedCount = savedProgress.length;
+                    const totalCount = coursesMeta.length;
+                    const totalPercent = Math.round((completedCount / totalCount) * 100);
+
+                    // Update DOM
+                    // Using querySelector since we didn't add ID yet, but I will modify the HTML block below to include IDs.
+                    // For now, let's inject the whole widget content.
+
+                    const widgetContent = `
+                        <h3>Denní Streak: <span id="streakVal" style="color: var(--accent); font-size: 1.2rem;">${data.streak}</span> 🔥</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Udržuj plamen, hackere! Přihlašuj se každý den.</p>
+
+                        <div style="margin-top: auto;">
+                            <div class="continue-card">
+                                <div style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
+                                    ▶
+                                </div>
+                                <div>
+                                    <div style="font-weight: 500;">${nextCourse.title}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Celkový progres: ${totalPercent}%</div>
+                                </div>
+                                <a href="learn.html?courseId=${nextCourse.id}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-left: auto; text-decoration:none;">Pokračovat</a>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('streakWidget').innerHTML = widgetContent;
+                } else {
+                    // All done
+                    document.getElementById('streakWidget').innerHTML = `
+                        <h3>Denní Streak: <span id="streakVal" style="color: var(--accent); font-size: 1.2rem;">${data.streak}</span> 🔥</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Všechny kurzy jsou hotové!</p>
+                        <div style="margin-top: auto;">
+                            <a href="learn.html" class="btn btn-primary" style="width:100%; text-align:center;">Jít na Certifikaci</a>
+                        </div>
+                     `;
+                }
+
+                // 6. RECOMMENDED PATHS (Dynamic)
+                // We show the next 2 available courses, or random ones if done.
+                const recContainer = document.getElementById('recommendedContainer');
+                recContainer.innerHTML = '';
+
+                let recommendations = [];
+                if (nextCourseIndex !== -1) {
+                    recommendations.push(coursesMeta[nextCourseIndex]);
+                    if (nextCourseIndex + 1 < coursesMeta.length) {
+                        recommendations.push(coursesMeta[nextCourseIndex + 1]);
+                    }
+                } else {
+                    recommendations.push(coursesMeta[0]);
+                    recommendations.push(coursesMeta[Math.floor(Math.random() * coursesMeta.length)]);
+                }
+
+                recommendations.forEach(course => {
+                    recContainer.innerHTML += `
+                    <article class="path-card" style="padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <span style="font-size: 0.8rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.2rem 0.5rem; border-radius: 4px;">Kurz</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">${course.tag}</span>
+                        </div>
+                        <h4>${course.title}</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Pokračuj v tréninku a získej nové znalosti v sekci ${course.tag}.</p>
+                        <a href="learn.html?courseId=${course.id}" class="btn btn-ghost" style="width: 100%; justify-content: center; text-decoration:none;">
+                            Spustit Lekci
+                        </a>
+                    </article>
+                    `;
+                });
+
+
                 // Admin Panel Access
                 if (data.role === 'Admin' || data.role === 'Root') {
                     const adminLink = document.getElementById('adminSidebarLink');
@@ -572,7 +647,7 @@
                 }
 
             } catch (e) {
-                console.warn("Profile sync failed, using local fallback if available.", e);
+                console.warn("Profile sync failed", e);
             }
         }
 
