@@ -1649,11 +1649,16 @@ done
                 renderCertificateButton(user);
             }
 
-            let btnStyle = allDone ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
+            // Check debug param early
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDebug = urlParams.get('debug') === 'true';
+
+            let btnStyle = (allDone || isDebug) ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
             let btnText = "🔒 ZÁVĚREČNÁ ZKOUŠKA";
-            let btnAction = allDone ? 'startExam()' : '';
+            let btnAction = (allDone || isDebug) ? 'startExam(true)' : '';
 
             if (allDone) btnText = "📝 SPUSTIT ZÁVĚREČNÝ TEST";
+            if (isDebug) btnText = "🛠️ DEBUG ZKOUŠKA (ADMIN)";
 
             if (isCertified) {
                 btnStyle = "background: gold; color: black; border: 2px solid white; box-shadow: 0 0 15px gold; cursor:pointer;";
@@ -1667,15 +1672,14 @@ done
                          style="display:inline-block; padding: 1.5rem 3rem; border-radius: 12px; font-weight:bold; font-size: 1.2rem; transition: transform 0.2s; ${btnStyle}">
                         ${btnText}
                     </div>
-                    ${!allDone ? '<div style="margin-top:0.5rem; color:#aaa; font-size:0.9rem;">Dokonči všechny kurzy pro odemčení</div>' : ''}
+                    ${(!allDone && !isDebug) ? '<div style="margin-top:0.5rem; color:#aaa; font-size:0.9rem;">Dokonči všechny kurzy pro odemčení</div>' : ''}
                 </div>
             `;
 
             document.body.style.opacity = '1';
 
-            // Checking specific debug param
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('debug') === 'true') {
+            // Auto-start for debug
+            if (isDebug) {
                 console.log("Debug Mode: Starting Exam...");
                 setTimeout(() => startExam(true), 500);
             }
