@@ -295,6 +295,10 @@
                 <a href="admin.html" class="sidebar-link" id="adminSidebarLink" style="display: none; color: #ef4444;">
                     <span><span style="margin-right:8px;">⚡</span> Admin Panel</span>
                 </a>
+                <a href="learn.html?debug=true" class="sidebar-link" id="debugSidebarLink"
+                    style="display: none; color: #eab308;">
+                    <span><span style="margin-right:8px;">🛠️</span> Debug Exam</span>
+                </a>
             </div>
 
             <div style="margin-top: auto;">
@@ -644,6 +648,9 @@
                 if (data.role === 'Admin' || data.role === 'Root') {
                     const adminLink = document.getElementById('adminSidebarLink');
                     if (adminLink) adminLink.style.display = 'flex';
+
+                    const debugLink = document.getElementById('debugSidebarLink');
+                    if (debugLink) debugLink.style.display = 'flex';
                 }
 
             } catch (e) {

@@ -8,9 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap"
         rel="stylesheet">
     <link rel="icon" type="image/png" href="images/logo.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --bg-dark: #050915;
@@ -193,10 +195,11 @@
         }
 
         .signature-img {
-            font-family: 'Brush Script MT', cursive;
-            font-size: 2rem;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
             color: #fff;
             margin-bottom: 0.5rem;
+            transform: rotate(-5deg);
         }
 
         .id-stamp {
@@ -224,53 +227,53 @@
             pointer-events: none;
         }
 
-        /* PRINT STYLES */
+        /* Updated Print Styles to keep Dark Mode */
         @media print {
             body {
-                background: white;
-                margin: 0;
-                padding: 0;
-                print-color-adjust: exact;
+                background: #050915 !important;
                 -webkit-print-color-adjust: exact;
-            }
-
-            .no-print {
-                display: none;
+                print-color-adjust: exact;
             }
 
             .certificate-frame {
-                border: 5px solid #000;
-                background: white;
+                border: 2px solid #334155 !important;
+                background: #0f172a !important;
+                color: #ecf3ff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
                 box-shadow: none;
-                width: 100%;
-                height: 100vh;
-                color: black;
+            }
+
+            .no-print {
+                display: none !important;
             }
 
             h1 {
-                background: none;
-                -webkit-text-fill-color: black;
-                color: black;
+                -webkit-text-fill-color: initial !important;
+                background: linear-gradient(to right, #fff, #94a3b8) !important;
+                -webkit-background-clip: text !important;
+                background-clip: text !important;
+                color: transparent !important;
+            }
+
+            .recipient-name {
+                color: #22c55e !important;
+                text-shadow: 0 0 20px rgba(34, 197, 94, 0.4) !important;
+                border-bottom: 2px solid #334155 !important;
             }
 
             .subtitle,
             .description,
             .signature-block p {
-                color: #333;
-            }
-
-            .recipient-name {
-                color: #000;
-                text-shadow: none;
-                border-bottom: 2px solid #000;
-            }
-
-            .corner {
-                border-color: #000;
+                color: #94a3b8 !important;
             }
 
             .watermark {
-                color: rgba(0, 0, 0, 0.05);
+                color: rgba(255, 255, 255, 0.02) !important;
+            }
+
+            .corner {
+                border-color: #22c55e !important;
             }
         }
     </style>
@@ -280,7 +283,7 @@
 
     <div class="no-print">
         <button class="btn" onclick="history.back()">← Zpět</button>
-        <button class="btn" onclick="window.print()">🖨️ Stáhnout PDF / Tisk</button>
+        <button class="btn" onclick="downloadPdf()">📥 Stáhnout jako PDF</button>
     </div>
 
     <div class="certificate-frame" id="certFrame">
@@ -309,59 +312,80 @@
 
             <div class="footer">
                 <div class="signature-block">
-                    <div class="signature-img" id="currentDate">Datum</div>
+                    <div class="signature-img" id="currentDate"
+                        style="font-family: var(--font-mono); font-size: 1.2rem; transform:none;">Datum</div>
                     <p>Datum Vydání</p>
                 </div>
 
                 <div class="signature-block">
-                    <div class="signature-img">Bomba</div>
-                    <p>Hlavní Instruktor</p>
+                    <div class="signature-img">HackShield</div>
+                    <p>Podpis Firmy</p>
                 </div>
             </div>
+
+            <div class="id-stamp">ID: <span id="certId">LOADING...</span></div>
         </div>
 
-        <div class="id-stamp">ID: <span id="certId">LOADING...</span></div>
-    </div>
-
-    <script>
-        async function init() {
-            // 1. Get User
-            const storedUser = JSON.parse(localStorage.getItem('hackshield_user'));
-            if (!storedUser || !storedUser.id) {
-                alert("Nejsi přihlášen!");
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // 2. Fetch fresh data to Verify Badge
-            try {
-                const res = await fetch(`/api/user/${storedUser.id}`);
-                const user = await res.json();
-
-                if (!user.badges.includes('Certified')) {
-                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>Přístup zamítnut</h1><p style='text-align:center'>Tento certifikát je pouze pro verifikované absolventy.</p><button onclick='history.back()' style='display:block; margin:20px auto; padding:10px;'>Zpět</button>";
+        <script>
+            async function init() {
+                // 1. Get User
+                const storedUser = JSON.parse(localStorage.getItem('hackshield_user'));
+                if (!storedUser || !storedUser.id) {
+                    alert("Nejsi přihlášen!");
+                    window.location.href = 'index.html';
                     return;
                 }
 
-                // 3. Render
-                document.getElementById('userName').innerText = user.username;
+                // 2. Fetch fresh data to Verify Badge
+                try {
+                    const res = await fetch(`/api/user/${storedUser.id}`);
+                    const user = await res.json();
 
-                // Date
-                const date = new Date();
-                document.getElementById('currentDate').innerText = date.toLocaleDateString('cs-CZ');
+                    if (!user.badges.includes('Certified')) {
+                        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>Přístup zamítnut</h1><p style='text-align:center'>Tento certifikát je pouze pro verifikované absolventy.</p><button onclick='history.back()' style='display:block; margin:20px auto; padding:10px;'>Zpět</button>";
+                        return;
+                    }
 
-                // Generate pseudo-unique Cert ID based on UserID + Date
-                const certHash = btoa(user.id + user.email + "CERT").substring(0, 16).toUpperCase();
-                document.getElementById('certId').innerText = `HS-${certHash}-${new Date().getFullYear()}`;
+                    // 3. Render
+                    document.getElementById('userName').innerText = user.username;
 
-            } catch (e) {
-                console.error(e);
-                alert("Chyba při načítání dat.");
+                    // Date
+                    const date = new Date();
+                    document.getElementById('currentDate').innerText = date.toLocaleDateString('cs-CZ');
+
+                    // Generate pseudo-unique Cert ID based on UserID + Date
+                    const certHash = btoa(user.id + user.email + "CERT").substring(0, 16).toUpperCase();
+                    document.getElementById('certId').innerText = `HS-${certHash}-${new Date().getFullYear()}`;
+
+                } catch (e) {
+                    console.error(e);
+                    alert("Chyba při načítání dat.");
+                }
             }
-        }
 
-        init();
-    </script>
+            function downloadPdf() {
+                const element = document.getElementById('certFrame');
+                const opt = {
+                    margin: 0,
+                    filename: 'HackShield_Certificate.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+                };
+
+                // Use html2pdf lib
+                // Change button text to indicate processing
+                const btn = document.querySelector('button[onclick="downloadPdf()"]');
+                const originalText = btn.innerText;
+                btn.innerText = "⏳ Generuji PDF...";
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    btn.innerText = originalText;
+                });
+            }
+
+            init();
+        </script>
 </body>
 
 </html>

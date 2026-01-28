@@ -287,7 +287,8 @@
                             <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
                                 Complete all modules to earn your Pre-Security Certificate.
                             </p>
-                            <button class="btn btn-primary" style="width: 100%;" disabled>View Certificate</button>
+                            <button id="certificateWidgetBtn" class="btn btn-primary" style="width: 100%;" disabled>View
+                                Certificate</button>
                         </div>
                     </div>
 
@@ -1499,6 +1500,22 @@ done
             document.getElementById('xpModal').classList.remove('active');
         }
 
+        // --- CERTIFICATE LOGIC ---
+        function renderCertificateButton(user) {
+            const btn = document.getElementById('certificateWidgetBtn');
+            if (btn) {
+                btn.removeAttribute('disabled');
+                btn.style.background = 'gold';
+                btn.style.color = 'black';
+                btn.style.border = '2px solid white';
+                btn.style.cursor = 'pointer';
+                btn.innerHTML = '<span style="font-size:1.2em">🏆</span> Zobrazit Certifikát';
+                btn.onclick = function () {
+                    window.location.href = 'certificate.html';
+                };
+            }
+        }
+
         // --- FINAL EXAM LOGIC ---
         let examQuestions = [];
 
@@ -1515,6 +1532,7 @@ done
 
             // Shuffle and pick 10
             const shuffled = [...courses].sort(() => 0.5 - Math.random());
+
             examQuestions = shuffled.slice(0, 10);
 
             const container = document.getElementById('examQuestionsContainer');
