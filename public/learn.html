@@ -1530,10 +1530,16 @@ done
                 return;
             }
 
-            // Shuffle and pick 10
-            const shuffled = [...courses].sort(() => 0.5 - Math.random());
+            // Shuffle courses, pick 10, and for each pick a random question
+            const shuffledCourses = [...courses].sort(() => 0.5 - Math.random()).slice(0, 10);
 
-            examQuestions = shuffled.slice(0, 10);
+            examQuestions = shuffledCourses.map(course => {
+                if (course.questions && course.questions.length > 0) {
+                    const randQ = course.questions[Math.floor(Math.random() * course.questions.length)];
+                    return { text: randQ.q, answer: randQ.a };
+                }
+                return { text: "Error: No question found", answer: "error" };
+            });
 
             const container = document.getElementById('examQuestionsContainer');
             container.innerHTML = '';
@@ -1542,7 +1548,7 @@ done
                 container.innerHTML += `
                     <div class="exam-question-card">
                         <h3>Otázka ${idx + 1}</h3>
-                        <p>${q.quiz.q}</p>
+                        <p>${q.text}</p>
                         <input type="text" id="exam_q_${idx}" class="quiz-input" placeholder="Odpověď..." autocomplete="off">
                     </div>
                 `;
@@ -1562,7 +1568,7 @@ done
             examQuestions.forEach((q, idx) => {
                 const inp = document.getElementById(`exam_q_${idx}`);
                 const val = inp.value.trim().toLowerCase();
-                if (val === q.quiz.answer.toLowerCase()) {
+                if (val && val === q.answer.toLowerCase()) {
                     score++;
                     inp.classList.add('correct');
                     inp.classList.remove('wrong');
