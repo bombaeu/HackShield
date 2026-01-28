@@ -1645,6 +1645,10 @@ done
             const allDone = courses.every(c => savedProgress.includes(c.id));
             const isCertified = user && user.badges && user.badges.includes('Certified');
 
+            if (isCertified) {
+                renderCertificateButton(user);
+            }
+
             let btnStyle = allDone ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
             let btnText = "🔒 ZÁVĚREČNÁ ZKOUŠKA";
             let btnAction = allDone ? 'startExam()' : '';
