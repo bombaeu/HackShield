@@ -327,23 +327,36 @@
             <div class="id-stamp">ID: <span id="certId">LOADING...</span></div>
         </div>
 
+        <script src="modal.js"></script>
         <script>
             async function init() {
                 // 1. Get User
                 const storedUser = JSON.parse(localStorage.getItem('hackshield_user'));
                 if (!storedUser || !storedUser.id) {
-                    alert("Nejsi přihlášen!");
-                    window.location.href = 'index.html';
+                    showModal("Chyba", "Nejsi přihlášen!", "error", () => {
+                        window.location.href = 'index.html';
+                    });
                     return;
                 }
 
                 // 2. Fetch fresh data to Verify Badge
                 try {
                     const res = await fetch(`/api/user/${storedUser.id}`);
+
+                    if (res.status === 404) {
+                        showModal("Chyba", "Účet nebyl nalezen. Budete odhlášeni.", "error", () => {
+                            localStorage.removeItem('hackshield_user');
+                            window.location.href = 'index.html';
+                        });
+                        return;
+                    }
+
                     const user = await res.json();
 
                     if (!user.badges.includes('Certified')) {
-                        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>Přístup zamítnut</h1><p style='text-align:center'>Tento certifikát je pouze pro verifikované absolventy.</p><button onclick='history.back()' style='display:block; margin:20px auto; padding:10px;'>Zpět</button>";
+                        showModal("Přístup zamítnut", "Tento certifikát je pouze pro verifikované absolventy.", "error", () => {
+                            history.back();
+                        });
                         return;
                     }
 
@@ -360,7 +373,7 @@
 
                 } catch (e) {
                     console.error(e);
-                    alert("Chyba při načítání dat.");
+                    showModal("Chyba", "Chyba při načítání dat.", "error");
                 }
             }
 

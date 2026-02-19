@@ -406,6 +406,9 @@
                         localStorage.setItem('hackshield_user', JSON.stringify(data.user));
                         // Re-render with fresh data
                         renderDashboard(data.user);
+                    } else {
+                        // User deleted or invalid
+                        logout();
                     }
                 })
                 .catch(err => console.error("Refresh failed", err));

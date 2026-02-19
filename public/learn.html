@@ -354,6 +354,7 @@
             </svg><span>Odhlásit</span></a>
     </nav>
 
+    <script src="modal.js"></script>
     <script>
         // --- DATA: DEEP DIVE CURRICULUM ---
         const categories = [
@@ -1347,9 +1348,9 @@ done
         }
 
         function showPremiumWall(title) {
-            if (confirm(`Kurz "${title}" je přístupný pouze pro Premium hackery.\n\nChceš se podívat na nabídku předplatného?`)) {
+            showConfirm("Premium Content", `Kurz "${title}" je přístupný pouze pro Premium hackery.<br>Chceš se podívat na nabídku předplatného?`, () => {
                 window.location.href = 'pricing.html';
-            }
+            });
         }
 
         // --- PLAYER LOGIC ---
@@ -1442,8 +1443,7 @@ done
                     // 2. SAVE SERVER PROGRESS (XP & Level)
                     const user = JSON.parse(localStorage.getItem('hackshield_user'));
                     if (!user || !user.id) {
-                        alert("Chyba relace. Přihlas se prosím znovu.");
-                        window.location.href = 'login.html';
+                        showModal("Chyba", "Chyba relace. Přihlas se znovu.", "error", () => window.location.href = 'login.html');
                         return;
                     }
 
@@ -1526,7 +1526,7 @@ done
             const validCompleted = courses.filter(c => savedProgress.includes(c.id)).length;
 
             if (!override && validCompleted < courses.length) {
-                alert(`Nejdříve musíte dokončit všechny kurzy! (${validCompleted}/${courses.length})`);
+                showModal("Zamčeno", `Nejdříve musíte dokončit všechny kurzy! (${validCompleted}/${courses.length})`, "warning");
                 return;
             }
 
@@ -1586,12 +1586,11 @@ done
             });
 
             if (score >= 8) { // 80% threshold
-                alert(`GRATULACE! Skóre: ${score}/${total}.\nJste nyní HACKSHIELD CERTIFIED.`);
+                showModal("Gratulace!", `Skóre: ${score}/${total}.<br>Jste nyní HACKSHIELD CERTIFIED.`, "success");
 
                 const user = JSON.parse(localStorage.getItem('hackshield_user'));
                 if (!user || !user.id) {
-                    alert("Chyba relace. Přihlas se prosím znovu.");
-                    window.location.href = 'login.html';
+                    showModal("Chyba", "Chyba relace. Přihlas se prosím znovu.", "error", () => window.location.href = 'login.html');
                     return;
                 }
 
@@ -1611,11 +1610,16 @@ done
 
                         // 3. Update UI and Redirect to Certificate
                         closeExam();
-                        if (confirm("GRATULACE! Jsi certifikován. Chceš si zobrazit a stáhnout certifikát?")) {
-                            window.location.href = 'certificate.html';
-                        } else {
-                            init();
-                        }
+
+                        // Wait a bit for modal transition if any, but since we modify UI
+                        init();
+
+                        setTimeout(() => {
+                            showConfirm("Certifikát", "GRATULACE! Jsi certifikován. Chceš si zobrazit a stáhnout certifikát?", () => {
+                                window.location.href = 'certificate.html';
+                            });
+                        }, 500);
+
                     } else {
                         throw new Error("User sync failed");
                     }
@@ -1625,7 +1629,7 @@ done
                     window.location.reload();
                 }
             } else {
-                alert(`Skóre: ${score}/${total}. Potřebujete alespoň 8 bodů (80%).\nZkuste to znovu, nevzdávejte to!`);
+                showModal("Zkuste to znovu", `Skóre: ${score}/${total}. Potřebujete alespoň 8 bodů (80%).<br>Nevzdávejte to!`, "warning");
             }
         }
 
@@ -1641,6 +1645,14 @@ done
             if (user && user.id) {
                 try {
                     const res = await fetch(`/api/user/${user.id}`);
+
+                    if (res.status === 404) {
+                        // User deleted
+                        localStorage.removeItem('hackshield_user');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
                     if (res.ok) {
                         const freshUser = await res.json();
                         localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
@@ -1710,6 +1722,23 @@ done
             localStorage.removeItem('hackshield_user');
             window.location.href = 'index.html';
         }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                // Close Course Modal if open
+                const courseModal = document.getElementById('courseModal');
+                if (courseModal && courseModal.classList.contains('active')) {
+                    closeCourse();
+                }
+
+                // Close Exam Overlay if open
+                const examOverlay = document.getElementById('examOverlay');
+                if (examOverlay && examOverlay.classList.contains('active')) {
+                    closeExam();
+                }
+            }
+        });
 
         init();
 

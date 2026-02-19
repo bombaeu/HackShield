@@ -190,43 +190,45 @@
         </div>
     </div>
 
+    <script src="modal.js"></script>
     <script>
         // Initialize globally
         // Initialize globally
-        window.deleteUser = async function (id, email) {
+        window.deleteUser = function (id, email) {
             console.log("Mažu ID:", id, "Email:", email);
 
             // 1. Ask for Reason
-            const reason = prompt(`Zadejte důvod smazání uživatele (${email}):`, "Porušení pravidel");
-            if (reason === null) return; // Cancelled
+            showPrompt("Důvod smazání", `Zadejte důvod smazání uživatele (${email}):`, "Porušení pravidel", (reason) => {
+                // If OK clicked with valid reason
+                if (!reason) return;
 
-            if (!confirm(`Opravdu smazat uživatele ${email} z důvodu: "${reason}"?`)) {
-                return;
-            }
+                showConfirm("Opravdu smazat?", `Opravdu smazat uživatele ${email} z důvodu: "${reason}"?`, async () => {
+                    // 2. Delete from Server
+                    const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
+                    const requesterId = currentUser ? currentUser.id : null;
 
-            // 2. Delete from Server
-            const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
-            const requesterId = currentUser ? currentUser.id : null;
+                    try {
+                        const payload = JSON.stringify({ id: id, requesterId: requesterId, reason: reason });
+                        const res = await fetch('/api/users/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: payload
+                        });
 
-            try {
-                const payload = JSON.stringify({ id: id, requesterId: requesterId, reason: reason });
-                const res = await fetch('/api/users/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: payload
+                        const json = await res.json();
+                        if (json.success) {
+                            showModal("Smazáno", "Uživatel smazán.", "success", () => {
+                                renderUsers();
+                            });
+                        } else {
+                            showModal("Chyba", "Chyba: " + json.error, "error");
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        showModal("Chyba", "Chyba spojení.", "error");
+                    }
                 });
-
-                const json = await res.json();
-                if (json.success) {
-                    alert("Uživatel smazán.");
-                    renderUsers();
-                } else {
-                    alert("Chyba: " + json.error);
-                }
-            } catch (e) {
-                console.error(e);
-                alert("Chyba spojení.");
-            }
+            });
         };
 
         window.toggleAdmin = async function (id, wasAdmin) {
@@ -246,11 +248,11 @@
                 if (json.success) {
                     renderUsers();
                 } else {
-                    alert(json.error || "Chyba.");
+                    showModal("Chyba", json.error || "Chyba.", "error");
                 }
             } catch (e) {
                 console.error(e);
-                alert("Chyba.");
+                showModal("Chyba", "Chyba.", "error");
             }
         };
 
@@ -274,12 +276,14 @@
                         await window.toggleAdmin(data.user.id, false);
                     }
                     e.target.reset();
-                    alert("Uživatel vytvořen.");
-                    renderUsers();
+                    showModal("Hotovo", "Uživatel vytvořen.", "success", () => renderUsers());
                 } else {
-                    alert(data.message || "Chyba.");
+                    showModal("Chyba", data.message || "Chyba při vytváření.", "error");
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                showModal("Chyba", "Chyba spojení.", "error");
+            }
         };
 
         async function renderUsers() {
@@ -348,35 +352,45 @@
         }
 
         // Subscription Manager
-        window.manageSubscription = async (email, action) => {
-            let days = 0;
-            if (action === 'add') {
-                const input = prompt("Zadej počet dní pro předplatné (např. 30 pro měsíc):", "30");
-                if (!input) return;
-                days = parseInt(input);
-                if (isNaN(days) || days <= 0) { alert("Neplatné číslo."); return; }
-            } else {
-                if (!confirm(`Opravdu odebrat předplatné uživateli ${email}?`)) return;
-                days = 0; // 0 means remove in API
-            }
+        // Subscription Manager
+        window.manageSubscription = function (email, action) {
+            const executeSubscription = async (days) => {
+                const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
+                const requesterId = currentUser ? currentUser.id : null;
 
-            const currentUser = JSON.parse(localStorage.getItem('hackshield_user'));
-            const requesterId = currentUser ? currentUser.id : null;
-
-            try {
-                const res = await fetch('/api/admin/subscription', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetEmail: email, days: days, requesterId: requesterId })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    renderUsers();
-                } else {
-                    alert("Chyba: " + (data.error || "Neznámá"));
+                try {
+                    const res = await fetch('/api/admin/subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ targetEmail: email, days: days, requesterId: requesterId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showModal("Hotovo", data.message, "success", () => renderUsers());
+                    } else {
+                        showModal("Chyba", "Chyba: " + (data.error || "Neznámá"), "error");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showModal("Chyba", "Chyba připojení.", "error");
                 }
-            } catch (e) { console.error(e); alert("Chyba připojení."); }
+            };
+
+            if (action === 'add') {
+                showPrompt("Předplatné", "Zadej počet dní pro předplatné (např. 30 pro měsíc):", "30", (input) => {
+                    if (!input) return;
+                    const days = parseInt(input);
+                    if (isNaN(days) || days <= 0) {
+                        showModal("Chyba", "Neplatné číslo.", "error");
+                        return;
+                    }
+                    executeSubscription(days);
+                });
+            } else {
+                showConfirm("Odebrat?", `Opravdu odebrat předplatné uživateli ${email}?`, () => {
+                    executeSubscription(0);
+                });
+            }
         };
 
         // Start
@@ -393,19 +407,21 @@
                     localStorage.setItem('hackshield_user', JSON.stringify(freshUser));
 
                     if (!freshUser.badges || !freshUser.badges.includes('Admin')) {
-                        alert("Přístup odepřen: Ztráta administrátorských práv.");
-                        window.location.href = 'dashboard.html';
+                        showModal("Chyba", "Přístup odepřen: Ztráta administrátorských práv.", "error", () => {
+                            window.location.href = 'dashboard.html';
+                        });
                         return false;
                     }
                     return true;
                 } else {
+                    if (res.status === 404) localStorage.removeItem('hackshield_user');
                     window.location.href = 'index.html';
                     return false;
                 }
             } catch (e) {
                 console.error("Auth check failed", e);
                 // Fallback to LS
-                if (!user.badges.includes('Admin')) {
+                if (!user || !user.badges || !user.badges.includes('Admin')) {
                     window.location.href = 'dashboard.html';
                     return false;
                 }

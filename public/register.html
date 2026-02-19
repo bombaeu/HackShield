@@ -111,6 +111,7 @@
         </div>
     </div>
 
+    <script src="modal.js"></script>
     <script>
         async function handleRegister(e) {
             e.preventDefault();
@@ -135,7 +136,7 @@
             // Validation 2: Username Characters (Security)
             const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
             if (!usernameRegex.test(username)) {
-                alert("Uživatelské jméno obsahuje nepovolené znaky.\nPoužij pouze písmena, čísla a podtržítko.");
+                showModal("Neplatné jméno", "Uživatelské jméno obsahuje nepovolené znaky.<br>Použij pouze písmena, čísla a podtržítko.", "error");
                 return;
             }
 
@@ -193,7 +194,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("Chyba při komunikaci se serverem.");
+                showModal("Chyba", "Chyba při komunikaci se serverem.", "error");
                 btn.innerText = "Registrovat se";
                 btn.style.opacity = "1";
             }
