@@ -4,14 +4,244 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#060918" />
   <meta name="description" content="HackShield – česká kybernetická firma a vzdělávací platforma." />
   <title>HackShield | Cyber Security Platform</title>
   <link rel="stylesheet" href="style.css" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── INDEX-ONLY STYLES ─── */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border-glass);
+      border-radius: 100px;
+      font-size: 0.82rem;
+      color: var(--accent);
+      background: var(--accent-soft);
+      margin-bottom: 1.5rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      animation: fadeInUp 0.6s ease both;
+    }
 
+    .hero-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulseGlow 2s ease-in-out infinite;
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .hero-content h1 {
+      animation: fadeInUp 0.8s ease both;
+      animation-delay: 0.1s;
+    }
+
+    .hero-content > p {
+      animation: fadeInUp 0.8s ease both;
+      animation-delay: 0.2s;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      animation: fadeInUp 0.8s ease both;
+      animation-delay: 0.3s;
+    }
+
+    .hero-visual {
+      animation: fadeInUp 1s ease both;
+      animation-delay: 0.4s;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 6rem 0;
+      position: relative;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: all var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-gradient);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+      color: var(--accent);
+    }
+
+    .feature-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Trust Row */
+    .trust-section {
+      padding: 3rem 0 5rem;
+      text-align: center;
+    }
+
+    .trust-grid {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .trust-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .trust-number {
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .trust-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Footer Redesign */
+    .site-footer {
+      border-top: 1px solid var(--border-soft);
+      padding: 4rem 0 2rem;
+      background: rgba(6, 9, 24, 0.5);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .footer-col h5 {
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .footer-col a {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      padding: 0.3rem 0;
+      transition: all var(--transition-fast);
+    }
+
+    .footer-col a:hover {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-soft);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .footer-brand p {
+        margin: 1rem auto 0;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .hero-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -79,9 +309,9 @@
           </div>
         </div>
       </div>
-      <li class="nav-item">Pro Firmy</li>
+      <li class="nav-item"><a href="pricing.html" style="color: inherit; text-decoration: none;">Pro Firmy</a></li>
       <li class="nav-item"><a href="pricing.html" style="color: inherit; text-decoration: none;">Ceník</a></li>
-      <li class="nav-item">Komunita</li>
+      <li class="nav-item"><a href="community.html" style="color: inherit; text-decoration: none;">Komunita</a></li>
     </ul>
 
     <div id="navActions" class="nav-actions" style="display: flex; gap: 1rem;">
@@ -90,19 +320,20 @@
     </div>
   </nav>
 
+  <!-- ═══ HERO ═══ -->
   <header class="hero container">
     <div class="hero-grid">
       <div class="hero-content">
-        <p class="text-accent font-mono" style="margin-bottom: 0.5rem;">V1.0 BETA</p>
+        <div class="hero-badge">V1.0 BETA — Aktivní</div>
         <h1>Nauč se hackovat.<br>Braň svou firmu.</h1>
         <p>
           Kompletní ekosystém pro kybernetickou bezpečnost. Od interaktivních kurzů pro začátečníky až po SOC monitoring
           pro enterprise klienty.
         </p>
 
-        <div style="display: flex; gap: 1rem;">
-          <a href="login.html" class="btn btn-primary">Vstoupit do laboratoře</a>
-          <a href="#" class="btn btn-ghost">Prohlédnout demo</a>
+        <div class="hero-buttons">
+          <a href="login.html" class="btn btn-primary">Vstoupit do laboratoře →</a>
+          <a href="#features" class="btn btn-ghost">Prohlédnout demo</a>
         </div>
 
         <div class="stats-row">
@@ -111,7 +342,6 @@
             <span>Uživatelů</span>
           </div>
           <script>
-            // Fetch real user count from server
             fetch('/api/stats')
               .then(res => res.json())
               .then(data => {
@@ -119,7 +349,7 @@
               })
               .catch(e => {
                 console.error(e);
-                document.getElementById('userCountDisplay').textContent = "120+"; // Fallback
+                document.getElementById('userCountDisplay').textContent = "120+";
               });
           </script>
           <div class="stat-item">
@@ -139,7 +369,7 @@
             <span class="dot red"></span>
             <span class="dot yellow"></span>
             <span class="dot green"></span>
-            <span style="margin-left: auto; color: #64748b; font-size: 0.8rem;">root@hackshield:~</span>
+            <span style="margin-left: auto; color: #5a6a8a; font-size: 0.8rem;">root@hackshield:~</span>
           </div>
           <div class="terminal-body font-mono">
             <div class="cmd-line">
@@ -173,7 +403,7 @@
                 const nav = document.getElementById('navActions');
                 if (nav) {
                   nav.innerHTML = `
-                          <a href="dashboard.html" class="btn btn-primary" style="background: var(--accent); color: #000; font-weight: bold; border: none; box-shadow: 0 0 15px rgba(124, 242, 107, 0.4);">
+                          <a href="dashboard.html" class="btn btn-primary" style="font-weight: bold; border: none; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);">
                               Vstoupit do aplikace &rarr;
                           </a>
                       `;
@@ -197,7 +427,6 @@
                   i++;
                   setTimeout(typeCmd1, 50 + Math.random() * 40);
                 } else {
-                  // Cmd 1 finished
                   cursor1.style.display = 'none';
                   revealOutput();
                 }
@@ -208,9 +437,8 @@
                 if (lineIdx < lines.length) {
                   lines[lineIdx].style.display = 'block';
                   lineIdx++;
-                  setTimeout(revealOutput, 120); // Faster line print
+                  setTimeout(revealOutput, 120);
                 } else {
-                  // Output finished -> Show Next Prompt
                   setTimeout(() => {
                     nextPrompt.style.display = 'flex';
                     setTimeout(typeCmd2, 500);
@@ -224,27 +452,19 @@
                   typeEl2.textContent += cmd2.charAt(j);
                   j++;
                   setTimeout(typeCmd2, 50 + Math.random() * 40);
-                } else {
-                  // Done. Cursor 2 keeps blinking.
-                }
+                } else { }
               }
 
-              // Start after 800ms
               setTimeout(typeCmd1, 800);
-
 
               // --- 2. SMOOTH Parallax Animation (Lerp) ---
               const cards = document.querySelectorAll('.path-card');
               const header = document.querySelector('.section-header');
 
-              // State for smoothing
               let currentScroll = window.scrollY;
               let targetScroll = window.scrollY;
-
-              // Ease factor: Lower = smoother/slower (0.05 - 0.1 is good)
               const ease = 0.08;
 
-              // Update target on scroll
               window.addEventListener('scroll', () => {
                 targetScroll = window.scrollY;
               });
@@ -254,96 +474,47 @@
               }
 
               function animate() {
-                // Smoothly interpolate current towards target
                 currentScroll = lerp(currentScroll, targetScroll, ease);
-
-                // Stop confusing micro-decimals when stopped
                 if (Math.abs(targetScroll - currentScroll) < 0.1) {
                   currentScroll = targetScroll;
                 }
 
                 const vH = window.innerHeight;
-                // Trigger line higher up (visible area)
                 const triggerLine = vH * 0.35;
 
                 cards.forEach((card, index) => {
-                  const rect = card.getBoundingClientRect();
-                  // Important: rect.top changes with scroll. 
-                  // To get generic "offset" purely based on smoothed scroll, we calculate:
-                  // (We need the original absolute top, but rect is relative. 
-                  //  For 'live' feeling, using rect is okay if we accept some lag, 
-                  //  but strictly 'currentScroll' is better for stability.)
-
-                  // Let's rely on the relative rect but smoothed by the fact UI updates slowly?
-                  // Actually, using 'rect.top' inside a lerp loop when rect is updated by browser scroll 
-                  // AND our transform is tricky.
-
-                  // Better approach for stability: 
-                  // Calculate transform based on the DIFFERENCE between where it IS and where it SHOULD be.
-
-                  // SIMPLIFIED APPROACH:
-                  // Use the smoothed 'currentScroll' to calculate the "virtual" position 
-                  // relative to the "finish line".
-
-                  // We need the element's absolute position. 
-                  // Since we don't want to calculate it every frame (reflow), we rely on 
-                  // the fact that rect.top is (AbsoluteTop - WindowScrollY).
-                  // So AbsoluteTop = rect.top + window.scrollY.
-                  // But reading rect.top forces reflow. 
-
-                  // Instead, let's use the 'diff' logic but smoothed visually.
-                  // Using 'currentScroll' instead of 'window.scrollY' for calculations won't work 
-                  // because 'rect.top' is hardware-bound to window.scrollY.
-
-                  // So: We apply the transform based on the RAW scroll, but we put CSS transitions? 
-                  // NO, that conflicts.
-
-                  // CORRECT LERP STRATEGY:
-                  // We calculate the IDEAL target transform based on real scroll.
-                  // Then we lerp the TRANSFORM value itself.
-
                   if (!card.dataset.currentX) card.dataset.currentX = -100;
 
-                  // 1. Calculate Target X
-                  const realTop = rect.top; // Current visual position
+                  const rect = card.getBoundingClientRect();
+                  const realTop = rect.top;
                   const diff = realTop - triggerLine;
 
                   let targetX = 0;
                   let targetOpacity = 1;
 
                   if (diff > -50) {
-                    // It is below the trigger point -> Slide in
-                    // Sensitivity: UNIFORM (Clean look)
                     const sensitivity = 0.5;
                     let move = diff * sensitivity * -1;
                     move = Math.max(-200, Math.min(0, move));
-
                     targetX = move;
-                    // Opacity map
                     targetOpacity = 1 - (Math.abs(move) / 200);
                     targetOpacity = Math.max(0.2, Math.min(1, targetOpacity));
                   } else {
-                    // Locked
                     targetX = 0;
                     targetOpacity = 1;
                   }
 
-                  // 2. Lerp the Value
                   let curX = parseFloat(card.dataset.currentX);
-                  curX = lerp(curX, targetX, 0.1); // Smooth the movement value itself
-                  card.dataset.currentX = curX; // Store for next frame
-
-                  // Apply
+                  curX = lerp(curX, targetX, 0.1);
+                  card.dataset.currentX = curX;
                   card.style.transform = `translateX(${curX.toFixed(2)}px)`;
 
-                  // Lerp opacity too for ultra smooth feel
                   let curOp = parseFloat(card.style.opacity || 0);
                   if (isNaN(curOp)) curOp = 0;
                   curOp = lerp(curOp, targetOpacity, 0.1);
                   card.style.opacity = curOp.toFixed(3);
                 });
 
-                // Simple Header Reveal
                 if (header) {
                   const hRect = header.getBoundingClientRect();
                   if (hRect.top < vH - 100) {
@@ -355,7 +526,6 @@
                 requestAnimationFrame(animate);
               }
 
-              // Start Loop
               animate();
             });
           </script>
@@ -365,6 +535,62 @@
     </div>
   </header>
 
+  <!-- ═══ FEATURES ═══ -->
+  <section id="features" class="features-section container">
+    <div class="section-header" style="opacity:1;transform:none;">
+      <p class="text-accent font-mono" style="margin-bottom: 0.5rem;">PROČ HACKSHIELD</p>
+      <h2>Platforma nové generace</h2>
+      <p style="color: var(--text-secondary); max-width: 550px; margin: 0 auto;">Vše co potřebuješ pro kariéru v kyberbezpečnosti, na jednom místě.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <h4>Hands-on Laboratoře</h4>
+        <p>Reálné hacking scénáře v bezpečném sandbox prostředí. Učíš se praxí, ne memorováním.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+        </div>
+        <h4>Strukturované Kurzy</h4>
+        <p>Od základů po expertní úroveň. Každý kurz je navržen s jasnou cestou k certifikaci.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <h4>Live CTF Soutěže</h4>
+        <p>Bojuj proti ostatním hackerům v reálném čase. Sbírej XP a šplhej na žebříčku.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M16 12l-4 4-4-4M12 8v8" />
+          </svg>
+        </div>
+        <h4>Certifikace</h4>
+        <p>Získej ISO certifikát po dokončení kurzu. Prokázej svoje znalosti potenciálním zaměstnavatelům.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LEARNING PATHS ═══ -->
   <main class="container">
     <section class="section-header">
       <p class="text-accent font-mono">VZDĚLÁVACÍ KLUB</p>
@@ -394,8 +620,8 @@
 
       <!-- Path 2 -->
       <article class="path-card">
-        <div class="path-icon" style="background: rgba(239, 68, 68, 0.1);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"
+        <div class="path-icon" style="background: rgba(255, 77, 106, 0.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff4d6a" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <path
               d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -406,7 +632,7 @@
         <h3>Junior Pentester</h3>
         <p>Staň se etickým hackerem. Nauč se hledat a zneužívat zranitelnosti v reálných aplikacích.</p>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 15%; background: #ef4444;"></div>
+          <div class="progress-fill" style="width: 15%; background: linear-gradient(90deg, #ff4d6a, #ff8a65);"></div>
         </div>
         <div class="path-meta">
           <span>65 hodin</span>
@@ -416,7 +642,7 @@
 
       <!-- Path 3 -->
       <article class="path-card">
-        <div class="path-icon" style="background: rgba(59, 130, 246, 0.1);">
+        <div class="path-icon" style="background: rgba(59, 130, 246, 0.08);">
           <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <circle cx="12" cy="12" r="10" />
@@ -427,7 +653,7 @@
         <h3>Cyber Defense (SOC)</h3>
         <p>Nauč se bránit infrastrukturu. Analýza logů, detekce útoků a incident response v praxi.</p>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 0%; background: #3b82f6;"></div>
+          <div class="progress-fill" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #8b5cf6);"></div>
         </div>
         <div class="path-meta">
           <span>55 hodin</span>
@@ -435,20 +661,64 @@
         </div>
       </article>
     </div>
-
-
-
   </main>
 
-  <footer
-    style="border-top: 1px solid var(--border-soft); margin-top: 4rem; padding: 3rem 0; background: rgba(5, 9, 21, 0.5);">
-    <div class="container"
-      style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
-      <div class="brand">
-        <span class="brand-name">HackShield</span>
+  <!-- ═══ TRUST / NUMBERS ═══ -->
+  <section class="trust-section container">
+    <p class="text-accent font-mono" style="font-size: 0.85rem;">DŮVĚŘUJÍ NÁM</p>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <span class="trust-number">99.9%</span>
+        <span class="trust-label">Uptime</span>
       </div>
-      <div style="color: var(--text-muted); font-size: 0.9rem;">
-        &copy; 2026 HackShield s.r.o. | <a href="terms.html" class="text-accent">Podmínky užití</a>
+      <div class="trust-item">
+        <span class="trust-number">24/7</span>
+        <span class="trust-label">Podpora</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-number">GDPR</span>
+        <span class="trust-label">Compliance</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-number">AES-256</span>
+        <span class="trust-label">Šifrování</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand">
+            <span class="brand-name" style="font-size: 1.4rem;">HackShield</span>
+          </div>
+          <p>Česká kybernetická firma a vzdělávací platforma nové generace pro profesionály i začátečníky.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Platforma</h5>
+          <a href="learn.html">Kurzy</a>
+          <a href="leaderboard.html">Žebříček</a>
+          <a href="pricing.html">Ceník</a>
+        </div>
+        <div class="footer-col">
+          <h5>Firma</h5>
+          <a href="#">O nás</a>
+          <a href="#">Kariéra</a>
+          <a href="terms.html">Podmínky</a>
+        </div>
+        <div class="footer-col">
+          <h5>Kontakt</h5>
+          <a href="mailto:darcerohliku@gmail.com">Email</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 HackShield s.r.o.</span>
+        <a href="terms.html" class="text-accent">Podmínky užití</a>
       </div>
     </div>
   </footer>

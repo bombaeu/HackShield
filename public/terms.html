@@ -3,108 +3,204 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#060918" />
     <title>Podmínky užití | HackShield</title>
     <link rel="stylesheet" href="style.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .terms-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .terms-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .terms-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a0b8d8 60%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .terms-card {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terms-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-gradient);
+        }
+
+        .terms-card h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .terms-card h2:first-child {
+            margin-top: 0;
+        }
+
+        .terms-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .terms-card ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .terms-card ul li {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        .terms-card strong {
+            color: var(--text-primary);
+        }
+
+        .terms-card a {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .terms-card {
+                padding: 2rem 1.5rem;
+                border-radius: var(--radius-md);
+            }
+
+            .terms-container {
+                padding: 4rem 1rem 3rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div class="bg-grid"></div>
 
-    <!-- Navigation -->
     <nav class="topbar">
         <div class="brand">
-            <div class="brand-logo-box">
-                <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-            </div>
-            <span class="brand-name">HackShield</span>
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 0.8rem; color: white;">
+                <div class="brand-logo-box">
+                    <img src="assets/fotka.png" alt="HackShield" class="brand-logo" />
+                </div>
+                <span class="brand-name">HackShield</span>
+            </a>
         </div>
-        <div class="nav-links">
-            <a href="index.html" class="nav-item">Úvod</a>
-            <a href="login.html" class="btn btn-primary">Zpět do aplikace</a>
+
+        <button class="mobile-toggle" aria-label="Menu"
+            onclick="document.querySelector('.nav-links').classList.toggle('active')">
+            <svg width="28" height="28" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <ul class="nav-links">
+            <li class="nav-item"><a href="index.html" style="color: inherit; text-decoration: none;">Úvod</a></li>
+            <li class="nav-item"><a href="pricing.html" style="color: inherit; text-decoration: none;">Ceník</a></li>
+            <li class="nav-item">Komunita</li>
+        </ul>
+
+        <div id="navActions" class="nav-actions" style="display: flex; gap: 1rem;">
+            <a href="login.html" class="btn btn-ghost">Přihlásit</a>
+            <a href="register.html" class="btn btn-primary">Začít zdarma</a>
         </div>
     </nav>
 
-    <main class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
-        <div class="auth-card" style="max-width: 900px; margin: 0 auto; padding: 3rem;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Podmínky užití</h1>
-            <p class="text-secondary" style="margin-bottom: 3rem;">Poslední aktualizace: 11. prosince 2025</p>
+    <div class="terms-container">
+        <div class="terms-header">
+            <p class="text-accent font-mono" style="margin-bottom: 0.5rem;">PRÁVNÍ DOKUMENT</p>
+            <h1>Podmínky užití</h1>
+            <p>Poslední aktualizace: 1. ledna 2026</p>
+        </div>
 
-            <div class="terms-content" style="line-height: 1.8; color: var(--text-primary);">
+        <div class="terms-card">
+            <h2>1. Účel platformy</h2>
+            <p>HackShield je vzdělávací platforma zaměřená na kybernetickou bezpečnost. Veškeré poskytované materiály, laboratoře a nástroje jsou určeny <strong>výhradně pro vzdělávací účely</strong>.</p>
 
-                <h2 style="color: var(--accent); margin-top: 2rem;">1. Úvodní ustanovení</h2>
-                <p>
-                    Vítejte v <strong>HackShield</strong>. Tyto Podmínky užití upravují váš přístup k naší vzdělávací
-                    platformě zaměřené na kybernetickou bezpečnost. Registrací nebo používáním služby souhlasíte s
-                    těmito podmínkami. Provozovatelem je společnost HackShield s.r.o.
-                </p>
+            <h2>2. Odpovědnost uživatele</h2>
+            <p>Uživatel se zavazuje, že nebude používat znalosti získané na platformě k nelegálním účelům. Jakékoliv neoprávněné pronikání do systémů třetích stran je v rozporu s těmito podmínkami a s platnými zákony.</p>
+            <ul>
+                <li>Použití nástrojů a technik pouze v autorizovaných prostředích</li>
+                <li>Zákaz sdílení přístupových údajů třetím stranám</li>
+                <li>Dodržování pravidel etického hackingu</li>
+            </ul>
 
-                <h2 style="color: var(--accent); margin-top: 2rem;">2. Etický kodex a Vzdělávací účel</h2>
-                <p>
-                    Veškerý obsah, nástroje a virtuální laboratoře poskytované na této platformě slouží <strong>výhradně
-                        ke vzdělávacím a obranným účelům (White Hat Hacking)</strong>.
-                </p>
-                <ul style="list-style: disc; margin-left: 1.5rem; color: var(--text-secondary); margin-top: 1rem;">
-                    <li>Je přísně zakázáno používat získané znalosti k nelegální činnosti, útokům na cizí systémy nebo
-                        poškozování dat.</li>
-                    <li>Uživatel nese plnou trestněprávní odpovědnost za své jednání mimo prostředí platformy.</li>
-                    <li>HackShield nenese žádnou odpovědnost za zneužití poskytnutých informací.</li>
-                </ul>
+            <h2>3. Ochrana osobních údajů</h2>
+            <p>HackShield zpracovává osobní údaje v souladu s <strong>GDPR</strong>. Shromažďujeme pouze data nezbytná pro fungování platformy: email, uživatelské jméno a údaje o pokroku v kurzech.</p>
 
-                <h2 style="color: var(--accent); margin-top: 2rem;">3. Pravidla užívání platformy</h2>
-                <p>
-                    Uživatel se zavazuje, že <strong>nebude</strong>:
-                </p>
-                <ul style="list-style: disc; margin-left: 1.5rem; color: var(--text-secondary); margin-top: 1rem;">
-                    <li>Pokoušet se o útoky na infrastrukturu samotné platformy HackShield (mimo vyhrazené CTF
-                        laboratoře).</li>
-                    <li>Skenovat, floodovat nebo jinak narušovat dostupnost služby pro ostatní uživatele.</li>
-                    <li>Sdílet své přihlašovací údaje s třetími stranami.</li>
-                </ul>
+            <h2>4. Omezení odpovědnosti</h2>
+            <p>HackShield nenese odpovědnost za škody způsobené nesprávným použitím vzdělávacích materiálů. Platforma je poskytována „tak, jak je" (<em>as-is</em>).</p>
 
-                <h2 style="color: var(--accent); margin-top: 2rem;">4. Uživatelské účty a Administrace</h2>
-                <p>
-                    HackShield si vyhrazuje právo:
-                </p>
-                <ul style="list-style: disc; margin-left: 1.5rem; color: var(--text-secondary); margin-top: 1rem;">
-                    <li>Okamžitě zablokovat nebo smazat účet uživatele, který poruší tyto podmínky.</li>
-                    <li>Administrátoři (včetně účtu s oprávněním "Root") mají plný přístup k moderování obsahu a
-                        uživatelů.</li>
-                    <li>Účty neaktivní déle než 12 měsíců mohou být smazány.</li>
-                </ul>
+            <h2>5. Kontakt</h2>
+            <p>V případě dotazů ohledně těchto podmínek nás kontaktujte na <a href="mailto:darcerohliku@gmail.com">darcerohliku@gmail.com</a>.</p>
+        </div>
+    </div>
 
-                <h2 style="color: var(--accent); margin-top: 2rem;">5. Vyloučení odpovědnosti</h2>
-                <p>
-                    Služba je poskytována "tak jak je". Neručíme za to, že laboratoře budou dostupné 24/7. Simulované
-                    útoky v našem prostředí jsou bezpečné, ale důrazně varujeme před zkoušením těchto technik na
-                    systémech, ke kterým nemáte výslovný písemný souhlas vlastníka.
-                </p>
-
-                <h2 style="color: var(--accent); margin-top: 2rem;">6. Kontakt</h2>
-                <p>
-                    V případě dotazů nás kontaktujte na <a href="mailto:support@hackshield.io"
-                        class="text-accent">support@hackshield.io</a>.
-                </p>
-
-                <h2 style="color: var(--accent); margin-top: 2rem;">7. Změna podmínek</h2>
-                <p>
-                    Poskytovatel si vyhrazuje právo tyto podmínky kdykoliv změnit. O podstatných změnách budeme
-                    informovat (např. e-mailem nebo oznámením na webu). Dalším používáním služby po změně podmínek
-                    vyjadřujete svůj souhlas s novým zněním.
-                </p>
-
-            </div>
-
-            <div style="margin-top: 4rem; text-align: center;">
-                <a href="register.html" class="btn btn-primary">Souhlasím a chci se registrovat</a>
+    <footer style="border-top: 1px solid var(--border-soft); padding: 2rem 0; background: rgba(6, 9, 24, 0.5);">
+        <div class="container"
+            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <span class="brand-name">HackShield</span>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">
+                &copy; 2026 HackShield s.r.o.
             </div>
         </div>
-    </main>
+    </footer>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('hackshield_user')) {
+                const nav = document.getElementById('navActions');
+                if (nav) {
+                    nav.innerHTML = `
+                    <a href="dashboard.html" class="btn btn-primary" style="font-weight: bold; border: none; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);">
+                        Vstoupit do aplikace &rarr;
+                    </a>
+                `;
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

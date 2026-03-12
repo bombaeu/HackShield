@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Registrace | HackShield</title>
     <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function () {
-            // ZDE VLOŽ SVŮJ PUBLIC KEY Z EMAILJS (https://dashboard.emailjs.com/admin/account)
-            // Příklad: emailjs.init("user_XyZ123...");
-            emailjs.init("gUPFo7FLqNfZ8FEDf"); // Tvůj klíč
+            emailjs.init("gUPFo7FLqNfZ8FEDf");
         })();
     </script>
     <style>
@@ -26,7 +24,25 @@
             margin-top: 5px;
             display: none;
         }
-    </style>
+
+        .auth-card h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a0b8d8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-logo-box {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 1.5rem;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+        }
     </style>
     <script>
         function checkAuth() {
@@ -55,12 +71,11 @@
     <div class="auth-container">
         <div class="auth-card">
             <div style="text-align: center; margin-bottom: 2rem;">
-                <div
-                    style="width: 60px; height: 60px; margin: 0 auto 1.5rem; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="auth-logo-box">
                     <img src="assets/fotka.png" alt="HackShield" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <h2>Vytvořit účet</h2>
-                <p style="color: var(--text-secondary);">Přidej se k elitní komunitě.</p>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.95rem;">Přidej se k elitní komunitě.</p>
             </div>
 
             <form id="registerForm" onsubmit="handleRegister(event)">
@@ -124,16 +139,13 @@
             const emailErr = document.getElementById('emailError');
             const passErr = document.getElementById('passwordError');
 
-            // Reset errors
             document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
 
-            // Validation 1: Passwords
             if (password !== confirmPassword) {
                 passErr.style.display = 'block';
                 return;
             }
 
-            // Validation 2: Username Characters (Security)
             const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
             if (!usernameRegex.test(username)) {
                 showModal("Neplatné jméno", "Uživatelské jméno obsahuje nepovolené znaky.<br>Použij pouze písmena, čísla a podtržítko.", "error");
@@ -143,7 +155,6 @@
             btn.innerText = "Kontroluji dostupnost...";
             btn.style.opacity = "0.7";
 
-            // Validation 2: Check Server for Duplicates
             try {
                 const response = await fetch('/api/check-user', {
                     method: 'POST',
@@ -160,7 +171,6 @@
                     return;
                 }
 
-                // Validation passed -> Send Email
                 btn.innerText = "Odesílám ověřovací email...";
 
                 const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -173,7 +183,6 @@
                     emailSent: false
                 };
 
-                // EmailJS Logic
                 const templateParams = {
                     to_email: email,
                     to_name: username,
@@ -187,7 +196,6 @@
                         finishRegistration(tempUser);
                     }, function (error) {
                         console.log('FAILED...', error);
-                        // Fallback (Demo)
                         tempUser.emailSent = false;
                         finishRegistration(tempUser);
                     });
@@ -201,7 +209,6 @@
         }
 
         function finishRegistration(tempUser) {
-            // Save temp data for Verify Page to pick up
             localStorage.setItem('hackshield_temp_user', JSON.stringify(tempUser));
             window.location.href = 'verify.html';
         }
@@ -212,11 +219,9 @@
             const eInput = document.getElementById('email');
 
             if (uInput && eInput) {
-                // Restore
                 if (sessionStorage.getItem('pers_username')) uInput.value = sessionStorage.getItem('pers_username');
                 if (sessionStorage.getItem('pers_email')) eInput.value = sessionStorage.getItem('pers_email');
 
-                // Save
                 uInput.addEventListener('input', () => sessionStorage.setItem('pers_username', uInput.value));
                 eInput.addEventListener('input', () => sessionStorage.setItem('pers_email', eInput.value));
             }

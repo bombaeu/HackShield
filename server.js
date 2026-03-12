@@ -37,6 +37,16 @@ const initDB = async () => {
             );
         `);
 
+        // Add Community Messages
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS messages (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                content TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
         // Add Streak support if missing
         await pool.query(`
             ALTER TABLE users 
@@ -466,6 +476,66 @@ app.get('/api/leaderboard', async (req, res) => {
         });
 
         res.json(leaderboard);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// Community Messages API
+app.get('/api/messages', async (req, res) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+        // Check premium
+        const uRes = await pool.query("SELECT badges, subscription_expires_at FROM users WHERE id = $1", [userId]);
+        const user = uRes.rows[0];
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        let isPremium = (user.badges && (user.badges.includes('Admin') || user.badges.includes('Root'))) || 
+                        (user.subscription_expires_at && new Date(user.subscription_expires_at) > new Date());
+        
+        if (!isPremium) {
+            return res.status(403).json({ error: "Tato sekce je pouze pro předplatitele." });
+        }
+
+        const result = await pool.query(`
+            SELECT m.id, m.content, m.created_at, u.username, u.badges 
+            FROM messages m
+            JOIN users u ON m.user_id = u.id
+            ORDER BY m.created_at ASC
+            LIMIT 100
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+app.post('/api/messages', async (req, res) => {
+    try {
+        const { userId, content } = req.body;
+        if (!userId || !content || content.trim() === '') return res.status(400).json({ error: "Bad request" });
+
+        // Check premium
+        const uRes = await pool.query("SELECT badges, subscription_expires_at FROM users WHERE id = $1", [userId]);
+        const user = uRes.rows[0];
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        let isPremium = (user.badges && (user.badges.includes('Admin') || user.badges.includes('Root'))) || 
+                        (user.subscription_expires_at && new Date(user.subscription_expires_at) > new Date());
+        
+        if (!isPremium) {
+            return res.status(403).json({ error: "Tato sekce je pouze pro předplatitele." });
+        }
+
+        const newMsg = await pool.query(
+            "INSERT INTO messages (user_id, content) VALUES ($1, $2) RETURNING id, content, created_at",
+            [userId, content.trim()]
+        );
+        res.json({ success: true, message: newMsg.rows[0] });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });

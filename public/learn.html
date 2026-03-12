@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HackShield | Vzdělávání</title>
     <link rel="stylesheet" href="style.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         .app-layout {
             display: grid;
@@ -44,7 +42,9 @@
 
         /* Sidebar Base */
         .sidebar {
-            background: var(--bg-panel);
+            background: rgba(8, 12, 28, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-right: 1px solid var(--border-soft);
             padding: 1.5rem;
             display: flex;
@@ -91,12 +91,21 @@
 
         .sidebar-link:hover,
         .sidebar-link.active {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 212, 255, 0.06);
             color: white;
         }
 
         .sidebar-link.active {
             border-left: 3px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .sidebar-brand .brand-name {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
 
         /* Main Content */
@@ -235,10 +244,10 @@
         <aside class="sidebar">
             <a href="index.html" class="sidebar-brand" style="text-decoration: none; color: white;">
                 <div
-                    style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass);">
                     <img src="assets/fotka.png" alt="HS" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                HackShield
+                <span class="brand-name">HackShield</span>
             </a>
 
             <div class="nav-group">

@@ -4,12 +4,47 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#060918" />
     <title>Ceník | HackShield</title>
     <link rel="stylesheet" href="style.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .pricing-card.active-card {
+            border-color: var(--accent);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.15);
+            transform: scale(1.03);
+        }
+
+        .pricing-card.active-card::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: var(--radius-lg);
+            background: var(--accent-gradient);
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .pricing-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a0b8d8 60%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .enterprise-cta {
+            margin-top: 4rem;
+            text-align: center;
+            padding: 2.5rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+        }
+    </style>
 </head>
 
 <body>
@@ -18,7 +53,7 @@
     <nav class="topbar">
         <div class="brand">
             <a href="index.html"
-                style="text-decoration: none; display: flex; align-items: center; gap: 1rem; color: white;">
+                style="text-decoration: none; display: flex; align-items: center; gap: 0.8rem; color: white;">
                 <div class="brand-logo-box">
                     <img src="assets/fotka.png" alt="HackShield" class="brand-logo" />
                 </div>
@@ -49,12 +84,12 @@
         </div>
     </nav>
 
-    <main class="container" style="padding-top: 8rem; min-height: 80vh;">
+    <main class="container" style="padding-top: 6rem; min-height: 80vh;">
         <!-- PRICING SECTION -->
         <section id="pricing">
-            <div class="section-header" style="text-align: center; margin-bottom: 4rem;">
+            <div class="pricing-hero" style="text-align: center; margin-bottom: 4rem;">
                 <p class="text-accent font-mono" style="margin-bottom: 0.5rem;">CENÍK</p>
-                <h1 style="font-size: 3rem; margin-bottom: 1rem; color: white;">Vyber si plán, který ti vyhovuje</h1>
+                <h1>Vyber si plán, který ti vyhovuje</h1>
                 <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
                     Bez skrytých poplatků. Všechny plány zahrnují přístup do komunity a základní podporu.
                 </p>
@@ -89,15 +124,14 @@
                         <li>Základní CTF</li>
                         <li>Komunitní přístup</li>
                     </ul>
-                    <a href="register.html" class="btn btn-primary" style="width: 100%; justify-content: center;">Začít
+                    <a href="register.html" class="btn btn-ghost" style="width: 100%; justify-content: center;">Začít
                         zdarma</a>
                 </div>
 
                 <!-- Pro -->
-                <div class="pricing-card active-card"
-                    style="border-color: var(--accent); position: relative; box-shadow: 0 0 30px rgba(124, 242, 107, 0.1);">
+                <div class="pricing-card active-card">
                     <div
-                        style="position: absolute; top: -12px; background: var(--accent); color: black; padding: 2px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
+                        style="position: absolute; top: -12px; background: var(--accent-gradient); color: white; padding: 3px 14px; border-radius: 12px; font-size: 0.78rem; font-weight: bold; letter-spacing: 0.02em;">
                         DOPORUČENO</div>
                     <h3>Pro – Hacker Path</h3>
                     <p class="subtitle">Pro pokročilé</p>
@@ -105,7 +139,7 @@
                         <span class="amount">12 €</span> <span class="period">/ měsíc</span>
                     </div>
                     <div class="billing-note"
-                        style="font-size: 0.8rem; color: #94a3b8; height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
+                        style="font-size: 0.8rem; color: var(--text-muted); height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
                         Účtováno 120 € ročně</div>
                     <ul class="features">
                         <li>Neomezené laby</li>
@@ -124,7 +158,7 @@
                         <span class="amount">25 €</span> <span class="period">/ měsíc</span>
                     </div>
                     <div class="billing-note"
-                        style="font-size: 0.8rem; color: #94a3b8; height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
+                        style="font-size: 0.8rem; color: var(--text-muted); height: 1.2em; opacity: 0; transition: opacity 0.3s; margin-bottom: 1rem;">
                         Účtováno 240 € ročně</div>
                     <ul class="features">
                         <li>Red vs Blue scénáře</li>
@@ -148,27 +182,23 @@
                 }
 
                 function updatePrices(isYearly) {
-                    // Update Labels
                     document.getElementById('label-monthly').classList.toggle('active', !isYearly);
                     document.getElementById('label-yearly').classList.toggle('active', isYearly);
 
-                    // Update Cards
                     document.querySelectorAll('.pricing-card .price').forEach(el => {
-                        if (!el.dataset.monthly) return; // Skip free
+                        if (!el.dataset.monthly) return;
 
                         const amountEl = el.querySelector('.amount');
                         const noteEl = el.closest('.pricing-card').querySelector('.billing-note');
 
                         const price = isYearly ? el.dataset.yearly : el.dataset.monthly;
 
-                        // Simple animation
                         amountEl.style.opacity = 0;
                         setTimeout(() => {
                             amountEl.innerText = price + " €";
                             amountEl.style.opacity = 1;
                         }, 150);
 
-                        // Show/Hide Note
                         if (noteEl) {
                             noteEl.style.opacity = isYearly ? 1 : 0;
                         }
@@ -176,19 +206,17 @@
                 }
             </script>
 
-            <div
-                style="margin-top: 4rem; text-align: center; color: var(--text-muted); padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
-                <p>Potřebuješ řešení pro celou firmu nebo školu?</p>
+            <div class="enterprise-cta">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Potřebuješ řešení pro celou firmu nebo školu?</p>
                 <button onclick="showContactModal()" class="btn btn-ghost"
-                    style="color: var(--accent); text-decoration: underline; background:none; border:none; cursor:pointer; padding:0; font-size:1rem;">
-                    Kontaktuj nás pro enterprise nabídku
+                    style="color: var(--accent);">
+                    Kontaktuj nás pro enterprise nabídku →
                 </button>
             </div>
         </section>
     </main>
 
-    <footer
-        style="border-top: 1px solid var(--border-soft); margin-top: 4rem; padding: 3rem 0; background: rgba(5, 9, 21, 0.5);">
+    <footer style="border-top: 1px solid var(--border-soft); margin-top: 4rem; padding: 3rem 0; background: rgba(6, 9, 24, 0.5);">
         <div class="container"
             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
             <div class="brand">
@@ -208,13 +236,13 @@
             <p style="color: var(--text-secondary); margin-bottom: 2rem;">
                 Pro firemní licence a školní balíčky nás prosím kontaktujte přímo.
             </p>
-            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="background: rgba(255,255,255,0.04); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
                 <div style="font-size: 0.9rem; color: var(--text-muted);">Email:</div>
                 <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; user-select: all;">
                     darcerohliku@gmail.com</div>
             </div>
             <button class="btn btn-primary" onclick="closeContactModal()"
-                style="width:100%; justify-content:center; background: #3b82f6; color:white;">Rozumím</button>
+                style="width:100%; justify-content:center; background: linear-gradient(135deg, #3b82f6, #7c3aed); color:white;">Rozumím</button>
         </div>
     </div>
 
@@ -232,7 +260,7 @@
                 const nav = document.getElementById('navActions');
                 if (nav) {
                     nav.innerHTML = `
-                    <a href="dashboard.html" class="btn btn-primary" style="background: var(--accent); color: #000; font-weight: bold; border: none; box-shadow: 0 0 15px rgba(124, 242, 107, 0.4);">
+                    <a href="dashboard.html" class="btn btn-primary" style="font-weight: bold; border: none; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);">
                         Vstoupit do aplikace &rarr;
                     </a>
                 `;
