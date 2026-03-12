@@ -1676,7 +1676,7 @@ done
 
             // Check debug param early
             const urlParams = new URLSearchParams(window.location.search);
-            const isDebug = urlParams.get('debug') === 'true';
+            const isDebug = urlParams.get('debug') === 'true' && user && (user.role === 'Admin' || user.role === 'Root');
 
             let btnStyle = (allDone || isDebug) ? "background: var(--accent); color:black; cursor:pointer;" : "background: #333; color:#aaa; cursor:not-allowed;";
             let btnText = "🔒 ZÁVĚREČNÁ ZKOUŠKA";
