@@ -485,7 +485,7 @@ ul {
 .dot.green { background: #28c840; }
 
 .terminal-body {
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
     color: #c0d0e8;
     font-size: 0.88rem;
     overflow-y: hidden;
@@ -517,7 +517,7 @@ ul {
 }
 
 .term-line {
-    margin: 0.15rem 0;
+    margin: 0.08rem 0;
 }
 
 /* ─── SECTION HEADERS ─── */

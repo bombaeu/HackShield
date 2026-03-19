@@ -459,7 +459,7 @@
 
               // --- 2. SMOOTH Parallax Animation (Lerp) ---
               const cards = document.querySelectorAll('.path-card');
-              const header = document.querySelector('.section-header');
+              const headers = document.querySelectorAll('.section-header');
 
               let currentScroll = window.scrollY;
               let targetScroll = window.scrollY;
@@ -515,13 +515,13 @@
                   card.style.opacity = curOp.toFixed(3);
                 });
 
-                if (header) {
-                  const hRect = header.getBoundingClientRect();
+                headers.forEach(h => {
+                  const hRect = h.getBoundingClientRect();
                   if (hRect.top < vH - 100) {
-                    header.style.opacity = '1';
-                    header.style.transform = 'translateY(0)';
+                    h.style.opacity = '1';
+                    h.style.transform = 'translateY(0)';
                   }
-                }
+                });
 
                 requestAnimationFrame(animate);
               }
