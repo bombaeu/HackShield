@@ -267,26 +267,37 @@
                 </div>
             </header>
 
-            <div class="chat-container">
-                <div class="chat-header">
-                    <span style="font-weight:bold;"># general-chat</span>
-                    <span id="onlineCount" style="color:var(--accent); font-size:0.85rem;">Online</span>
-                </div>
-                
-                <div class="chat-messages" id="chatFeed">
-                    <!-- Messages go here -->
-                </div>
-
-                <div class="chat-input-area">
-                    <input type="text" id="chatInput" class="form-input" style="flex:1; margin:0;" placeholder="Napiš zprávu..." autocomplete="off">
-                    <button class="btn btn-primary" onclick="sendMessage()">Odeslat</button>
+            <div style="display: flex; gap: 1.5rem; flex: 1; min-height: 0;">
+                <!-- ROOMS SIDEBAR -->
+                <div class="rooms-sidebar" style="width: 240px; background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto;">
+                    <h3 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 0.05em;">Místnosti</h3>
+                    <div id="roomsList" style="display: flex; flex-direction: column; gap: 0.4rem; flex: 1;">
+                        <!-- rooms -->
+                    </div>
+                    <button id="addRoomBtn" onclick="promptAddRoom()" class="btn btn-ghost" style="display: none; width: 100%; margin-top: 1.5rem; padding: 0.6rem; font-size: 0.85rem; justify-content: center;">+ Připnout místnost</button>
                 </div>
 
-                <!-- PREMIUM LOCK OVERLAY -->
-                <div id="premiumLock" class="premium-lock" style="display: none;">
-                    <h3>🔒 Zablokováno</h3>
-                    <p style="color: var(--text-secondary); max-width:400px; margin-bottom: 2rem;">Tato sekce je dostupná pouze pro uživatele s aktivním HackShield předplatným.</p>
-                    <a href="pricing.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size:1.1rem; text-decoration:none;">Koupit Předplatné</a>
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <span id="currentRoomName" style="font-weight:bold;"># general-chat</span>
+                        <span id="onlineCount" style="color:var(--accent); font-size:0.85rem;">Online</span>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatFeed">
+                        <!-- Messages go here -->
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" class="form-input" style="flex:1; margin:0;" placeholder="Napiš zprávu..." autocomplete="off">
+                        <button class="btn btn-primary" onclick="sendMessage()">Odeslat</button>
+                    </div>
+
+                    <!-- PREMIUM LOCK OVERLAY -->
+                    <div id="premiumLock" class="premium-lock" style="display: none;">
+                        <h3>🔒 Zablokováno</h3>
+                        <p style="color: var(--text-secondary); max-width:400px; margin-bottom: 2rem;">Tato sekce je dostupná pouze pro uživatele s aktivním HackShield předplatným.</p>
+                        <a href="pricing.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size:1.1rem; text-decoration:none;">Koupit Předplatné</a>
+                    </div>
                 </div>
             </div>
         </main>
@@ -318,6 +329,7 @@
                 if (data.role === 'Admin' || data.role === 'Root') {
                     document.getElementById('adminSidebarLink').style.display = 'flex';
                     document.getElementById('debugSidebarLink').style.display = 'flex';
+                    document.getElementById('addRoomBtn').style.display = 'flex';
                 }
 
                 isPremium = data.isPremium;
@@ -338,10 +350,56 @@
             }
         }
 
+        let currentRoom = 'general-chat';
+
+        async function loadRooms() {
+            try {
+                const res = await fetch('/api/rooms');
+                if (!res.ok) return;
+                const rooms = await res.json();
+                const list = document.getElementById('roomsList');
+                list.innerHTML = '';
+                rooms.forEach(r => {
+                    const isActive = r.name === currentRoom;
+                    list.innerHTML += `
+                        <div onclick="switchRoom('${r.name}')" style="padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; font-weight: ${isActive ? '600' : '400'}; background: ${isActive ? 'rgba(0, 212, 255, 0.1)' : 'transparent'}; color: ${isActive ? 'var(--accent)' : 'var(--text-secondary)'}; border: 1px solid ${isActive ? 'rgba(0, 212, 255, 0.2)' : 'transparent'};">
+                            # ${r.name}
+                        </div>
+                    `;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function switchRoom(roomName) {
+            currentRoom = roomName;
+            document.getElementById('currentRoomName').innerText = '# ' + roomName;
+            loadRooms();
+            loadMessages();
+        }
+
+        async function promptAddRoom() {
+            const roomName = prompt("Zadej název místnosti (např. web-hacking):");
+            if (!roomName) return;
+            try {
+                const res = await fetch('/api/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: localUser.id, roomName })
+                });
+                if (res.ok) {
+                    loadRooms();
+                    switchRoom(roomName.trim().replace(/\s+/g, '-'));
+                } else {
+                    const data = await res.json();
+                    showModal('Chyba', data.error || 'Místnost už existuje', 'error');
+                }
+            } catch (e) { console.error(e); }
+        }
+
         async function loadMessages() {
             if (!isPremium) return;
             try {
-                const res = await fetch(`/api/messages?userId=${localUser.id}`);
+                const res = await fetch(`/api/messages?userId=${localUser.id}&room=${currentRoom}`);
                 if (!res.ok) return;
                 const messages = await res.json();
                 
@@ -411,7 +469,7 @@
                 const res = await fetch('/api/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: localUser.id, content: content })
+                    body: JSON.stringify({ userId: localUser.id, content: content, room: currentRoom })
                 });
 
                 if (res.ok) {
@@ -455,7 +513,9 @@
             window.location.href = 'index.html';
         }
 
-        verifyAccess();
+        verifyAccess().then(() => {
+            if (isPremium) loadRooms();
+        });
     </script>
 </body>
 </html>

@@ -120,6 +120,41 @@
                 </button>
             </form>
 
+            <div class="divider" style="display:flex; align-items:center; gap:1rem; margin:1.5rem 0; color:var(--text-muted); font-size:0.8rem;">
+                <div style="flex:1; height:1px; background:var(--border-soft);"></div>
+                Nebo
+                <div style="flex:1; height:1px; background:var(--border-soft);"></div>
+            </div>
+
+            <!-- GOOGLE SIGN IN -->
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <div class="g_id_signin" style="display: flex; justify-content: center; margin-bottom: 1rem;"></div>
+            <script>
+                window.addEventListener('load', async () => {
+                    try {
+                        const res = await fetch('/api/config');
+                        const config = await res.json();
+                        
+                        if (config.GOOGLE_CLIENT_ID && typeof google !== 'undefined') {
+                            google.accounts.id.initialize({
+                                client_id: config.GOOGLE_CLIENT_ID,
+                                context: "use",
+                                callback: handleGoogleAuth
+                            });
+                            
+                            google.accounts.id.renderButton(
+                                document.querySelector('.g_id_signin'),
+                                { theme: "outline", size: "large", text: "signup_with", shape: "rectangular", logo_alignment: "left" }
+                            );
+                        } else {
+                            document.querySelector('.g_id_signin').innerHTML = '<span style="color:var(--text-muted); font-size:0.8rem;">Google přihlášení není nakonfigurováno.</span>';
+                        }
+                    } catch (e) {
+                        console.error("Google init failed", e);
+                    }
+                });
+            </script>
+
             <div class="form-footer">
                 Již máš účet? <a href="login.html">Přihlásit se</a>
             </div>
@@ -211,6 +246,32 @@
         function finishRegistration(tempUser) {
             localStorage.setItem('hackshield_temp_user', JSON.stringify(tempUser));
             window.location.href = 'verify.html';
+        }
+
+        async function handleGoogleAuth(response) {
+            try {
+                const res = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('hackshield_user', JSON.stringify(data.user));
+                    
+                    document.querySelector('.auth-card h2').innerText = "Úspěch!";
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 800);
+                } else {
+                    throw new Error(data.message || 'Google Auth failed');
+                }
+            } catch (err) {
+                console.error(err);
+                showModal("Chyba", "Google registrace selhala.", "error");
+            }
         }
 
         // --- FORM PERSISTENCE ---

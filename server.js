@@ -47,6 +47,21 @@ const initDB = async () => {
             );
         `);
 
+        // Add Rooms Table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS rooms (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(50) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        await pool.query("INSERT INTO rooms (name) VALUES ('general-chat') ON CONFLICT DO NOTHING;");
+
+        // Migrate messages to have room column
+        await pool.query(`
+            ALTER TABLE messages ADD COLUMN IF NOT EXISTS room VARCHAR(50) DEFAULT 'general-chat';
+        `);
+
         // Add Streak support if missing
         await pool.query(`
             ALTER TABLE users 
@@ -90,6 +105,68 @@ const initDB = async () => {
 };
 
 // API ROUTES
+
+app.get('/api/config', (req, res) => {
+    res.json({
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || ''
+    });
+});
+
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'PLACEHOLDER');
+
+// Google Auth
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        let payload;
+        
+        if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'PLACEHOLDER') {
+            const ticket = await googleClient.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            payload = ticket.getPayload();
+        } else {
+            // UNSECURED decoding for visual testing without .env setup
+            const base64Url = credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+            payload = JSON.parse(jsonPayload);
+        }
+
+        const email = payload.email;
+        let usernameBase = payload.name.replace(/[^a-zA-Z0-9_]/g, '');
+        if (usernameBase.length < 3) usernameBase += 'User';
+
+        let userRes = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+
+        if (userRes.rows.length === 0) {
+            const autoPass = await bcrypt.hash(Math.random().toString(36), 10);
+            
+            let uniqueUser = usernameBase;
+            let counter = 1;
+            while (true) {
+                const check = await pool.query("SELECT id FROM users WHERE username = $1", [uniqueUser]);
+                if (check.rows.length === 0) break;
+                uniqueUser = usernameBase + counter;
+                counter++;
+            }
+
+            userRes = await pool.query(
+                "INSERT INTO users (username, email, password_hash, verified) VALUES ($1, $2, $3, TRUE) RETURNING *",
+                [uniqueUser, email, autoPass]
+            );
+        }
+
+        const user = userRes.rows[0];
+        const { password_hash, ...userInfo } = user;
+        res.json({ success: true, user: userInfo });
+    } catch (err) {
+        console.error("Google Auth Error:", err);
+        res.status(401).json({ success: false, message: "Google přihlášení selhalo." });
+    }
+});
 
 // Login
 app.post('/api/login', async (req, res) => {
@@ -482,10 +559,39 @@ app.get('/api/leaderboard', async (req, res) => {
     }
 });
 
+// Community Rooms API
+app.get('/api/rooms', async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM rooms ORDER BY id ASC");
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+app.post('/api/rooms', async (req, res) => {
+    try {
+        const { userId, roomName } = req.body;
+        if (!userId || !roomName) return res.status(400).json({ error: "Bad request" });
+
+        const adminCheck = await pool.query("SELECT badges FROM users WHERE id = $1", [userId]);
+        if (adminCheck.rows.length === 0 || (!adminCheck.rows[0].badges.includes('Admin') && !adminCheck.rows[0].badges.includes('Root'))) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
+
+        const safeName = roomName.trim().replace(/\s+/g, '-');
+        const newRoom = await pool.query("INSERT INTO rooms (name) VALUES ($1) RETURNING *", [safeName]);
+        res.json({ success: true, room: newRoom.rows[0] });
+    } catch (err) {
+        if (err.code === '23505') return res.status(400).json({ error: "Místnost už existuje" });
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Community Messages API
 app.get('/api/messages', async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { userId, room } = req.query;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
         // Check premium
@@ -500,13 +606,15 @@ app.get('/api/messages', async (req, res) => {
             return res.status(403).json({ error: "Tato sekce je pouze pro předplatitele." });
         }
 
+        const currentRoom = room || 'general-chat';
         const result = await pool.query(`
             SELECT m.id, m.content, m.created_at, u.username, u.badges 
             FROM messages m
             JOIN users u ON m.user_id = u.id
+            WHERE m.room = $1
             ORDER BY m.created_at ASC
             LIMIT 100
-        `);
+        `, [currentRoom]);
         res.json(result.rows);
     } catch (err) {
         console.error(err);
@@ -516,7 +624,7 @@ app.get('/api/messages', async (req, res) => {
 
 app.post('/api/messages', async (req, res) => {
     try {
-        const { userId, content } = req.body;
+        const { userId, content, room } = req.body;
         if (!userId || !content || content.trim() === '') return res.status(400).json({ error: "Bad request" });
 
         // Check premium
@@ -531,9 +639,10 @@ app.post('/api/messages', async (req, res) => {
             return res.status(403).json({ error: "Tato sekce je pouze pro předplatitele." });
         }
 
+        const currentRoom = room || 'general-chat';
         const newMsg = await pool.query(
-            "INSERT INTO messages (user_id, content) VALUES ($1, $2) RETURNING id, content, created_at",
-            [userId, content.trim()]
+            "INSERT INTO messages (user_id, content, room) VALUES ($1, $2, $3) RETURNING id, content, created_at",
+            [userId, content.trim(), currentRoom]
         );
         res.json({ success: true, message: newMsg.rows[0] });
     } catch (err) {
