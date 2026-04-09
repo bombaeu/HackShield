@@ -583,9 +583,11 @@
                     container.innerHTML = '<span style="color:var(--text-muted); font-size: 0.8rem;">Zatím žádné odznaky. Dokonči mise!</span>';
                 }
 
-                // 5. CONTINUE LOGIC (Local Progress)
-                const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
-                const nextCourseIndex = coursesMeta.findIndex(c => !savedProgress.includes(c.id));
+                // 5. CONTINUE LOGIC (Server Progress)
+                const savedProgressRaw = data.completed_courses || [];
+                const savedProgress = savedProgressRaw.map(id => String(id));
+
+                const nextCourseIndex = coursesMeta.findIndex(c => !savedProgress.includes(String(c.id)));
                 const continueCard = document.getElementById('continueCard');
 
                 if (nextCourseIndex !== -1) {

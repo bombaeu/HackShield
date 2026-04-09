@@ -222,6 +222,7 @@
                             <tr style="text-align: left; border-bottom: 1px solid var(--border-soft);">
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">#</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Hacker</th>
+                                <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Kurzy</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Role</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Level</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Streak 🔥</th>
@@ -229,7 +230,7 @@
                         </thead>
                         <tbody id="leaderboardBody">
                             <tr>
-                                <td colspan="5" style="padding:1rem; text-align:center;">Načítám data...</td>
+                                <td colspan="6" style="padding:1rem; text-align:center;">Načítám data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -319,7 +320,7 @@
                                 <div class="podium-medal">${medals[i]}</div>
                                 <div class="podium-avatar">${u.username.charAt(0).toUpperCase()}</div>
                                 <div class="podium-name">${u.username}</div>
-                                <div class="podium-xp">${u.xp} XP • Lvl ${u.level}</div>
+                                <div class="podium-xp">${u.completedCoursesCount} Kurzů • ${u.xp} XP</div>
                                 <div class="podium-bar"></div>
                             </div>
                         `;
@@ -350,6 +351,9 @@
                             <td style="padding: 1rem; font-weight: 600;">
                                 ${u.username} 
                                 ${u.badgesCount > 5 ? '🎖️' : ''}
+                            </td>
+                            <td style="padding: 1rem; font-weight: bold; color: var(--text-primary);">
+                                ${u.completedCoursesCount} <span style="font-size:0.7em; color:var(--text-muted);">KURZŮ</span>
                             </td>
                             <td style="padding: 1rem;">
                                 <span class="role-badge ${roleClass}">${u.role}</span>

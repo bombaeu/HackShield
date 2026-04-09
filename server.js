@@ -69,6 +69,7 @@ const initDB = async () => {
             ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0,
             ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMP DEFAULT NULL,
             ADD COLUMN IF NOT EXISTS muted_until TIMESTAMP DEFAULT NULL,
+            ADD COLUMN IF NOT EXISTS completed_courses TEXT[] DEFAULT ARRAY[]::TEXT[],
             ADD COLUMN IF NOT EXISTS last_login DATE DEFAULT CURRENT_DATE;
         `);
 
@@ -293,7 +294,7 @@ app.post('/api/reset-password', async (req, res) => {
 app.get('/api/user/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query("SELECT id, username, email, level, xp, badges, streak, last_login, subscription_expires_at FROM users WHERE id = $1", [id]);
+        const result = await pool.query("SELECT id, username, email, level, xp, badges, streak, last_login, subscription_expires_at, completed_courses FROM users WHERE id = $1", [id]);
 
         if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
 
@@ -344,6 +345,7 @@ app.get('/api/user/:id', async (req, res) => {
             xp: user.xp || 0,
             badges: user.badges || [],
             streak: newStreak,
+            completed_courses: user.completed_courses || [],
             role: role,
             isPremium: isPremium,
             subscription_expires_at: user.subscription_expires_at
@@ -451,6 +453,24 @@ app.post('/api/progress', async (req, res) => {
     }
 });
 
+// Save Course Progress
+app.post('/api/progress/course', async (req, res) => {
+    try {
+        const { userId, courseId } = req.body;
+        
+        // Use Postgres array_append but avoid duplicates by checking first
+        await pool.query(
+            "UPDATE users SET completed_courses = array_append(completed_courses, $1) WHERE id = $2 AND NOT ($1 = ANY(completed_courses))", 
+            [courseId, userId]
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Course Progress Error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Delete User (Admin)
 app.post('/api/users/delete', async (req, res) => {
     try {
@@ -528,9 +548,8 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/leaderboard', async (req, res) => {
     try {
         // Top 50 users by Level (Excluding Owner 'Bomba')
-        // Top 50 users by Level (Excluding Owner 'Bomba')
         const result = await pool.query(`
-            SELECT username, level, xp, badges, joined_date, streak 
+            SELECT username, level, xp, badges, joined_date, streak, completed_courses
             FROM users 
             WHERE username != 'Bomba'
             ORDER BY level DESC, xp DESC, id ASC 
@@ -549,6 +568,7 @@ app.get('/api/leaderboard', async (req, res) => {
                 xp: user.xp || 0,
                 streak: user.streak || 0,
                 role: role,
+                completedCoursesCount: user.completed_courses ? user.completed_courses.length : 0,
                 badgesCount: user.badges ? user.badges.length : 0
             };
         });

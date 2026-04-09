@@ -1287,7 +1287,7 @@ done
             container.innerHTML = ''; // Clean
 
             // Load Progress & Validate
-            const savedProgressRaw = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
+            const savedProgressRaw = user && user.completed_courses ? user.completed_courses : [];
             // Normalize to strings to prevent type mismatch (1 vs "1")
             const savedProgress = savedProgressRaw.map(id => String(id));
 
@@ -1443,19 +1443,25 @@ done
                 globalFb.innerHTML = '<span style="color:var(--accent)">Vše správně! Kurz dokončen.</span>';
 
                 // Success Logic
-                // 1. SAVE LOCAL PROGRESS (Client Side)
-                let savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
-                if (!savedProgress.includes(currentCourse.id)) {
-                    savedProgress.push(currentCourse.id);
-                    localStorage.setItem('hackshield_progress', JSON.stringify(savedProgress));
+                // 1. SAVE SERVER PROGRESS
+                const user = JSON.parse(localStorage.getItem('hackshield_user'));
+                if (!user || !user.id) {
+                    showModal("Chyba", "Chyba relace. Přihlas se znovu.", "error", () => window.location.href = 'login.html');
+                    return;
+                }
 
-                    // 2. SAVE SERVER PROGRESS (XP & Level)
-                    const user = JSON.parse(localStorage.getItem('hackshield_user'));
-                    if (!user || !user.id) {
-                        showModal("Chyba", "Chyba relace. Přihlas se znovu.", "error", () => window.location.href = 'login.html');
-                        return;
-                    }
+                user.completed_courses = user.completed_courses || [];
+                if (!user.completed_courses.includes(String(currentCourse.id))) {
+                    user.completed_courses.push(String(currentCourse.id));
+                    localStorage.setItem('hackshield_user', JSON.stringify(user));
 
+                    fetch('/api/progress/course', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user.id, courseId: String(currentCourse.id) })
+                    }).catch(err => console.error("Course Save failed:", err));
+
+                    // 2. SAVE LEVEL PROGRESS (XP & Level)
                     fetch('/api/progress', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1676,8 +1682,9 @@ done
 
             // Add Exam Button at the end of Path Tree
             const container = document.getElementById('pathTree');
-            const savedProgress = JSON.parse(localStorage.getItem('hackshield_progress')) || [];
-            const allDone = courses.every(c => savedProgress.includes(c.id));
+            const savedProgressRaw = user && user.completed_courses ? user.completed_courses : [];
+            const savedProgress = savedProgressRaw.map(id => String(id));
+            const allDone = courses.every(c => savedProgress.includes(String(c.id)));
             const isCertified = user && user.badges && user.badges.includes('Certified');
 
             if (isCertified) {
