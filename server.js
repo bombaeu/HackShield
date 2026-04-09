@@ -703,9 +703,23 @@ app.post('/api/admin/mute', async (req, res) => {
             return res.status(403).json({ error: "Forbidden" });
         }
 
+        const tRes = await pool.query("SELECT username, muted_until FROM users WHERE id = $1", [targetUserId]);
+        if (tRes.rows.length === 0) return res.status(404).json({ error: "User not found" });
+        
+        const targetUser = tRes.rows[0];
+        if (targetUser.username.toLowerCase() === 'bomba') {
+            return res.status(403).json({ error: "Tvůrce systému (Bomba) nemůže být umlčen!" });
+        }
+
         let mutedUntil = null;
         if (minutes > 0) {
-            mutedUntil = new Date(Date.now() + minutes * 60000);
+            let baseTime = Date.now();
+            if (targetUser.muted_until && new Date(targetUser.muted_until).getTime() > baseTime) {
+                baseTime = new Date(targetUser.muted_until).getTime();
+            }
+            mutedUntil = new Date(baseTime + minutes * 60000);
+        } else if (minutes < 0 || minutes === 0) {
+            mutedUntil = null; // Unmute
         }
 
         await pool.query("UPDATE users SET muted_until = $1 WHERE id = $2", [mutedUntil, targetUserId]);

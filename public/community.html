@@ -487,6 +487,8 @@
             } catch (e) { console.error(e); }
         }
 
+        let openDropdownId = null;
+
         function toggleAdminDropdown(id) {
             const allDropdowns = document.querySelectorAll('.admin-dropdown');
             allDropdowns.forEach(d => {
@@ -494,7 +496,13 @@
             });
             const dropdown = document.getElementById('admin_dropdown_' + id);
             if (dropdown) {
-                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+                if (dropdown.style.display === 'flex') {
+                    dropdown.style.display = 'none';
+                    openDropdownId = null;
+                } else {
+                    dropdown.style.display = 'flex';
+                    openDropdownId = id;
+                }
             }
         }
 
@@ -502,6 +510,7 @@
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.admin-ellipsis') && !e.target.closest('.admin-dropdown')) {
                 document.querySelectorAll('.admin-dropdown').forEach(d => d.style.display = 'none');
+                openDropdownId = null;
             }
         });
 
@@ -553,6 +562,7 @@
                                 <button class="admin-dropdown-btn" onclick="muteUser(${msg.user_id}, 10, '${escapeHTML(msg.username)}')">Umlčet - 10 Min</button>
                                 <button class="admin-dropdown-btn" onclick="muteUser(${msg.user_id}, 60, '${escapeHTML(msg.username)}')">Umlčet - 1 Hodina</button>
                                 <button class="admin-dropdown-btn danger" onclick="muteUser(${msg.user_id}, 1440, '${escapeHTML(msg.username)}')">Umlčet - 24 Hodin</button>
+                                <button class="admin-dropdown-btn" style="color:var(--accent);" onclick="muteUser(${msg.user_id}, 0, '${escapeHTML(msg.username)}')">Zrušit Mute</button>
                             </div>
                         `;
                     }
@@ -579,6 +589,13 @@
                 if (isScrolledToBottom) {
                     feed.scrollTop = feed.scrollHeight;
                 }
+
+                // Restore admin dropdown if it was open
+                if (openDropdownId) {
+                    const dropdown = document.getElementById('admin_dropdown_' + openDropdownId);
+                    if (dropdown) dropdown.style.display = 'flex';
+                }
+
             } catch (e) {
                 console.error(e);
             }
@@ -615,36 +632,43 @@
         }
 
         async function deleteMessage(id) {
-            if (!confirm("Opravdu smazat zprávu?")) return;
-            try {
-                const res = await fetch(`/api/messages/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ requesterId: localUser.id })
-                });
-                if(res.ok) {
-                    loadMessages();
-                } else {
-                    showModal('Chyba', 'Nelze smazat zprávu.', 'error');
-                }
-            } catch (e) { console.error(e); }
+            showConfirm("Smazat Zprávu", "Opravdu smazat zprávu?", async () => {
+                try {
+                    const res = await fetch(`/api/messages/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ requesterId: localUser.id })
+                    });
+                    if(res.ok) {
+                        loadMessages();
+                    } else {
+                        showModal('Chyba', 'Nelze smazat zprávu.', 'error');
+                    }
+                } catch (e) { console.error(e); }
+            });
         }
 
         async function muteUser(targetId, minutes, targetName) {
-            if (!confirm(`Opravdu umlčet uživatele ${targetName} na ${minutes} minut?`)) return;
-            try {
-                const res = await fetch('/api/admin/mute', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetUserId: targetId, minutes: minutes, requesterId: localUser.id })
-                });
-                if(res.ok) {
-                    showModal('Umlčeno', `Uživatel ${targetName} má nyní zablokovaný chat na ${minutes} minut.`);
-                } else {
-                    const data = await res.json();
-                    showModal('Chyba', data.error || 'Neznámá chyba', 'error');
-                }
-            } catch (e) { console.error(e); }
+            let msgText = minutes === 0 ? "Opravdu chceš zrušit umlčení pro" : "Opravdu přidat " + minutes + " minut umlčení pro";
+            showConfirm("Správa Trestů", `${msgText} <strong style="color:var(--accent)">${targetName}</strong>?`, async () => {
+                try {
+                    const res = await fetch('/api/admin/mute', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ targetUserId: targetId, minutes: minutes, requesterId: localUser.id })
+                    });
+                    if(res.ok) {
+                        if (minutes === 0) {
+                            showModal('Odemčeno', `Uživatel ${targetName} byl odblokován.`, 'success');
+                        } else {
+                            showModal('Umlčeno', `Uživatel ${targetName} dostal dalších ${minutes} minut blokace (nebo nový trest).`, 'success');
+                        }
+                    } else {
+                        const data = await res.json();
+                        showModal('Chyba', data.error || 'Neznámá chyba', 'error');
+                    }
+                } catch (e) { console.error(e); }
+            });
         }
 
         // Send on Enter key
