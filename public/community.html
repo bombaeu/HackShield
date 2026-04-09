@@ -146,6 +146,75 @@
             flex-direction: column;
             gap: 0.2rem;
             max-width: 80%;
+            position: relative;
+        }
+
+        .admin-dropdown {
+            position: absolute;
+            background: rgba(10, 15, 30, 0.95);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            padding: 0.5rem;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            gap: 0.3rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            right: -120px; /* Offset to side */
+            top: 20px;
+            min-width: 150px;
+        }
+
+        .admin-dropdown-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            text-align: left;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .admin-dropdown-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .admin-dropdown-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .admin-ellipsis {
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+            padding: 0 0.4rem;
+        }
+        
+        .message-row:hover .admin-ellipsis {
+            opacity: 1;
+        }
+
+        .room-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: none;
+            align-items: center; justify-content: center;
+        }
+        
+        .room-modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%; max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         .message-row {
@@ -303,6 +372,21 @@
         </main>
     </div>
 
+    <!-- Room Modal -->
+    <div id="roomModalOverlay" class="room-modal-overlay">
+        <div class="room-modal">
+            <h3 style="margin-bottom: 1rem;">Nová místnost</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                Vytvořte novou místnost pro komunitu.
+            </p>
+            <input type="text" id="newRoomInput" class="form-input" placeholder="Název (např. web-hacking)" style="width:100%;">
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('roomModalOverlay').style.display='none'">Zrušit</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="submitNewRoom()">Vytvořit</button>
+            </div>
+        </div>
+    </div>
+
     <script src="modal.js"></script>
     <script>
         let localUser = JSON.parse(localStorage.getItem('hackshield_user'));
@@ -377,8 +461,14 @@
             loadMessages();
         }
 
-        async function promptAddRoom() {
-            const roomName = prompt("Zadej název místnosti (např. web-hacking):");
+        function promptAddRoom() {
+            document.getElementById('newRoomInput').value = '';
+            document.getElementById('roomModalOverlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('newRoomInput').focus(), 100);
+        }
+
+        async function submitNewRoom() {
+            const roomName = document.getElementById('newRoomInput').value.trim();
             if (!roomName) return;
             try {
                 const res = await fetch('/api/rooms', {
@@ -387,14 +477,33 @@
                     body: JSON.stringify({ userId: localUser.id, roomName })
                 });
                 if (res.ok) {
+                    document.getElementById('roomModalOverlay').style.display = 'none';
                     loadRooms();
-                    switchRoom(roomName.trim().replace(/\s+/g, '-'));
+                    switchRoom(roomName.replace(/\s+/g, '-'));
                 } else {
                     const data = await res.json();
                     showModal('Chyba', data.error || 'Místnost už existuje', 'error');
                 }
             } catch (e) { console.error(e); }
         }
+
+        function toggleAdminDropdown(id) {
+            const allDropdowns = document.querySelectorAll('.admin-dropdown');
+            allDropdowns.forEach(d => {
+                if (d.id !== 'admin_dropdown_' + id) d.style.display = 'none';
+            });
+            const dropdown = document.getElementById('admin_dropdown_' + id);
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        // Close dropdowns if clicked outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.admin-ellipsis') && !e.target.closest('.admin-dropdown')) {
+                document.querySelectorAll('.admin-dropdown').forEach(d => d.style.display = 'none');
+            }
+        });
 
         async function loadMessages() {
             if (!isPremium) return;
@@ -431,10 +540,27 @@
 
                     const avatar = `<div style="width:36px; height:36px; border-radius:50%; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; font-weight:bold; color:black; font-size:0.9rem;">${msg.username.charAt(0).toUpperCase()}</div>`;
 
+                    const isAdminView = (localUser.role === 'Admin' || localUser.role === 'Root');
+                    
+                    let adminMenu = "";
+                    if (isAdminView) {
+                        adminMenu = `
+                            <div class="admin-ellipsis" onclick="toggleAdminDropdown(${msg.id})" style="position:absolute; right:-20px; top:50%; transform:translateY(-50%); font-size:1.2rem; font-weight:bold;">⋮</div>
+                            <div class="admin-dropdown" id="admin_dropdown_${msg.id}">
+                                <div style="font-size:0.6rem; color:var(--text-muted); padding:0.2rem 0.8rem; text-transform:uppercase;">✏️ Správa Zpráv</div>
+                                <button class="admin-dropdown-btn danger" onclick="deleteMessage(${msg.id})">Smazat zprávu</button>
+                                <div style="font-size:0.6rem; color:var(--text-muted); padding:0.2rem 0.8rem; text-transform:uppercase; margin-top:0.3rem; border-top:1px solid var(--border-soft); padding-top:0.4rem;">🚫 Tresty</div>
+                                <button class="admin-dropdown-btn" onclick="muteUser(${msg.user_id}, 10, '${escapeHTML(msg.username)}')">Umlčet - 10 Min</button>
+                                <button class="admin-dropdown-btn" onclick="muteUser(${msg.user_id}, 60, '${escapeHTML(msg.username)}')">Umlčet - 1 Hodina</button>
+                                <button class="admin-dropdown-btn danger" onclick="muteUser(${msg.user_id}, 1440, '${escapeHTML(msg.username)}')">Umlčet - 24 Hodin</button>
+                            </div>
+                        `;
+                    }
+
                     feed.innerHTML += `
                         <div class="message-row ${isMine ? 'my-message' : ''}">
                             ${!isMine ? avatar : ''}
-                            <div class="message-box">
+                            <div class="message-box" style="position:relative;">
                                 <div class="msg-author">
                                     ${!isMine ? `<strong>${msg.username}</strong> ${roleTag}` : ''}
                                     <span style="font-size:0.7rem; opacity:0.6;">${timeStr}</span>
@@ -442,6 +568,7 @@
                                 </div>
                                 <div class="msg-bubble">
                                     ${escapeHTML(msg.content)}
+                                    ${adminMenu}
                                 </div>
                             </div>
                             ${isMine ? avatar : ''}
@@ -485,6 +612,39 @@
             } catch (e) {
                 console.error(e);
             }
+        }
+
+        async function deleteMessage(id) {
+            if (!confirm("Opravdu smazat zprávu?")) return;
+            try {
+                const res = await fetch(`/api/messages/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requesterId: localUser.id })
+                });
+                if(res.ok) {
+                    loadMessages();
+                } else {
+                    showModal('Chyba', 'Nelze smazat zprávu.', 'error');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function muteUser(targetId, minutes, targetName) {
+            if (!confirm(`Opravdu umlčet uživatele ${targetName} na ${minutes} minut?`)) return;
+            try {
+                const res = await fetch('/api/admin/mute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUserId: targetId, minutes: minutes, requesterId: localUser.id })
+                });
+                if(res.ok) {
+                    showModal('Umlčeno', `Uživatel ${targetName} má nyní zablokovaný chat na ${minutes} minut.`);
+                } else {
+                    const data = await res.json();
+                    showModal('Chyba', data.error || 'Neznámá chyba', 'error');
+                }
+            } catch (e) { console.error(e); }
         }
 
         // Send on Enter key

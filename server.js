@@ -68,6 +68,7 @@ const initDB = async () => {
             ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0,
             ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0,
             ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMP DEFAULT NULL,
+            ADD COLUMN IF NOT EXISTS muted_until TIMESTAMP DEFAULT NULL,
             ADD COLUMN IF NOT EXISTS last_login DATE DEFAULT CURRENT_DATE;
         `);
 
@@ -608,7 +609,7 @@ app.get('/api/messages', async (req, res) => {
 
         const currentRoom = room || 'general-chat';
         const result = await pool.query(`
-            SELECT m.id, m.content, m.created_at, u.username, u.badges 
+            SELECT m.id, m.content, m.created_at, u.id as user_id, u.username, u.badges 
             FROM messages m
             JOIN users u ON m.user_id = u.id
             WHERE m.room = $1
@@ -628,7 +629,7 @@ app.post('/api/messages', async (req, res) => {
         if (!userId || !content || content.trim() === '') return res.status(400).json({ error: "Bad request" });
 
         // Check premium
-        const uRes = await pool.query("SELECT badges, subscription_expires_at FROM users WHERE id = $1", [userId]);
+        const uRes = await pool.query("SELECT badges, subscription_expires_at, muted_until FROM users WHERE id = $1", [userId]);
         const user = uRes.rows[0];
         if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -639,12 +640,56 @@ app.post('/api/messages', async (req, res) => {
             return res.status(403).json({ error: "Tato sekce je pouze pro předplatitele." });
         }
 
+        if (user.muted_until && new Date(user.muted_until) > new Date()) {
+            return res.status(403).json({ error: "Máš zablokovaný chat do: " + new Date(user.muted_until).toLocaleString('cs-CZ') });
+        }
+
         const currentRoom = room || 'general-chat';
         const newMsg = await pool.query(
             "INSERT INTO messages (user_id, content, room) VALUES ($1, $2, $3) RETURNING id, content, created_at",
             [userId, content.trim(), currentRoom]
         );
         res.json({ success: true, message: newMsg.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+app.delete('/api/messages/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { requesterId } = req.body;
+        
+        const rRes = await pool.query("SELECT badges FROM users WHERE id = $1", [requesterId]);
+        if (rRes.rows.length === 0 || (!rRes.rows[0].badges.includes('Admin') && !rRes.rows[0].badges.includes('Root'))) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
+        
+        await pool.query("DELETE FROM messages WHERE id = $1", [id]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+app.post('/api/admin/mute', async (req, res) => {
+    try {
+        const { targetUserId, minutes, requesterId } = req.body;
+        
+        const rRes = await pool.query("SELECT badges FROM users WHERE id = $1", [requesterId]);
+        if (rRes.rows.length === 0 || (!rRes.rows[0].badges.includes('Admin') && !rRes.rows[0].badges.includes('Root'))) {
+            return res.status(403).json({ error: "Forbidden" });
+        }
+
+        let mutedUntil = null;
+        if (minutes > 0) {
+            mutedUntil = new Date(Date.now() + minutes * 60000);
+        }
+
+        await pool.query("UPDATE users SET muted_until = $1 WHERE id = $2", [mutedUntil, targetUserId]);
+        res.json({ success: true, mutedUntil });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });

@@ -1576,7 +1576,8 @@ done
 
             // Debug Override
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('debug') === 'true') {
+            const user = JSON.parse(localStorage.getItem('hackshield_user'));
+            if (urlParams.get('debug') === 'true' && user && (user.role === 'Admin' || user.role === 'Root')) {
                 score = total; // Force pass
                 console.log("Debug Mode: Forcing Exam Pass");
             }
