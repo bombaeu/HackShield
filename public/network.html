@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HackShield | Network Terminal</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .app-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(8, 12, 28, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-soft);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .sidebar-brand .brand-name {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .nav-group { margin-bottom: 2rem; }
+        .nav-label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.8rem; letter-spacing: 0.08em; font-weight: 600; }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(0, 212, 255, 0.06); color: white; }
+        .sidebar-link.active { border-left: 3px solid var(--accent); color: var(--accent); }
+
+        .app-main { 
+            padding: 2rem; 
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ─── TERMINAL STYLES ─── */
+        .terminal-container {
+            flex: 1;
+            background: #050505;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.05), inset 0 0 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            font-family: 'JetBrains Mono', monospace;
+            color: #0c0;
+        }
+
+        /* CRT Effects */
+        .terminal-container::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .output-area {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 0.5rem;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .output-area::-webkit-scrollbar { width: 8px; }
+        .output-area::-webkit-scrollbar-track { background: #000; }
+        .output-area::-webkit-scrollbar-thumb { background: #050; border-radius: 4px; }
+
+        .line {
+            margin: 0.1rem 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            text-shadow: 0 0 5px rgba(0, 204, 0, 0.4);
+        }
+
+        .line.user-input { color: #0f0; }
+        .line.system { color: #0a0; }
+        .line.error { color: #f43f5e; text-shadow: 0 0 5px rgba(244, 63, 94, 0.4); }
+        .line.success { color: #ffdc00; }
+        .line.info { color: #0ea5e9; }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            z-index: 5;
+            margin-top: 0.5rem;
+        }
+
+        .prompt {
+            color: #0f0;
+            margin-right: 0.5rem;
+            font-weight: 700;
+        }
+
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            flex: 1;
+            outline: none;
+            text-shadow: 0 0 5px rgba(0, 204, 0, 0.4);
+        }
+
+        .blinking-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background-color: #0f0;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Mobile specific styles */
+        @media (max-width: 768px) {
+            .app-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+            .sidebar { display: flex !important; flex-direction: column; padding: 1rem; border-right: none; border-bottom: 1px solid var(--border-soft); height: auto; position: static; }
+            .sidebar nav { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
+            .nav-group { display: flex; gap: 0.5rem; margin-bottom: 0; }
+            .nav-label { display: none; }
+            .sidebar-link { white-space: nowrap; font-size: 0.85rem; padding: 0.6rem; background: var(--bg-card); border: 1px solid var(--border-soft); }
+            main { padding: 1rem !important; }
+            .terminal-container { height: 60vh; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-brand">
+                <div style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass);">
+                    <img src="assets/fotka.png" alt="HS" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <span class="brand-name">HackShield</span>
+            </a>
+
+            <div class="nav-group">
+                <div class="nav-label">Menu</div>
+                <a href="dashboard.html" class="sidebar-link"><span>Dashboard</span></a>
+                <a href="learn.html" class="sidebar-link"><span>Learn</span></a>
+                <a href="leaderboard.html" class="sidebar-link"><span>Žebříček</span></a>
+                <a href="network.html" class="sidebar-link active"><span>Network</span></a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-label">Community</div>
+                <a href="community.html" class="sidebar-link">
+                    <span style="display:flex; align-items:center; gap:0.5rem;">Forum <span style="font-size:0.6rem; background:var(--accent); color:black; padding:2px 4px; border-radius:4px; font-weight:bold;">PRO</span></span>
+                </a>
+            </div>
+
+            <div style="margin-top: auto;">
+                <a href="#" onclick="logout()" class="sidebar-link" style="color: var(--danger);">
+                    <span>Odhlásit se</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="app-main">
+            <header style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #0f0, #0a0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">HS Terminal [BETA]</h2>
+                    <p style="color: var(--text-muted);">Simulované prostředí interní sítě. Najdi skrytou vlajku a získej odměnu.</p>
+                </div>
+            </header>
+
+            <div class="terminal-container" onclick="document.getElementById('cmdInput').focus()">
+                <div class="scanlines"></div>
+                <div class="output-area" id="outputArea">
+                    <!-- Boot sequence content -->
+                </div>
+                <div class="input-row" id="inputRow" style="display: none;">
+                    <span class="prompt" id="promptText">guest@hackshield:~$</span>
+                    <input type="text" class="command-input" id="cmdInput" autocomplete="off" spellcheck="false" autofocus>
+                    <span class="blinking-cursor"></span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><span>Domů</span></a>
+        <a href="learn.html" class="nav-item"><span>Kurzy</span></a>
+        <a href="leaderboard.html" class="nav-item"><span>Žebříček</span></a>
+        <a href="network.html" class="nav-item  active"><span>Network</span></a>
+    </nav>
+
+    <script>
+        // SYSTEM STATE
+        let localUser = JSON.parse(localStorage.getItem('hackshield_user')) || { username: 'guest' };
+        let username = localUser.username.toLowerCase();
+        let currentDir = '~';
+        let waitingForPassword = false;
+        let sshTarget = null;
+        let commandHistory = [];
+        let historyIndex = -1;
+
+        const fs = {
+            "readme.txt": "Vítej v HS simulátoru.\nTato síť obsahuje skryté zařízení. Najdi jeho IP adresu, \nzkus zjistit otevřené porty pomocí 'nmap' a získej administrátorská práva pro získání vlajky (FLAG).\nPříkazy: help, ls, cat, nmap, ssh, clear, submit",
+            "targets.cfg": "# INTERNAL NETWORK TARGETS\n# DO NOT DISTRIBUTE\nADMIN_SERVER_IP=10.0.0.42\nSSH_BACKDOOR_CREDS=root:toor123\nSTATUS=ONLINE",
+        };
+
+        const out = document.getElementById('outputArea');
+        const inp = document.getElementById('cmdInput');
+        const promptText = document.getElementById('promptText');
+        const inputRow = document.getElementById('inputRow');
+
+        function updatePrompt() {
+            promptText.innerText = `${username}@hackshield:${currentDir}$`;
+        }
+
+        function printLine(text, styleClass = 'system') {
+            const div = document.createElement('div');
+            div.className = `line ${styleClass}`;
+            div.innerText = text;
+            out.appendChild(div);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function printHTML(html, styleClass = 'system') {
+            const div = document.createElement('div');
+            div.className = `line ${styleClass}`;
+            div.innerHTML = html;
+            out.appendChild(div);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        async function typeWriter(text, styleClass = 'system', delay = 20) {
+            const div = document.createElement('div');
+            div.className = `line ${styleClass}`;
+            out.appendChild(div);
+            
+            for (let i = 0; i < text.length; i++) {
+                div.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+                out.scrollTop = out.scrollHeight;
+                await new Promise(r => setTimeout(r, delay));
+            }
+        }
+
+        async function bootSequence() {
+            inputRow.style.display = 'none';
+            await typeWriter("HackShield OS v1.0.4_BETA", "info", 30);
+            await typeWriter("Inicializace ovladačů... OK", "system", 10);
+            await typeWriter("Připojování k lokální v-lan... [OK]", "system", 10);
+            await typeWriter(`Ověřování uživatele: ${username}... Autorizován.`, "success", 20);
+            await typeWriter("Napiš 'help' pro seznam příkazů.", "success", 10);
+            printLine("");
+            updatePrompt();
+            inputRow.style.display = 'flex';
+            inp.focus();
+        }
+
+        function handleCommand(cmdRaw) {
+            const cmdStr = cmdRaw.trim();
+            if (!cmdStr) return;
+
+            commandHistory.push(cmdStr);
+            historyIndex = commandHistory.length;
+
+            printLine(`${promptText.innerText} ${cmdStr}`, 'user-input');
+            const parts = cmdStr.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            if (waitingForPassword) {
+                // Handling SSH password
+                if (cmdStr === "toor123") {
+                    printLine("Ověření proběhlo úspěšně.", "success");
+                    printHTML("<br>=== ROOT SHELL UZAMČEN ===", "error");
+                    printLine("Přístup k příkazové řádce zamítnut interním firewallem.", "error");
+                    printLine("Vydána záchranná vlajka (Flag) pro tvou relaci:", "info");
+                    printLine("FLAG{v1rtu4l_n3tw0rk_m4st3r}", "success");
+                    printLine("Napiš 'submit FLAG{...}' do terminálu pro zisk XP a ocenění.", "info");
+                } else {
+                    printLine("Permission denied (publickey,password).", "error");
+                }
+                waitingForPassword = false;
+                sshTarget = null;
+                updatePrompt();
+                return;
+            }
+
+            switch(cmd) {
+                case 'help':
+                    printLine("Dostupné příkazy:");
+                    printLine("  help           Zobrazí tuto nápovědu");
+                    printLine("  ls             Vypíše obsah složky");
+                    printLine("  cat <file>     Vypíše obsah souboru");
+                    printLine("  nmap <ip>      Proskenuje otevřené porty");
+                    printLine("  ssh <user@ip>  Otevře zabezpečené připojení k serveru");
+                    printLine("  clear          Vyčistí obrazovku");
+                    printLine("  submit <flag>  Odešle vlajku k hodnocení");
+                    break;
+                case 'ls':
+                    Object.keys(fs).forEach(f => printLine(f));
+                    break;
+                case 'cat':
+                    if (args.length === 0) printLine("Chyba: Zadej název souboru. (Př: cat readme.txt)", "error");
+                    else if (fs[args[0]]) printLine(fs[args[0]]);
+                    else printLine(`cat: ${args[0]}: No such file or directory`, "error");
+                    break;
+                case 'clear':
+                    out.innerHTML = '';
+                    break;
+                case 'whoami':
+                    printLine(username);
+                    break;
+                case 'nmap':
+                    if (args.length === 0) {
+                        printLine("Nmap zkoumá síťové porty. Použití: nmap <ip>", "error");
+                    } else if (args[0] === '10.0.0.42') {
+                        inputRow.style.display = 'none';
+                        (async () => {
+                            await typeWriter("Starting Nmap 7.92 ( https://nmap.org ) at " + new Date().toTimeString(), "info", 10);
+                            await typeWriter("Nmap scan report for 10.0.0.42", "system", 20);
+                            await typeWriter("Host is up (0.0012s latency).", "system", 50);
+                            await typeWriter("Not shown: 998 closed ports", "system", 30);
+                            await typeWriter("PORT   STATE SERVICE\n22/tcp open  ssh\n80/tcp open  http", "success", 20);
+                            await typeWriter("Nmap done: 1 IP address (1 host up) scanned in 1.45 seconds", "info", 10);
+                            inputRow.style.display = 'flex';
+                            inp.focus();
+                        })();
+                    } else {
+                        inputRow.style.display = 'none';
+                        (async () => {
+                            await typeWriter("Starting Nmap scan...", "info", 10);
+                            setTimeout(() => {
+                                printLine(`Note: Host ${args[0]} seems down. If it is really up, but blocking our ping probes, try -Pn`, "error");
+                                inputRow.style.display = 'flex';
+                                inp.focus();
+                            }, 1000);
+                        })();
+                    }
+                    break;
+                case 'ssh':
+                    if (args.length === 0 || !args[0].includes('@')) {
+                        printLine("Použití: ssh user@ip (Př: ssh admin@192.168.1.1)", "error");
+                    } else {
+                        const tgt = args[0];
+                        if (tgt === 'root@10.0.0.42') {
+                            inputRow.style.display = 'none';
+                            setTimeout(() => {
+                                printLine("The authenticity of host '10.0.0.42' can't be established.", "info");
+                                printLine("RSA key fingerprint is SHA256:abcd1234efgh5678ijkl...", "system");
+                                waitingForPassword = true;
+                                sshTarget = tgt;
+                                promptText.innerText = "root@10.0.0.42's password: ";
+                                inputRow.style.display = 'flex';
+                                inp.focus();
+                            }, 800);
+                        } else {
+                            inputRow.style.display = 'none';
+                            setTimeout(() => {
+                                printLine(`ssh: connect to host ${tgt.split('@')[1]} port 22: Connection refused`, "error");
+                                inputRow.style.display = 'flex';
+                                inp.focus();
+                            }, 1000);
+                        }
+                    }
+                    break;
+                case 'submit':
+                    if (args.length === 0) {
+                        printLine("Použití: submit FLAG{...}", "error");
+                    } else if (args[0] === 'FLAG{v1rtu4l_n3tw0rk_m4st3r}') {
+                        printLine("Ověřování vlajky na hlavním serveru...", "info");
+                        fetch('/api/progress', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: localUser.id, xpGain: 500 }) 
+                        }).then(r => r.json()).then(data => {
+                            if (data.success) {
+                                printLine("[ÚSPĚCH] Vlajka akceptována! Odměna 500 XP připsána.", "success");
+                                showModal('ÚSPĚCH! 🎉', `Hacknul jsi první reálnou mašinu simulátoru a získal 500 XP.<br>Tvá celková hodnota je nyní ${data.newXp} XP.`, 'success');
+                                localUser.xp = data.newXp;
+                                localStorage.setItem('hackshield_user', JSON.stringify(localUser));
+                            }
+                        }).catch(e => printLine("CHYBA: Server je dočasně nedostupný.", "error"));
+                    } else {
+                        printLine("[ZAMÍTNUTO] Zadaná vlajka je neplatná.", "error");
+                    }
+                    break;
+                default:
+                    printLine(`bash: ${cmd}: command not found`, "error");
+            }
+        }
+
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value;
+                this.value = '';
+                handleCommand(val);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                }
+            }
+        });
+
+        // Start Boot Animation
+        window.onload = bootSequence;
+
+        function logout() {
+            localStorage.removeItem('hackshield_user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
