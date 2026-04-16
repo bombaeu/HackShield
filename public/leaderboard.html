@@ -209,6 +209,24 @@
                 <a href="network.html" class="sidebar-link"><span>Network</span></a>
             </div>
 
+            <div class="nav-group">
+                <div class="nav-label">Community</div>
+                <a href="community.html" class="sidebar-link">
+                    <span style="display:flex; align-items:center; gap:0.5rem;">Forum <span style="font-size:0.6rem; background:var(--accent); color:black; padding:2px 4px; border-radius:4px; font-weight:bold;">PRO</span></span>
+                </a>
+                <a href="#" onclick="event.preventDefault(); alert('Eventy a hackathony budeme oznamovat brzy!')" class="sidebar-link">
+                    <span>Events</span>
+                </a>
+                <!-- Admin Link (Hidden by default) -->
+                <a href="admin.html" class="sidebar-link" id="adminSidebarLink" style="display: none; color: #ff4d6a;">
+                    <span><span style="margin-right:8px;">⚡</span>Admin Panel</span>
+                </a>
+                <a href="learn.html?debug=true" class="sidebar-link" id="debugSidebarLink"
+                    style="display: none; color: #f59e0b;">
+                    <span><span style="margin-right:8px;">🛠️</span>Debug Exam</span>
+                </a>
+            </div>
+
             <div style="margin-top: auto;">
                 <a href="#" onclick="logout()" class="sidebar-link" style="color: var(--danger);">
                     <span>Odhlásit se</span>
@@ -300,6 +318,11 @@
                 if (res.status === 404) {
                     logout();
                     return;
+                }
+                const data = await res.json();
+                if (data.role === 'Admin' || data.role === 'Root') {
+                    document.getElementById('adminSidebarLink').style.display = 'flex';
+                    document.getElementById('debugSidebarLink').style.display = 'flex';
                 }
             } catch (e) {
                 console.warn("Auth check failed (offline?)");

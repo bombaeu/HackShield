@@ -219,6 +219,17 @@
                 <a href="community.html" class="sidebar-link">
                     <span style="display:flex; align-items:center; gap:0.5rem;">Forum <span style="font-size:0.6rem; background:var(--accent); color:black; padding:2px 4px; border-radius:4px; font-weight:bold;">PRO</span></span>
                 </a>
+                <a href="#" onclick="event.preventDefault(); showModal('Připravujeme', 'Eventy a hackathony budeme oznamovat brzy!', 'info')" class="sidebar-link">
+                    <span>Events</span>
+                </a>
+                <!-- Admin Link (Hidden by default) -->
+                <a href="admin.html" class="sidebar-link" id="adminSidebarLink" style="display: none; color: #ff4d6a;">
+                    <span><span style="margin-right:8px;">⚡</span>Admin Panel</span>
+                </a>
+                <a href="learn.html?debug=true" class="sidebar-link" id="debugSidebarLink"
+                    style="display: none; color: #f59e0b;">
+                    <span><span style="margin-right:8px;">🛠️</span>Debug Exam</span>
+                </a>
             </div>
 
             <div style="margin-top: auto;">
@@ -268,6 +279,22 @@
         let sshTarget = null;
         let commandHistory = [];
         let historyIndex = -1;
+
+        if (localUser.badges && (localUser.badges.includes('Admin') || localUser.badges.includes('Root'))) {
+            document.getElementById('adminSidebarLink').style.display = 'flex';
+            document.getElementById('debugSidebarLink').style.display = 'flex';
+        }
+        
+        const possibleFlags = [
+            'FLAG{v1rtu4l_n3tw0rk_m4st3r}', 'FLAG{sh3ll_dr0pp3d_succ3ss}', 'FLAG{r00t_byp4ss_0wn3d}',
+            'FLAG{n3tw0rk_gh0st_1ntrud3r}', 'FLAG{b4ckd00r_h4ck3r_3l1t3}', 'FLAG{pwn3d_sys_4dm1n_42}',
+            'FLAG{z3r0_d4y_n3tw0rk_spl01t}', 'FLAG{c0d3_r3d_0v3rr1d3_xy}', 'FLAG{s1l3nt_br34ch_n0t1f}',
+            'FLAG{t3rm1n4l_junc710n_pwn}', 'FLAG{g1thub_l34k_v3r1f13d}', 'FLAG{p0rt_22_0p3n_s3cur3}',
+            'FLAG{t4rg3t_4cqu1r3d_r00t}', 'FLAG{sys_h4ck3d_brut3f0rc3}', 'FLAG{nmap_sc4n_r3v34l3d}',
+            'FLAG{1nt3rn4l_vlan_p3n3tr4t3d}', 'FLAG{ssh_h0st_k3y_st0l3n}', 'FLAG{pr1v1l3g3_3sc4l4t10n_ok}',
+            'FLAG{sh4d0w_1d3nt1ty_c0rp}', 'FLAG{v1rtu4l_r34l1ty_h4ck}'
+        ];
+        const currentFlag = possibleFlags[Math.floor(Math.random() * possibleFlags.length)];
 
         const fs = {
             "readme.txt": "Vítej v HS simulátoru.\nTato síť obsahuje skryté zařízení. Najdi jeho IP adresu, \nzkus zjistit otevřené porty pomocí 'nmap' a získej administrátorská práva pro získání vlajky (FLAG).\nPříkazy: help, ls, cat, nmap, ssh, clear, submit",
@@ -343,8 +370,8 @@
                     printHTML("<br>=== ROOT SHELL UZAMČEN ===", "error");
                     printLine("Přístup k příkazové řádce zamítnut interním firewallem.", "error");
                     printLine("Vydána záchranná vlajka (Flag) pro tvou relaci:", "info");
-                    printLine("FLAG{v1rtu4l_n3tw0rk_m4st3r}", "success");
-                    printLine("Napiš 'submit FLAG{...}' do terminálu pro zisk XP a ocenění.", "info");
+                    printLine(currentFlag, "success");
+                    printLine(`Napiš 'submit ${currentFlag}' do terminálu pro zisk XP a ocenění.`, "info");
                 } else {
                     printLine("Permission denied (publickey,password).", "error");
                 }
@@ -435,22 +462,37 @@
                 case 'submit':
                     if (args.length === 0) {
                         printLine("Použití: submit FLAG{...}", "error");
-                    } else if (args[0] === 'FLAG{v1rtu4l_n3tw0rk_m4st3r}') {
+                    } else if (args[0] === currentFlag) {
                         printLine("Ověřování vlajky na hlavním serveru...", "info");
-                        fetch('/api/progress', {
+                        
+                        if (localUser.completed_courses && localUser.completed_courses.includes("terminal_network")) {
+                            printLine("[INFO] Tuto výzvu jsi již dříve splnil. Další XP už nejdou získat.", "info");
+                            return;
+                        }
+
+                        fetch('/api/progress/course', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: localUser.id, xpGain: 500 }) 
+                            body: JSON.stringify({ userId: localUser.id, courseId: "terminal_network" }) 
+                        }).then(r => r.json()).then(res1 => {
+                            if (!res1.success) throw new Error("Chyba při zápisu postupu");
+                            return fetch('/api/progress', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: localUser.id, xpGain: 500 }) 
+                            });
                         }).then(r => r.json()).then(data => {
                             if (data.success) {
                                 printLine("[ÚSPĚCH] Vlajka akceptována! Odměna 500 XP připsána.", "success");
-                                showModal('ÚSPĚCH! 🎉', `Hacknul jsi první reálnou mašinu simulátoru a získal 500 XP.<br>Tvá celková hodnota je nyní ${data.newXp} XP.`, 'success');
+                                showModal('ÚSPĚCH! 🎉', `Hacknul jsi první reálnou mašinu simulátoru a získal 500 XP.<br>Tvá celková hodnota je nyní ${data.newXp} XP a postup se ti započítal do Žebříčku!`, 'success');
                                 localUser.xp = data.newXp;
+                                if(!localUser.completed_courses) localUser.completed_courses = [];
+                                localUser.completed_courses.push("terminal_network");
                                 localStorage.setItem('hackshield_user', JSON.stringify(localUser));
                             }
                         }).catch(e => printLine("CHYBA: Server je dočasně nedostupný.", "error"));
                     } else {
-                        printLine("[ZAMÍTNUTO] Zadaná vlajka je neplatná.", "error");
+                        printLine("[ZAMÍTNUTO] Zadaná vlajka je neplatná pro tuto relaci.", "error");
                     }
                     break;
                 default:

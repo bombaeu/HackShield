@@ -600,7 +600,7 @@
 
                 if (nextCourseIndex !== -1) {
                     const nextCourse = coursesMeta[nextCourseIndex];
-                    const completedCount = savedProgress.length;
+                    const completedCount = coursesMeta.filter(c => savedProgress.includes(String(c.id))).length;
                     const totalCount = coursesMeta.length;
                     const totalPercent = Math.round((completedCount / totalCount) * 100);
 

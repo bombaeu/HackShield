@@ -349,7 +349,10 @@
                 <div class="chat-container">
                     <div class="chat-header">
                         <span id="currentRoomName" style="font-weight:bold;"># general-chat</span>
-                        <span id="onlineCount" style="color:var(--accent); font-size:0.85rem;">Online</span>
+                        <div style="display:flex; align-items:center; gap: 1rem;">
+                            <button class="btn btn-ghost" onclick="showRules()" style="font-size:0.75rem; padding: 0.3rem 0.6rem; border: 1px solid rgba(0, 212, 255, 0.4); color: var(--accent);">📜 Pravidla</button>
+                            <span id="onlineCount" style="color:var(--accent); font-size:0.85rem;">Online</span>
+                        </div>
                     </div>
                     
                     <div class="chat-messages" id="chatFeed">
@@ -459,6 +462,19 @@
             document.getElementById('currentRoomName').innerText = '# ' + roomName;
             loadRooms();
             loadMessages();
+        }
+
+        function showRules() {
+            const rules = `
+                <ul style="text-align:left; font-size:0.9rem; color:var(--text-secondary); line-height:1.6; padding-left:1.5rem; margin-top:1rem;">
+                    <li style="margin-bottom:0.6rem;"><strong style="color:white;">1. Zákaz toxicity a urážek</strong> - Respektujeme se navzájem. Zákaz jakýchkoliv projevů nenávisti.</li>
+                    <li style="margin-bottom:0.6rem;"><strong style="color:white;">2. Žádný spam / reklama</strong> - Neposílejte nesmyslně dlouhé texty ani nevyžádanou reklamu.</li>
+                    <li style="margin-bottom:0.6rem;"><strong style="color:white;">3. Nespamujte řešení (Vlajky)</strong> - Nekazte hru ostatním tím, že do chatu napíšete přímý tvar vlajky. Místo toho pošlete "Hint" nebo nasměrujte uživatele správným směrem.</li>
+                    <li style="margin-bottom:0.6rem;"><strong style="color:white;">4. Žádné nelegální aktivity</strong> - Platforma slouží pouze k výuce Etického Hackingu! Jakékoliv navádění k reálné kyberkriminalitě se nekompromisně trestá smazáním účtu.</li>
+                    <li style="margin-bottom:0.5rem;"><strong style="color:var(--danger);">Porušení pravidel:</strong> Admin a Root mají pravomoc okamžitě smazat zprávu a udělit Vám Mute a Ban.</li>
+                </ul>
+            `;
+            showModal("📜 Pravidla Komunity", rules, "info");
         }
 
         function promptAddRoom() {

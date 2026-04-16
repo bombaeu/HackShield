@@ -569,13 +569,18 @@ app.get('/api/leaderboard', async (req, res) => {
             if (user.badges && user.badges.includes('Root')) role = "Root";
             else if (user.badges && user.badges.includes('Admin')) role = "Admin";
 
+            let validCourseCount = 0;
+            if (user.completed_courses) {
+                validCourseCount = user.completed_courses.filter(c => !isNaN(parseInt(c))).length;
+            }
+
             return {
                 username: user.username,
                 level: user.level,
                 xp: user.xp || 0,
                 streak: user.streak || 0,
                 role: role,
-                completedCoursesCount: user.completed_courses ? user.completed_courses.length : 0,
+                completedCoursesCount: validCourseCount,
                 badgesCount: user.badges ? user.badges.length : 0
             };
         });
