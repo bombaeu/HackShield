@@ -546,8 +546,16 @@
                 // 2. LEVEL & XP
                 document.getElementById('userLevel').innerText = data.level;
                 const currentXP = data.xp || 0;
-                const progressPercent = currentXP % 100;
-                document.getElementById('userXPText').innerText = `${progressPercent} / 100 XP`;
+                
+                // Progressive XP Logic: Level L starts at (L-1)^2 * 50 XP
+                const startXpThisLevel = Math.pow(data.level - 1, 2) * 50;
+                const targetXpNextLevel = Math.pow(data.level, 2) * 50;
+                const xpInCurrentLevel = currentXP - startXpThisLevel;
+                const totalXpRequiredForNextLevel = targetXpNextLevel - startXpThisLevel;
+                
+                const progressPercent = Math.min(100, Math.floor((xpInCurrentLevel / totalXpRequiredForNextLevel) * 100));
+                
+                document.getElementById('userXPText').innerText = `${currentXP} / ${targetXpNextLevel} XP Total`;
                 document.getElementById('userXPBar').style.width = `${progressPercent}%`;
 
                 const titles = ["Script Kiddie", "Junior Pentester", "Red Teamer", "Cyber Ninja", "Elite Hacker"];

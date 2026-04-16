@@ -337,6 +337,13 @@ app.get('/api/user/:id', async (req, res) => {
         }
         if (role === 'Admin' || role === 'Root') isPremium = true;
 
+        // Level Recalculation (Progressive RPG Formula Patch)
+        const expectedLevel = Math.floor(Math.sqrt((user.xp || 0) / 50)) + 1;
+        if (user.level !== expectedLevel) {
+            user.level = expectedLevel;
+            await pool.query("UPDATE users SET level = $1 WHERE id = $2", [expectedLevel, id]);
+        }
+
         res.json({
             id: user.id,
             username: user.username,
@@ -431,9 +438,9 @@ app.post('/api/progress', async (req, res) => {
 
         let { xp, level } = userRes.rows[0];
 
-        // 2. Calculate New Stats
+        // 2. Calculate New Stats (RPG Cumulative Curve)
         const newXp = (xp || 0) + xpGain;
-        const newLevel = Math.floor(newXp / 100) + 1; // Simple Leveling Formula: 100 XP per level
+        const newLevel = Math.floor(Math.sqrt(newXp / 50)) + 1; // Progressive scaling (50, 200, 450, 800 XP...)
 
         let leveledUp = newLevel > level;
 

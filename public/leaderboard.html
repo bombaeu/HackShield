@@ -145,6 +145,17 @@
         .role-admin { color: #ff4d6a; background: rgba(255, 77, 106, 0.1); }
         .role-student { color: var(--accent); background: rgba(0, 212, 255, 0.08); }
 
+        .division-badge {
+            font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 1px; color: #000; display: inline-block;
+        }
+        .div-bronze { background: linear-gradient(135deg, #cd7f32, #8b5a2b); box-shadow: 0 0 8px rgba(205, 127, 50, 0.5); color: white;}
+        .div-silver { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); box-shadow: 0 0 8px rgba(224, 224, 224, 0.5); }
+        .div-gold { background: linear-gradient(135deg, #ffdf00, #d4af37); box-shadow: 0 0 12px rgba(255, 223, 0, 0.6); }
+        .div-platinum { background: linear-gradient(135deg, #e5e4e2, #b0e0e6); box-shadow: 0 0 12px rgba(229, 228, 226, 0.6); }
+        .div-diamond { background: linear-gradient(135deg, #b9f2ff, #00bfff); box-shadow: 0 0 15px rgba(0, 191, 255, 0.8); }
+        .div-master { background: linear-gradient(135deg, #ff007f, #8a2be2); box-shadow: 0 0 20px rgba(255, 0, 127, 0.8); color: white;}
+
         .user-table tr { transition: background var(--transition-fast); }
         .user-table tr:hover { background: rgba(0, 212, 255, 0.03); }
 
@@ -224,13 +235,14 @@
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Hacker</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Kurzy</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Role</th>
+                                <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Divize</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Level</th>
                                 <th style="padding: 1rem; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Streak 🔥</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboardBody">
                             <tr>
-                                <td colspan="6" style="padding:1rem; text-align:center;">Načítám data...</td>
+                                <td colspan="7" style="padding:1rem; text-align:center;">Načítám data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -299,6 +311,15 @@
 
         checkAuth();
 
+        function getDivision(level) {
+            if (level < 5) return { name: "Bronze", cls: "div-bronze" };
+            if (level < 10) return { name: "Silver", cls: "div-silver" };
+            if (level < 15) return { name: "Gold", cls: "div-gold" };
+            if (level < 20) return { name: "Platinum", cls: "div-platinum" };
+            if (level < 30) return { name: "Diamond", cls: "div-diamond" };
+            return { name: "Master", cls: "div-master" };
+        }
+
         async function loadLeaderboard() {
             try {
                 const res = await fetch('/api/leaderboard');
@@ -315,12 +336,14 @@
                     podium.innerHTML = order.map(i => {
                         const u = data[i];
                         const placeClass = `podium-${i + 1}`;
+                        const div = getDivision(u.level);
                         return `
                             <div class="podium-place ${placeClass}">
                                 <div class="podium-medal">${medals[i]}</div>
                                 <div class="podium-avatar">${u.username.charAt(0).toUpperCase()}</div>
                                 <div class="podium-name">${u.username}</div>
-                                <div class="podium-xp">${u.completedCoursesCount} Kurzů • ${u.xp} XP</div>
+                                <div style="margin-top:0.3rem;"><span class="division-badge ${div.cls}" style="font-size:0.55rem; padding: 2px 5px;">${div.name}</span></div>
+                                <div class="podium-xp" style="margin-top:0.2rem;">${u.completedCoursesCount} Kurzů • ${u.xp} XP</div>
                                 <div class="podium-bar"></div>
                             </div>
                         `;
@@ -343,7 +366,8 @@
                     if (u.role === 'Root') roleClass = "role-root";
                     if (u.role === 'Admin') roleClass = "role-admin";
 
-                    const isMe = (u.username === localUser.username) ? "background: rgba(0, 212, 255, 0.04);" : "";
+                    const isMe = (u.username === localUser.username) ? "background: rgba(0, 212, 255, 0.08); box-shadow: inset 2px 0 0 var(--accent);" : "";
+                    const div = getDivision(u.level);
 
                     tbody.innerHTML += `
                         <tr style="border-bottom: 1px solid var(--border-soft); ${isMe}">
@@ -358,6 +382,9 @@
                             <td style="padding: 1rem;">
                                 <span class="role-badge ${roleClass}">${u.role}</span>
                             </td>
+                            <td style="padding: 1rem;">
+                                <span class="division-badge ${div.cls}">${div.name}</span>
+                            </td>
                             <td style="padding: 1rem; font-weight: bold; color: var(--accent);">
                                 ${u.level}
                                 <span style="font-size:0.8em; color:var(--text-muted); margin-left:5px;">(${u.xp} XP)</span>
@@ -369,8 +396,9 @@
 
             } catch (e) {
                 console.error(e);
-                document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="5" style="text-align:center;">Chyba načítání dat.</td></tr>';
+                document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Chyba načítání dat.</td></tr>';
             }
+
         }
 
         function logout() {
