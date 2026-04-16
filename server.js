@@ -294,34 +294,30 @@ app.post('/api/reset-password', async (req, res) => {
 app.get('/api/user/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query("SELECT id, username, email, level, xp, badges, streak, last_login, subscription_expires_at, completed_courses FROM users WHERE id = $1", [id]);
+        const result = await pool.query(`
+            SELECT id, username, email, level, xp, badges, streak, subscription_expires_at, completed_courses,
+                   TO_CHAR(last_login, 'YYYY-MM-DD') as last_login_str,
+                   TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') as today_str,
+                   TO_CHAR(CURRENT_DATE - INTERVAL '1 day', 'YYYY-MM-DD') as yesterday_str
+            FROM users WHERE id = $1
+        `, [id]);
 
         if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
 
         const user = result.rows[0];
 
-        // Streak Logic
-        const now = new Date();
-        const lastLogin = new Date(user.last_login); // Postgres returns date object
-
-        // Normalize to YYYY-MM-DD to avoid timezone bugs
-        const todayStr = now.toISOString().split('T')[0];
-        const lastLoginStr = user.last_login ? lastLogin.toISOString().split('T')[0] : "1970-01-01";
-
+        // Streak Logic - 100% RELIABLE USING DB TIMESTAMPS
         let newStreak = user.streak || 0;
+        const lastLoginStr = user.last_login_str;
+        const todayStr = user.today_str;
+        const yesterdayStr = user.yesterday_str;
 
         if (todayStr !== lastLoginStr) {
-            // Check if yesterday was last login
-            const yesterday = new Date(now);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-
             if (lastLoginStr === yesterdayStr) {
                 newStreak++;
             } else {
                 newStreak = 1; // Reset or Start
             }
-
             // Update DB
             await pool.query("UPDATE users SET streak = $1, last_login = CURRENT_DATE WHERE id = $2", [newStreak, id]);
         }

@@ -258,8 +258,26 @@
                 <a href="network.html" class="sidebar-link"><span>Network</span></a>
             </div>
 
+            <div class="nav-group">
+                <div class="nav-label">Community</div>
+                <a href="community.html" class="sidebar-link">
+                    <span style="display:flex; align-items:center; gap:0.5rem;">Forum <span style="font-size:0.6rem; background:var(--accent); color:black; padding:2px 4px; border-radius:4px; font-weight:bold;">PRO</span></span>
+                </a>
+                <a href="events.html" class="sidebar-link">
+                    <span>Events</span>
+                </a>
+                <!-- Admin Link (Hidden by default) -->
+                <a href="admin.html" class="sidebar-link" id="adminSidebarLink" style="display: none; color: #ff4d6a;">
+                    <span><span style="margin-right:8px;">⚡</span>Admin Panel</span>
+                </a>
+                <a href="learn.html?debug=true" class="sidebar-link" id="debugSidebarLink"
+                    style="display: none; color: #f59e0b;">
+                    <span><span style="margin-right:8px;">🛠️</span>Debug Exam</span>
+                </a>
+            </div>
+
             <div style="margin-top: auto;">
-                <a href="#" onclick="logout(event)" class="sidebar-link" style="color: var(--danger);">
+                <a href="#" onclick="logout(event)" id="authActionBtn" class="sidebar-link" style="color: var(--danger);">
                     <span>Odhlásit se</span>
                 </a>
             </div>
@@ -1319,6 +1337,7 @@ done
 
                     let onClickAction = `openCourse('${c.id}')`;
                     if (isLocked) onClickAction = `showPremiumWall('${c.title}')`;
+                    if (!user || !user.id) onClickAction = `showLoginWall()`;
 
                     let statusHtml = '<div class="status-box"></div>';
                     if (isLocked) statusHtml = '<div class="status-box" style="border:none; font-size:1.2rem;">🔒</div>';
@@ -1650,14 +1669,15 @@ done
             }
         }
 
+        function showLoginWall() {
+            showConfirm("Přihlášení", "Pro přístup do kurzu se musíš přihlásit nebo si vytvořit profil. Výsledky se totiž napojí na tvůj HackShield účet.", () => {
+                window.location.href = 'login.html';
+            });
+        }
+
         // Auth & Init
         async function init() {
             let user = JSON.parse(localStorage.getItem('hackshield_user'));
-
-            if (!user || !user.id) {
-                window.location.href = 'index.html';
-                return;
-            }
 
             if (user && user.id) {
                 try {
@@ -1676,6 +1696,20 @@ done
                         user = freshUser;
                     }
                 } catch (e) { console.error("Sync failed", e); }
+            }
+
+            if (!user || !user.id) {
+                const btn = document.getElementById('authActionBtn');
+                if (btn) {
+                    btn.innerHTML = '<span>Přihlásit se</span>';
+                    btn.style.color = 'var(--accent)';
+                    btn.onclick = (e) => { e.preventDefault(); window.location.href = 'login.html'; };
+                }
+            }
+
+            if (user && (user.role === 'Admin' || user.role === 'Root')) {
+                if(document.getElementById('adminSidebarLink')) document.getElementById('adminSidebarLink').style.display='flex';
+                if(document.getElementById('debugSidebarLink')) document.getElementById('debugSidebarLink').style.display='flex';
             }
 
             // Render with fresh data
@@ -1702,6 +1736,11 @@ done
 
             if (allDone) btnText = "📝 SPUSTIT ZÁVĚREČNÝ TEST";
             if (isDebug) btnText = "🛠️ DEBUG ZKOUŠKA (ADMIN)";
+
+            if (!user || !user.id) {
+                btnAction = 'showLoginWall()';
+                btnStyle = "background: #1a1f36; color:#a0b8d8; border: 1px solid var(--border-soft); cursor:pointer;";
+            }
 
             if (isCertified) {
                 btnStyle = "background: gold; color: black; border: 2px solid white; box-shadow: 0 0 15px gold; cursor:pointer;";
