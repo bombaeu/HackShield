@@ -228,6 +228,43 @@
             pointer-events: none;
         }
 
+        /* Center + fluid down-scale for small screens.
+           Scale is applied to the WRAPPER, not #certFrame, so PDF export
+           (html2pdf reads #certFrame directly) renders at full 1000x700. */
+        .cert-viewport {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .cert-scaler {
+            --cert-scale: 1;
+            transform: scale(var(--cert-scale));
+            transform-origin: top center;
+            /* Collapse the layout box down to the visual (scaled) height so
+               there is no large empty gap below the shrunk certificate. */
+            margin-bottom: calc(700px * (var(--cert-scale) - 1));
+        }
+
+        @media screen and (max-width: 1064px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .no-print {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .no-print .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
         /* Updated Print Styles to keep Dark Mode */
         @media print {
             body {
@@ -288,6 +325,8 @@
         <button class="btn" onclick="downloadPdf()">📥 Stáhnout jako PDF</button>
     </div>
 
+    <div class="cert-viewport">
+      <div class="cert-scaler">
     <div class="certificate-frame" id="certFrame">
         <!-- Corners -->
         <div class="corner tl"></div>
@@ -327,6 +366,8 @@
 
             <div class="id-stamp">ID: <span id="certId">LOADING...</span></div>
         </div>
+    </div>
+      </div>
     </div>
 
     <script src="modal.js"></script>
@@ -403,6 +444,19 @@
             }
 
             init();
+
+            // Fluid down-scale of the certificate so it fits any screen width
+            // (full size up to its 1000px width, shrinks below). Applied to the
+            // wrapper only, so PDF export of #certFrame stays at native size.
+            function fitCertificate() {
+                const scaler = document.querySelector('.cert-scaler');
+                if (!scaler) return;
+                const available = document.documentElement.clientWidth - 32; // body side padding
+                const scale = Math.min(1, available / 1000);
+                scaler.style.setProperty('--cert-scale', scale);
+            }
+            fitCertificate();
+            window.addEventListener('resize', fitCertificate);
     </script>
 </body>
 
