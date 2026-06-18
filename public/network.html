@@ -248,7 +248,7 @@
                 </div>
             </header>
 
-            <div class="terminal-container" onclick="document.getElementById('cmdInput').focus()">
+            <div class="terminal-container" onclick="if (!window.getSelection().toString()) document.getElementById('cmdInput').focus()">
                 <div class="scanlines"></div>
                 <div class="output-area" id="outputArea">
                     <!-- Boot sequence content -->
@@ -501,7 +501,33 @@
         }
 
         inp.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const val = this.value;
+                const parts = val.split(' ');
+                
+                const commands = ['help', 'ls', 'cat', 'nmap', 'ssh', 'clear', 'submit', 'whoami'];
+                const files = Object.keys(fs);
+                
+                if (parts.length === 1) {
+                    const matches = commands.filter(c => c.startsWith(val.toLowerCase()));
+                    if (matches.length === 1) {
+                        this.value = matches[0] + ' ';
+                    }
+                } else if (parts.length === 2) {
+                    const cmd = parts[0].toLowerCase();
+                    const prefix = parts[1];
+                    let options = [];
+                    if (cmd === 'cat') options = files;
+                    else if (cmd === 'ssh') options = ['root@10.0.0.42'];
+                    else if (cmd === 'nmap') options = ['10.0.0.42'];
+                    
+                    const matches = options.filter(o => o.startsWith(prefix));
+                    if (matches.length === 1) {
+                        this.value = cmd + ' ' + matches[0];
+                    }
+                }
+            } else if (e.key === 'Enter') {
                 const val = this.value;
                 this.value = '';
                 handleCommand(val);
