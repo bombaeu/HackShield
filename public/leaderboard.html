@@ -169,6 +169,10 @@
                 padding: 1rem;
                 border-right: none;
                 border-bottom: 1px solid var(--border-soft);
+                /* Reset desktop sidebar sizing so it becomes a short top bar
+                   instead of a full-height column that hides the content. */
+                height: auto;
+                position: static;
             }
 
             .sidebar-brand { margin-bottom: 1rem; justify-content: center; }
