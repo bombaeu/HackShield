@@ -354,10 +354,7 @@
                     const user = await res.json();
 
                     if (!user.badges.includes('Certified')) {
-                        showModal("Přístup zamítnut", "Tento certifikát je pouze pro verifikované absolventy.", "error", () => {
-                            history.back();
-                        });
-                        return;
+                        showModal("Náhled certifikátu", "Zatím nemáš certifikaci. Toto je pouze náhled, jak bude tvůj certifikát vypadat po splnění zkoušky.", "info");
                     }
 
                     // 3. Render
